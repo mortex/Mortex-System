@@ -1,5 +1,10 @@
 from django.db import models
 
+class Customer(models.Model):
+	CustomerName = models.CharField('Customer Name', max_length=40)
+	def __unicode__(self):
+        	return self.CustomerName
+
 class ShirtStyle(models.Model):
 	ShirtStyleNumber = models.CharField('Style Number', max_length=20)
 	ShirtStyleDescription = models.CharField('Description', max_length=200)
@@ -15,7 +20,7 @@ class StyleColorCategory(models.Model):
 
 class StyleColor(models.Model):
 	StyleColorCategory = models.ForeignKey(StyleColorCategory)
-	StyleColorName = modelsCharField('Color Name', max_length=20)
+	StyleColorName = models.CharField('Color Name', max_length=20)
 	def __unicode__(self):
 		return self.StyleColorName
 
@@ -33,23 +38,18 @@ class ShirtStylePrice(models.Model):
 class ShirtStyleSKU(models.Model):
 	ShirtStylePrice = models.ForeignKey(ShirtStylePrice)
 	StyleColor = models.ForeignKey(StyleColor)
-	
-class Customer(models.Model):
-	CustomerName = models.CharField('Customer Name', max_length=40)
-	def __unicode__(self):
-        	return self.CustomerName
 
 class CustomerAddress(models.Model):
 	Customer = models.ForeignKey(Customer)
 	Address1 = models.CharField('Address 1', max_length=40)
-	Address2 = models.Charfield('Address 2', max_length=40)
+	Address2 = models.CharField('Address 2', max_length=40)
 	City = models.CharField(max_length=20)
 	State = models.CharField(max_length=2)
 	PostalCode = models.CharField(max_length=10)
-	ContactName = models.Charfield(max_length=40)
+	ContactName = models.CharField(max_length=40)
 
 class ShirtOrder(models.Model):
-	CustomerAddress = models.Foreign(CustomerAddress)
+	CustomerAddress = models.ForeignKey(CustomerAddress)
 	PONumber = models.CharField('PO#', max_length=20)
 	Complete = models.BooleanField()
 	def __unicode__(self):
