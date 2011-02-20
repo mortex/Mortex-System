@@ -42,7 +42,7 @@ class ShirtStyleSKU(models.Model):
 class CustomerAddress(models.Model):
 	Customer = models.ForeignKey(Customer)
 	Address1 = models.CharField('Address 1', max_length=40)
-	Address2 = models.CharField('Address 2', max_length=40)
+	Address2 = models.CharField('Address 2', max_length=40, blank=True)
 	City = models.CharField(max_length=20)
 	State = models.CharField(max_length=2)
 	PostalCode = models.CharField(max_length=10)

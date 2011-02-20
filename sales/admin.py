@@ -1,23 +1,34 @@
-from sales.models import ShirtStyles
-from sales.models import ShirtStyleSKUs
-from sales.models import ShirtStyleColors
-from sales.models import ShirtColors
 from django.contrib import admin
 
-class ShirtStyleSKUsInline(admin.TabularInline):
-	model = ShirtStyleSKUs
-	extra = 1
-	
-class ShirtStyleColorsAdmin(admin.ModelAdmin):
-	inlines = [ShirtStyleSKUsInline]
+#Style Creation
+from sales.models import ShirtStyle
+from sales.models import ShirtStylePrice
+from sales.models import StyleColorCategory
 
-class ShirtStyleColorsInline(admin.TabularInline):
-	model = ShirtStyleColors
+class ShirtStylePriceInline(admin.TabularInline):
+	model = ShirtStylePrice
 	extra = 1
 
-class ShirtStylesAdmin(admin.ModelAdmin):
-	inlines = [ShirtStyleColorsInline]
+class ShirtStyleAdmin(admin.ModelAdmin):
+	inlines = [ShirtStylePriceInline]
 
-admin.site.register(ShirtStyles, ShirtStylesAdmin)
-admin.site.register(ShirtColors)
-admin.site.register(ShirtStyleColors, ShirtStyleColorsAdmin)
+admin.site.register(ShirtStyle, ShirtStyleAdmin)
+admin.site.register(StyleColorCategory)
+
+#Customer Creation
+from sales.models import Customer
+from sales.models import CustomerAddress
+
+class CustomerAddress(admin.StackedInline):
+	model = CustomerAddress
+	extra = 1
+
+class CustomerAdmin(admin.ModelAdmin):
+	inlines = [CustomerAddress]
+
+admin.site.register(Customer, CustomerAdmin)
+
+#Color Management
+from sales.models import StyleColor
+
+admin.site.register(StyleColor)
