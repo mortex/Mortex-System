@@ -7,3 +7,6 @@
 
 # SQLite database file
 sqlite3.db
+
+# Remove settings.py so database path will remain
+settings.py
