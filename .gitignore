@@ -1,2 +1,6 @@
+# Backups and Vim swap files
 *.bak
 *.swp
+
+# Byte-compiled Python
+*.pyc
