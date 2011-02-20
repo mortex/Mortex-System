@@ -4,3 +4,6 @@
 
 # Byte-compiled Python
 *.pyc
+
+# SQLite database file
+sqlite3.db
