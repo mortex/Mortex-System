@@ -28,8 +28,8 @@ class ShirtStylePrice(models.Model):
 	ShirtStyle = models.ForeignKey(ShirtStyle)
 	StyleColorCategory = models.ForeignKey(StyleColorCategory)
 	ShirtStyleSize = models.CharField('Size', max_length=10)
-	FabricRollYield = models.IntegerField('Fabric Roll Yield')
-	KnitSize = models.FloatField('Knit Size')
+	FabricRollYield = models.IntegerField('Fabric Roll Yield', null=True, blank=True)
+	KnitSize = models.FloatField('Knit Size', null=True, blank=True)
 	SizePrice = models.FloatField('Size Price')
 	Active = models.BooleanField()
 	def __unicode__(self):

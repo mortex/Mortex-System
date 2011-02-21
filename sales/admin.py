@@ -11,6 +11,7 @@ class ShirtStylePriceInline(admin.TabularInline):
 
 class ShirtStyleAdmin(admin.ModelAdmin):
 	inlines = [ShirtStylePriceInline]
+	search_fields = ['ShirtStyleNumber', 'ShirtStyleDescription']
 
 admin.site.register(ShirtStyle, ShirtStyleAdmin)
 admin.site.register(StyleColorCategory)

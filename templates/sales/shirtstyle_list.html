@@ -1,0 +1,6 @@
+<h1>Shirt Styles</h1>
+<ul>
+{% for ss in object_list %}
+	<li><a href="/app/styles/{{ ss.id }}">{{ ss }}</a></li>
+{% endfor %}
+</ul>
