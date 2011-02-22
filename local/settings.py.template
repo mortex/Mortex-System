@@ -1,0 +1,24 @@
+# Use this file as a template to create your own local/settings.py, which
+# should contain settings specific to the user, machine, or deployment and will
+# not be tracked by version control. Settings for the production site will go
+# into the settings.py in the project root, but will be overridden by anything
+# you specify in local/settings.py.
+
+DEBUG = True
+TEMPLATE_DEBUG = DEBUG
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': '',                      # Or path to database file if using sqlite3.
+        'USER': '',                      # Not used with sqlite3.
+        'PASSWORD': '',                  # Not used with sqlite3.
+        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+    }
+}
+
+TEMPLATE_DIRS = ()
+
+
+# vim:ft=python

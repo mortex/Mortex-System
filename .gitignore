@@ -8,5 +8,7 @@
 # SQLite database file
 sqlite3.db
 
-# Remove settings.py so database path will remain
-settings.py
+# Local settings package
+local/*
+!local/__init__.py
+!local/settings.py.template
