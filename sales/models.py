@@ -33,11 +33,13 @@ class ShirtStylePrice(models.Model):
 	SizePrice = models.FloatField('Size Price')
 	Active = models.BooleanField()
 	def __unicode__(self):
-        	return self.ShirtStyleSize
+        	return self.ShirtStyleSize + ' - ' + str(self.StyleColorCategory)
 
 class ShirtStyleSKU(models.Model):
 	ShirtStylePrice = models.ForeignKey(ShirtStylePrice)
 	StyleColor = models.ForeignKey(StyleColor)
+	def __unicode__(self):
+		return str(self.StyleColor) + ' - ' + str(self.ShirtStylePrice)
 
 class CustomerAddress(models.Model):
 	Customer = models.ForeignKey(Customer)

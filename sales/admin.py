@@ -4,6 +4,7 @@ from django.contrib import admin
 from sales.models import ShirtStyle
 from sales.models import ShirtStylePrice
 from sales.models import StyleColorCategory
+from sales.models import ShirtStyleSKU
 
 class ShirtStylePriceInline(admin.TabularInline):
 	model = ShirtStylePrice
@@ -13,8 +14,15 @@ class ShirtStyleAdmin(admin.ModelAdmin):
 	inlines = [ShirtStylePriceInline]
 	search_fields = ['ShirtStyleNumber', 'ShirtStyleDescription']
 
+class ShirtStyleSKUAdmin(admin.ModelAdmin):
+	model = ShirtStyleSKU
+	list_display = ['__unicode__', 'ShirtStylePrice', 'StyleColor']
+	list_editable = ['ShirtStylePrice', 'StyleColor']
+
+
 admin.site.register(ShirtStyle, ShirtStyleAdmin)
 admin.site.register(StyleColorCategory)
+admin.site.register(ShirtStyleSKU, ShirtStyleSKUAdmin)
 
 #Customer Creation
 from sales.models import Customer
