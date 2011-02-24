@@ -6,9 +6,6 @@ function getprices(){
 }
 </script>
 
-<h1>{{ shirtstyle }}</h1>
-sia = skuinventory.ShirtStyleSKU
-
 {% for si in skuinventory %}
 	{{ si.Pieces }} {{ si.ShirtStyleSKU }}<br/>
 {% endfor %}
@@ -17,6 +14,7 @@ sia = skuinventory.ShirtStyleSKU
 	<br/>{{ i.ShirtStylePrice.ShirtStyle }} - {{ i.ShirtStylePrice }} - {{ i.StyleColor }} - {{ i.total_inventory }}
 {% endfor %}
 
+<h2>Current inventory for {{ shirt_style }}</h2>
 <ul>
 	{% for k, v in display_colors.items %}
 		<li>{{ k }}
@@ -27,4 +25,11 @@ sia = skuinventory.ShirtStyleSKU
 			</ul>
 		</li>
 	{% endfor %}
+</ul>
+
+<h2>Priced colors for {{ shirt_style }}</h2>
+<ul>
+    {% for color in priced_colors %}
+        <li>{{ color }}</li>
+    {% endfor %}
 </ul>
