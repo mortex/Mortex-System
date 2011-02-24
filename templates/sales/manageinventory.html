@@ -16,3 +16,15 @@ sia = skuinventory.ShirtStyleSKU
 {% for i in shirtstyleinventory %}
 	<br/>{{ i.ShirtStylePrice.ShirtStyle }} - {{ i.ShirtStylePrice }} - {{ i.StyleColor }} - {{ i.total_inventory }}
 {% endfor %}
+
+<ul>
+	{% for k, v in display_colors.items %}
+		<li>{{ k }}
+			<ul>
+				{% for sku in v %}
+					<li>{{ sku.ShirtStylePrice.ShirtStyleSize }} - {{ sku.total_inventory }}</li>
+				{% endfor %}
+			</ul>
+		</li>
+	{% endfor %}
+</ul>
