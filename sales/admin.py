@@ -5,6 +5,7 @@ from sales.models import ShirtStyle
 from sales.models import ShirtStylePrice
 from sales.models import StyleColorCategory
 from sales.models import ShirtStyleSKU
+from sales.models import ShirtSKUInventory
 
 
 class ShirtStylePriceInline(admin.TabularInline):
@@ -15,10 +16,15 @@ class ShirtStyleAdmin(admin.ModelAdmin):
 	inlines = [ShirtStylePriceInline]
 	search_fields = ['ShirtStyleNumber', 'ShirtStyleDescription']
 
+class ShirtSKUInventoryInline(admin.TabularInline):
+	model = ShirtSKUInventory
+	extra = 5
+
 class ShirtStyleSKUAdmin(admin.ModelAdmin):
 	model = ShirtStyleSKU
 	list_display = ['__unicode__', 'ShirtStylePrice', 'StyleColor']
 	list_editable = ['ShirtStylePrice', 'StyleColor']
+	inlines = [ShirtSKUInventoryInline]
 
 admin.site.register(ShirtStyle, ShirtStyleAdmin)
 admin.site.register(StyleColorCategory)

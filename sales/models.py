@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 
 class Customer(models.Model):
 	CustomerName = models.CharField('Customer Name', max_length=40)
@@ -68,7 +69,8 @@ class ShirtSKUInventory(models.Model):
 	ShirtStyleSKU = models.ForeignKey(ShirtStyleSKU)
 	CutOrder = models.CharField('Cut Order', max_length=20)
 	Pieces = models.IntegerField()
-	Add = models.BooleanField()
+	Add = models.BooleanField(default = True)
+	Date = models.DateField(default = datetime.datetime.today())
 
 class Shipment(models.Model):
 	DateShipped = models.DateTimeField('Date Shipped')
