@@ -12,8 +12,10 @@ class ShirtPriceInline(admin.TabularInline):
 	extra = 1
 
 class ShirtStyleAdmin(admin.ModelAdmin):
-	inlines = [ShirtPriceInline]
-	search_fields = ['ShirtStyleNumber', 'ShirtStyleDescription']
+	
+    def add_view(self, request, form_url="", extra_context=None):
+        my_context = {"testdata": "foo"}
+        return super(ShirtStyleAdmin, self).add_view(request, form_url="", extra_context=my_context)
 
 admin.site.register(ShirtStyle, ShirtStyleAdmin)
 admin.site.register(ShirtSKUInventory)
