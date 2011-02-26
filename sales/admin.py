@@ -2,33 +2,33 @@ from django.contrib import admin
 
 #Style Creation
 from sales.models import ShirtStyle
-from sales.models import ShirtStylePrice
-from sales.models import StyleColorCategory
-from sales.models import ShirtStyleSKU
+from sales.models import ShirtPrice
+from sales.models import ColorCategory
+from sales.models import ShirtSKU
 from sales.models import ShirtSKUInventory
 
 
-class ShirtStylePriceInline(admin.TabularInline):
-	model = ShirtStylePrice
+class ShirtPriceInline(admin.TabularInline):
+	model = ShirtPrice
 	extra = 1
 
 class ShirtStyleAdmin(admin.ModelAdmin):
-	inlines = [ShirtStylePriceInline]
+	inlines = [ShirtPriceInline]
 	search_fields = ['ShirtStyleNumber', 'ShirtStyleDescription']
 
 class ShirtSKUInventoryInline(admin.TabularInline):
 	model = ShirtSKUInventory
 	extra = 5
 
-class ShirtStyleSKUAdmin(admin.ModelAdmin):
-	model = ShirtStyleSKU
-	list_display = ['__unicode__', 'ShirtStylePrice', 'StyleColor']
-	list_editable = ['ShirtStylePrice', 'StyleColor']
+class ShirtSKUAdmin(admin.ModelAdmin):
+	model = ShirtSKU
+	list_display = ['__unicode__', 'ShirtPrice', 'Color']
+	list_editable = ['ShirtPrice', 'Color']
 	inlines = [ShirtSKUInventoryInline]
 
 admin.site.register(ShirtStyle, ShirtStyleAdmin)
-admin.site.register(StyleColorCategory)
-admin.site.register(ShirtStyleSKU, ShirtStyleSKUAdmin)
+admin.site.register(ColorCategory)
+admin.site.register(ShirtSKU, ShirtSKUAdmin)
 
 #Customer Creation
 from sales.models import Customer
@@ -44,13 +44,13 @@ class CustomerAdmin(admin.ModelAdmin):
 admin.site.register(Customer, CustomerAdmin)
 
 #Color Management
-from sales.models import StyleColor
+from sales.models import Color
 
-class ShirtStyleSKUInline(admin.TabularInline):
-	model = ShirtStyleSKU
+class ShirtSKUInline(admin.TabularInline):
+	model = ShirtSKU
 	extra = 5
 
-class StyleColorAdmin(admin.ModelAdmin):
-	inlines = [ShirtStyleSKUInline]
+class ColorAdmin(admin.ModelAdmin):
+	inlines = [ShirtSKUInline]
 
-admin.site.register(StyleColor, StyleColorAdmin)
+admin.site.register(Color, ColorAdmin)

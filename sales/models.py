@@ -14,33 +14,37 @@ class ShirtStyle(models.Model):
 	def __unicode__(self):
         	return self.ShirtStyleNumber + ' ' + self.ShirtStyleDescription	
 
-class StyleColorCategory(models.Model):
-	StyleColorCategoryName = models.CharField('Color Category', max_length=20)
+class ColorCategory(models.Model):
+	ColorCategoryName = models.CharField('Color Category', max_length=20)
 	def __unicode__(self):
-		return self.StyleColorCategoryName
+		return self.ColorCategoryName
 
-class StyleColor(models.Model):
-	StyleColorCategory = models.ForeignKey(StyleColorCategory)
-	StyleColorName = models.CharField('Color Name', max_length=20)
+class Color(models.Model):
+	ColorCategory = models.ForeignKey(ColorCategory)
+	ColorName = models.CharField('Color Name', max_length=20)
 	def __unicode__(self):
-		return self.StyleColorName
+		return self.ColorName
 
-class ShirtStylePrice(models.Model):
+class ShirtSize(models.Model):
+    ShirtSizeName = models.CharField('Size Name', max_length=20)
+    ShirtSizeAbbr = models.CharField('Size Abbr', max_length=10)
+
+class ShirtPrice(models.Model):
 	ShirtStyle = models.ForeignKey(ShirtStyle)
-	StyleColorCategory = models.ForeignKey(StyleColorCategory)
-	ShirtStyleSize = models.CharField('Size', max_length=10)
+	ColorCategory = models.ForeignKey(ColorCategory)
+	ShirtSize = models.ForeignKey(ShirtSize)
 	FabricRollYield = models.IntegerField('Fabric Roll Yield', null=True, blank=True)
 	KnitSize = models.FloatField('Knit Size', null=True, blank=True)
-	SizePrice = models.FloatField('Size Price')
+	ShirtPrice = models.FloatField('Size Price')
 	Active = models.BooleanField()
 	def __unicode__(self):
-        	return self.ShirtStyleSize + ' - ' + str(self.StyleColorCategory)
+        	return self.ShirtSize + ' - ' + str(self.ColorCategory)
 
-class ShirtStyleSKU(models.Model):
-	ShirtStylePrice = models.ForeignKey(ShirtStylePrice)
-	StyleColor = models.ForeignKey(StyleColor)
+class ShirtSKU(models.Model):
+	ShirtPrice = models.ForeignKey(ShirtPrice)
+	Color = models.ForeignKey(Color)
 	def __unicode__(self):
-		return str(self.StyleColor) + ' - ' + str(self.ShirtStylePrice)
+		return str(self.Color) + ' - ' + str(self.ShirtPrice)
 
 class CustomerAddress(models.Model):
 	Customer = models.ForeignKey(Customer)
@@ -60,13 +64,15 @@ class ShirtOrder(models.Model):
 
 class ShirtOrderSKU(models.Model):
 	ShirtOrder = models.ForeignKey(ShirtOrder)
-	ShirtStyleSKU = models.ForeignKey(ShirtStyleSKU)
+	ShirtPrice = models.ForeignKey(ShirtPrice)
+	Color = models.ForeignKey(Color)
 	OrderQuantity = models.IntegerField('Quantity')
 	Price = models.FloatField()
 	CustomLabel = models.BooleanField('Custom Label')
 	
 class ShirtSKUInventory(models.Model):
-	ShirtStyleSKU = models.ForeignKey(ShirtStyleSKU)
+	Color = models.ForeignKey(Color)
+	ShirtPrice = models.ForeignKey(ShirtPrice)
 	CutOrder = models.CharField('Cut Order', max_length=20)
 	Pieces = models.IntegerField()
 	Add = models.BooleanField(default = True)
