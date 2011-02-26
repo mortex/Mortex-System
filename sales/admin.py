@@ -6,6 +6,7 @@ from sales.models import ShirtPrice
 from sales.models import ColorCategory
 from sales.models import ShirtSize
 from sales.models import ShirtSKUInventory
+from sales.models import ColorCategory
 
 class ShirtPriceInline(admin.TabularInline):
 	model = ShirtPrice
@@ -14,7 +15,8 @@ class ShirtPriceInline(admin.TabularInline):
 class ShirtStyleAdmin(admin.ModelAdmin):
 	
     def add_view(self, request, form_url="", extra_context=None):
-        my_context = {"testdata": "foo"}
+        my_context = { "color_categories": ColorCategory.objects.all(),
+                     }
         return super(ShirtStyleAdmin, self).add_view(request, form_url="", extra_context=my_context)
 
 admin.site.register(ShirtStyle, ShirtStyleAdmin)
