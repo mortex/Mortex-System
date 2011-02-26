@@ -14,12 +14,9 @@ def manageinventory(request, object_id):
     shirtstylecolors = StyleColor.objects.annotate().filter(shirtstylesku__ShirtStylePrice__ShirtStyle__id=object_id)
 
     display_colors = {} #empty dictionary
-    for color in {sku.StyleColor for sku in shirtstyleinventory}: #conversion to 'set' eliminates duplicates
+    for color in set([sku.StyleColor for sku in shirtstyleinventory]): #conversion to 'set' eliminates duplicates
         display_colors[color] = [s for s in shirtstyleinventory if s.StyleColor == color]
 
     shirt_style = ShirtStyle.objects.get(pk=object_id)
 
-    return render_to_response('sales/manageinventory.html', { 'display_colors': display_colors
-                                                            , 'shirt_style': shirt_style
-                                                            , 'priced_colors': shirtstylecolors
-                                                            })
+    return render_to_response('sales/manageinventory.html', {'display_colors': display_colors, 'shirt_style': shirt_style, 'priced_colors': shirtstylecolors})
