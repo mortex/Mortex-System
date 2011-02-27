@@ -1,0 +1,10 @@
+{% extends "admin/change_form.html" %}
+
+{% block content %}
+    <select name="customer" id="customer_id">
+    <option value="" selected="selected">---------</option>
+    {% for ss in shirtstyles %}
+        <option value="{{ ss.id }}">{{ ss }}</option>
+    {% endfor %}
+    </select>
+{% endblock %}
