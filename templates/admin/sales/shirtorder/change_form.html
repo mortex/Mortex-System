@@ -2,22 +2,38 @@
 
 {% block extrahead %}{{ block.super }}
     <script type="application/javascript">
-        $(function() {
+        function createtree() {
             $('#styletree').jstree({ 
                 "plugins" : [ "themes", "html_data", "ui" ],
                 "themes" : {
                     "theme" : "default"
                 },
                 "core" : {
-                    "initially_open" : ["unique"]
+                    "initially_open" : ["unique", "public"]
                 }
             });
-        });
+        }
         
         function selectcustomer(customerid){
+            $('#id_Address').find('option').remove()
             $.get('/app/addresses', {"customerid": customerid}, function(data){
                 $.each(data, function(i, item) {
                     $('#id_Address').append(new Option(item.fields.Address1 + ', ' + item.fields.City, item.pk));
+                });
+            });
+            $.get('/app/shirtstyles', {"customerid": customerid}, function(data){
+                $('#unique').html("<a href=''>Unique to this Customer</a><ul id='uniquelist'></ul>");
+                $.each(data, function(i, item) {
+                    $('#uniquelist').append("<li onDblClick='addstyle(this.id)' id=" + item.pk + "><a href=''>" + item.fields.ShirtStyleNumber + " " + item.fields.ShirtStyleDescription + "</a></li>");
+                });
+                createtree();
+            });
+        }
+        
+        function addstyle(shirtstyleid){
+            $.get('/app/shirtstyles', {"shirtstyleid": shirtstyleid}, function(data){
+                $.each(data, function(i, item) {
+                    $('#orderstyles').append("<tr><td>" + item.fields.ShirtStyleNumber + " " + item.fields.ShirtStyleDescription + "</td><td><select><option>1</option></select>");
                 });
             });
         }
@@ -53,22 +69,29 @@
     </div>
 </fieldset>
 
-<div id="styletree">
+<div id="styletree" style="float:left;">
     <ul>
-        <li id="unique"><a href="">Unique to this Customer</a><ul>
-            {% for ss in shirtstyles %}
-                {% if ss.Customer != None %}
-                    <li><a href="">{{ ss }}</a></li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-        <li><a href="">Public Styles</a><ul id="public">
+        <li id="unique"><a href="">Unique to this Customer</a></li>
+        <li id="public"><a href="">Public Styles</a><ul>
             {% for ss in shirtstyles %}
                 {% if ss.Customer == None %}
-                    <li><a href="">{{ ss }}</a></li>
+                    <li id={{ ss.id }} onDblClick='addstyle(this.id)'><a href="">{{ ss }}</a></li>
                 {% endif %}
             {% endfor %}
-        </ul>
+        </ul></li>
     </ul>
 </div>
+
+<table id="orderstyles" style="float:left;margin-left:20px;">
+    <tr>
+        <td>Style</td>
+        <td>Color</td>
+        <td>Size1</td>
+        <td>Size2</td>
+        <td>Size3</td>
+        <td>Size4</td>
+        <td>Size5</td>
+        <td>Size6</td>
+    </tr>
+</table>
 {% endblock %}

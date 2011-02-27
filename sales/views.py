@@ -32,3 +32,17 @@ def customeraddresses(request):
     json_serializer.serialize(addresses, ensure_ascii=False, stream=response)
     
     return response
+    
+def shirtstyles(request):
+    if "customerid" in request.GET:
+        customerid = request.GET['customerid']
+        shirtstyles = ShirtStyle.objects.filter(Customer__exact=customerid)
+    else:
+        shirtstyleid = request.GET['shirtstyleid']
+        shirtstyles = ShirtStyle.objects.filter(id=shirtstyleid)
+    
+    json_serializer = serializers.get_serializer("json")()
+    response = HttpResponse(mimetype="application/json")
+    json_serializer.serialize(shirtstyles, ensure_ascii=False, stream=response)
+    
+    return response

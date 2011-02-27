@@ -15,4 +15,5 @@ urlpatterns = patterns('',
 #web services
 urlpatterns += patterns('',
     (r'^addresses/$', 'sales.views.customeraddresses'),
+    (r'^shirtstyles/$', 'sales.views.shirtstyles'),
 )
