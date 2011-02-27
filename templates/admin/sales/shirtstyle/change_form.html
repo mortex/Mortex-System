@@ -12,6 +12,10 @@
 			height: 400px;
 		}
 
+		#matrix_fieldset ul {
+			padding: 10px;
+		}
+
 		#matrix_fieldset ul li {
 			list-style: none;
 		}
@@ -24,6 +28,10 @@
 			height: 100%;
 		}
 
+		.matrix_column ul li label {
+			margin-left: 5px;
+		}
+
 		#cc_column {
 			width: 200px;
 			margin-left: -100%;
@@ -33,6 +41,10 @@
 
 		#matrix {
 			width: 100%;
+		}
+		
+		#matrix_table {
+			margin: 10px;
 		}
 
 		#size_column {
@@ -48,17 +60,27 @@
 {% block after_field_sets %}
 	<fieldset id="matrix_fieldset">
 		<div id="matrix" class="matrix_column">
-			THIS IS THE MATRIX. WHOA.
+			<table id="matrix_table">
+				<tbody>
+					<tr>
+						<td>THIS IS THE MATRIX. WHOA.</td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
-		<ul id="cc_column" class="matrix_column">
-			{% for cc in color_categories %}
-				<li><input type="checkbox" id="cc-{{ cc.pk }}" name="cc" value="{{ cc.pk }}"><label for="cc-{{ cc.pk }}">{{ cc }}</li>
-			{% endfor %}
-		</ul>
-		<ul id="size_column" class="matrix_column">
-			{% for size in sizes %}
-				<li><input type="checkbox" id="size-{{ size.pk }}" name="size" value="{{ size.pk }}"><label for="size-{{ size.pk }}">{{ size }}</li>
-			{% endfor %}
-		</ul>
+		<div id="cc_column" class="matrix_column">
+			<ul>
+				{% for cc in color_categories %}
+					<li><input type="checkbox" id="cc-{{ cc.pk }}" name="cc" value="{{ cc.pk }}"><label for="cc-{{ cc.pk }}">{{ cc }}</li>
+				{% endfor %}
+			</ul>
+		</div>
+		<div id="size_column" class="matrix_column">
+			<ul>
+				{% for size in sizes %}
+					<li><input type="checkbox" id="size-{{ size.pk }}" name="size" value="{{ size.pk }}"><label for="size-{{ size.pk }}">{{ size }}</li>
+				{% endfor %}
+			</ul>
+		</div>
 	</fieldset>
 {% endblock %}
