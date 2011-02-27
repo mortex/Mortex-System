@@ -1,10 +1,74 @@
 {% extends "admin/change_form.html" %}
 
+{% block extrahead %}{{ block.super }}
+    <script type="application/javascript">
+        $(function() {
+            $('#styletree').jstree({ 
+                "plugins" : [ "themes", "html_data", "ui" ],
+                "themes" : {
+                    "theme" : "default"
+                },
+                "core" : {
+                    "initially_open" : ["unique"]
+                }
+            });
+        });
+        
+        function selectcustomer(customerid){
+            $.get('/app/addresses', {"customerid": customerid}, function(data){
+                $.each(data, function(i, item) {
+                    $('#id_Address').append(new Option(item.fields.Address1 + ', ' + item.fields.City, item.pk));
+                });
+            });
+        }
+    </script>
+{% endblock %}
+
 {% block content %}
-    <select name="customer" id="customer_id">
-    <option value="" selected="selected">---------</option>
-    {% for ss in shirtstyles %}
-        <option value="{{ ss.id }}">{{ ss }}</option>
-    {% endfor %}
-    </select>
+<fieldset class="module aligned ">
+    <div class="form-row">
+        <div>
+            <label for="id_Customer" class="required">Customer</label>
+            <select name="customer" id="id_Customer" onChange="selectcustomer(this.value);">
+                <option value="" selected="selected">---------</option>
+                {% for cust in customers %}
+                    <option value="{{ cust.id }}">{{ cust }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-row">
+        <div>
+            <label for="id_Address" class="required">Delivery Address</label>
+            <select name="address" id="id_Address">
+                <option value="" selected="selected">---------</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-row">
+        <div>
+            <label for="address_id" class="required">PO Number</label>
+            <input name="ponumber" value="" class="vTextField" maxlength="20" type="text" id="id_PONumber">
+        </div>
+    </div>
+</fieldset>
+
+<div id="styletree">
+    <ul>
+        <li id="unique"><a href="">Unique to this Customer</a><ul>
+            {% for ss in shirtstyles %}
+                {% if ss.Customer != None %}
+                    <li><a href="">{{ ss }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <li><a href="">Public Styles</a><ul id="public">
+            {% for ss in shirtstyles %}
+                {% if ss.Customer == None %}
+                    <li><a href="">{{ ss }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </ul>
+</div>
 {% endblock %}

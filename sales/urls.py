@@ -11,3 +11,8 @@ urlpatterns = patterns('',
 	(r'^inventory/$', 'django.views.generic.list_detail.object_list', info_dict),
 	(r'^inventory/(?P<object_id>\d+)/$', 'sales.views.manageinventory'),
 )
+
+#web services
+urlpatterns += patterns('',
+    (r'^addresses/$', 'sales.views.customeraddresses'),
+)

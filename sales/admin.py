@@ -61,12 +61,12 @@ class ShirtOrderAdmin(admin.ModelAdmin):
     def add_view(self, request, form_url="", extra_context=None):
         customers = Customer.objects.all()
         shirtstyles = ShirtStyle.objects.all()
-        my_context = {"customer": customers, "shirtstyles": shirtstyles}
+        my_context = {"customers": customers, "shirtstyles": shirtstyles}
         return super(ShirtOrderAdmin, self).add_view(request, form_url="", extra_context=my_context)
     class Media:
         css = {
             "all": ("css/jquery-ui-1.8.10.custom.css",)
         }
-        js = ("js/my_code.js","js/jquery-1.4.4.min.js","js/jquery-ui-1.8.10.custom.min.js")
+        js = ("js/jquery-1.4.4.min.js","js/jquery-ui-1.8.10.custom.min.js","js/jstree/jquery.jstree.js")
 
 admin.site.register(ShirtOrder, ShirtOrderAdmin)
