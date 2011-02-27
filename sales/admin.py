@@ -4,9 +4,8 @@ from django.contrib import admin
 from sales.models import ShirtStyle
 from sales.models import ShirtPrice
 from sales.models import ColorCategory
-from sales.models import ShirtSKU
+from sales.models import ShirtSize
 from sales.models import ShirtSKUInventory
-
 
 class ShirtPriceInline(admin.TabularInline):
 	model = ShirtPrice
@@ -16,19 +15,9 @@ class ShirtStyleAdmin(admin.ModelAdmin):
 	inlines = [ShirtPriceInline]
 	search_fields = ['ShirtStyleNumber', 'ShirtStyleDescription']
 
-class ShirtSKUInventoryInline(admin.TabularInline):
-	model = ShirtSKUInventory
-	extra = 5
-
-class ShirtSKUAdmin(admin.ModelAdmin):
-	model = ShirtSKU
-	list_display = ['__unicode__', 'ShirtPrice', 'Color']
-	list_editable = ['ShirtPrice', 'Color']
-	inlines = [ShirtSKUInventoryInline]
-
 admin.site.register(ShirtStyle, ShirtStyleAdmin)
-admin.site.register(ColorCategory)
-admin.site.register(ShirtSKU, ShirtSKUAdmin)
+admin.site.register(ShirtSKUInventory)
+admin.site.register(ShirtSize)
 
 #Customer Creation
 from sales.models import Customer
@@ -46,11 +35,22 @@ admin.site.register(Customer, CustomerAdmin)
 #Color Management
 from sales.models import Color
 
-class ShirtSKUInline(admin.TabularInline):
-	model = ShirtSKU
-	extra = 5
+class ColorInline(admin.TabularInline):
+    model = Color
+    extra = 3
 
-class ColorAdmin(admin.ModelAdmin):
-	inlines = [ShirtSKUInline]
+class ColorCategoryAdmin(admin.ModelAdmin):
+    inlines = [ColorInline]
 
-admin.site.register(Color, ColorAdmin)
+admin.site.register(ColorCategory, ColorCategoryAdmin)
+
+#Order Management
+from sales.models import ShirtOrder
+
+class ShirtOrderAdmin(admin.ModelAdmin):
+    def add_view(self, request, form_url="", extra_context=None):
+        shirtstyles = ShirtStyle.objects.all()
+        my_context = {"shirtstyles": shirtstyles}
+        return super(ShirtOrderAdmin, self).add_view(request, form_url="", extra_context=my_context)
+
+admin.site.register(ShirtOrder, ShirtOrderAdmin)

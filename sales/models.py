@@ -9,7 +9,7 @@ class Customer(models.Model):
 class ShirtStyle(models.Model):
 	ShirtStyleNumber = models.CharField('Style Number', max_length=20)
 	ShirtStyleDescription = models.CharField('Description', max_length=200)
-	Customer = models.ForeignKey(Customer, null=True)
+	Customer = models.ForeignKey(Customer, null=True, blank=True)
 	KnitStyleName = models.CharField('Knit Style', max_length=10)
 	def __unicode__(self):
         	return self.ShirtStyleNumber + ' ' + self.ShirtStyleDescription	
@@ -28,6 +28,8 @@ class Color(models.Model):
 class ShirtSize(models.Model):
     ShirtSizeName = models.CharField('Size Name', max_length=20)
     ShirtSizeAbbr = models.CharField('Size Abbr', max_length=10)
+    def __unicode__(self):
+        return self.ShirtSizeName
 
 class ShirtPrice(models.Model):
 	ShirtStyle = models.ForeignKey(ShirtStyle)
