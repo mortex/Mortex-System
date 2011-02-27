@@ -15,7 +15,8 @@ class ShirtPriceInline(admin.TabularInline):
 class ShirtStyleAdmin(admin.ModelAdmin):
 	
     def add_view(self, request, form_url="", extra_context=None):
-        my_context = { "color_categories": ColorCategory.objects.all(),
+        my_context = { "color_categories": ColorCategory.objects.all()
+                     , "sizes": ShirtSize.objects.all()
                      }
         return super(ShirtStyleAdmin, self).add_view(request, form_url="", extra_context=my_context)
 

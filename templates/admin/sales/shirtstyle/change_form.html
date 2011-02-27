@@ -1,9 +1,51 @@
 {% extends "admin/change_form.html" %}
 
+{% block extrastyle %}
+
+	{{ block.super }}
+
+	<style type="text/css">
+		
+		#matrix_fieldset {
+			display: table;
+		}
+
+		#matrix_fieldset>div,
+		#matrix_fieldset>ul {
+			display: table-cell;
+		}
+
+		.matrix_column {
+			padding: 10px;
+			width: 100px;
+		}
+
+		#cc_column {
+			border-right: 1px solid gray;
+		}
+
+		#size_column {
+			border-left: 1px solid gray;
+		}
+
+	</style>
+
+{% endblock %}
+
 {% block after_field_sets %}
-	<fieldset>
-		{% for cc in color_categories %}
-			{{ cc }}<br>
-		{% endfor %}
+	<fieldset id="matrix_fieldset">
+		<ul id="cc_column" class="matrix_column">
+			{% for cc in color_categories %}
+				<li><input type="checkbox" id="cc-{{ cc.pk }}" name="cc" value="{{ cc.pk }}"><label for="cc-{{ cc.pk }}">{{ cc }}</li>
+			{% endfor %}
+		</ul>
+		<div id="matrix">
+			THIS IS THE MATRIX. WHOA.
+		</div>
+		<ul id="size_column" class="matrix_column">
+			{% for size in sizes %}
+				<li><input type="checkbox" id="size-{{ size.pk }}" name="size" value="{{ size.pk }}"><label for="size-{{ size.pk }}">{{ size }}</li>
+			{% endfor %}
+		</ul>
 	</fieldset>
 {% endblock %}
