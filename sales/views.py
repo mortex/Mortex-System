@@ -46,3 +46,13 @@ def shirtstyles(request):
     json_serializer.serialize(shirtstyles, ensure_ascii=False, stream=response)
     
     return response
+    
+def colors(request):
+    shirtstyleid = request.GET['shirtstyleid']
+    colors = Color.objects.annotate().filter(ColorCategory__shirtprice__ShirtStyle__id=shirtstyleid)
+    
+    json_serializer = serializers.get_serializer("json")()
+    response = HttpResponse(mimetype="application/json")
+    json_serializer.serialize(colors, ensure_ascii=False, stream=response)
+    
+    return response
