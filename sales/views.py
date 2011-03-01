@@ -1,5 +1,5 @@
 # Create your views here.
-from sales.models import Color, ShirtStyle, ShirtSKUInventory, ShirtSKU, CustomerAddress
+from sales.models import Color, ShirtStyle, ShirtSKUInventory, ShirtSKU, CustomerAddress, ShirtPrice
 from django.shortcuts import render_to_response
 from django.db.models import Sum
 from django.core import serializers
@@ -54,5 +54,17 @@ def colors(request):
     json_serializer = serializers.get_serializer("json")()
     response = HttpResponse(mimetype="application/json")
     json_serializer.serialize(colors, ensure_ascii=False, stream=response)
+    
+    return response
+    
+def styleprices(request):
+    shirtstyleid = request.GET['shirtstyleid']
+    colorid = request.GET['colorid']
+    
+    shirtprices = ShirtPrice.objects.filter(ColorCategory__color__exact=colorid).filter(ShirtStyle__exact=shirtstyleid)
+        
+    json_serializer = serializers.get_serializer("json")()
+    response = HttpResponse(mimetype="application/json")
+    json_serializer.serialize(shirtprices, ensure_ascii=False, stream=response)
     
     return response

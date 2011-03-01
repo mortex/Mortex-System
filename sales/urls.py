@@ -17,4 +17,5 @@ urlpatterns += patterns('',
     (r'^addresses/$', 'sales.views.customeraddresses'),
     (r'^shirtstyles/$', 'sales.views.shirtstyles'),
     (r'^colors/$', 'sales.views.colors'),
+    (r'^styleprices/$', 'sales.views.styleprices'),
 )

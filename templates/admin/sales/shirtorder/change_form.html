@@ -33,13 +33,21 @@
         function addstyle(shirtstyleid){
             $.get('/app/shirtstyles', {"shirtstyleid": shirtstyleid}, function(data){
                 $.each(data, function(i, item) {
-                    $('#orderstyles').append("<tr><td>" + item.fields.ShirtStyleNumber + " " + item.fields.ShirtStyleDescription + "</td><td><select id='color" + orderstyle + "'></select>");
+                    $('#orderstyles').append("<tr id='row" + orderstyle + "'><td>" + item.fields.ShirtStyleNumber + " " + item.fields.ShirtStyleDescription + "</td><td><select onChange='selectcolor(this.value, " + item.pk + ", " + orderstyle + ")' id='color" + orderstyle + "'></select></td></tr>");
                     $.get('/app/colors', {"shirtstyleid": shirtstyleid}, function(data){
                         $.each(data, function(i, item) {
-                            $('#color' + orderstyle).append(new Option(item.fields.ColorName, i));
+                            $('#color' + orderstyle).append(new Option(item.fields.ColorName, item.pk));
                         });
                         orderstyle += 1;
                     });
+                });
+            });
+        }
+        function selectcolor(colorid, shirtstyleid, row){
+            $.get('/app/styleprices', {"colorid": colorid, "shirtstyleid": shirtstyleid}, function(data){
+                $('.' + orderstyle).remove();
+                $.each(data, function(i, item) {
+                    $('#row' + row).append("<td class='" + orderstyle + "'>" + item.fields.ShirtPrice + "<br/><input type='text'/>");
                 });
             });
         }
