@@ -63,6 +63,13 @@
 
 	<script type="application/javascript">
 
+		{# jQuery selector for exact match on element contents #}
+		django.jQuery.extend(django.jQuery.expr[":"], {
+			containsExact: function(a, i, m) {
+				return django.jQuery.trim(a.innerHTML) === m[3];
+			}
+		});
+
 		{# Add a matrix row for a color category #}
 		function matrix_add_cc(cc) {
 			var num_cols = django.jQuery("#matrix_table")[0].rows[0].cells.length;
