@@ -74,11 +74,16 @@
 		function matrix_add_cc(cc) {
 			if (cc === "")
 				return;
-			var num_cols = django.jQuery("#matrix_table")[0].rows[0].cells.length;
+			var first_row = django.jQuery("#matrix_table")[0].rows[0].cells;
+			var num_cols = first_row.length;
+			var col_headers = [];
+			django.jQuery(first_row).each(function(i, cell) {
+				col_headers.push(cell.innerHTML);
+			});
 			var new_row = "<tr>";
 			new_row += "<td>" + cc + "</td>";	{# First cell contains color category name #}
-			for (var i = 2; i <= num_cols; ++i)
-				new_row += "<td></td>";
+			for (var i = 1; i < num_cols; ++i)
+				new_row += "<td><input type='text' size='4' name='price__" + cc + "__" + col_headers[i] + "'></td>";
 			new_row += "</tr>";
 			django.jQuery("#matrix_table tbody").append(new_row);
 		}
@@ -95,9 +100,14 @@
 			if (size === "")
 				return;
 			var rows = django.jQuery("#matrix_table tr");
+			var row_headers = [];
+			rows.each(function(i, row) {
+				row_headers.push(django.jQuery(row).children("td:first-child")[0].innerHTML);
+			});
+			row_headers = row_headers.slice(1);
 			django.jQuery(rows[0]).append("<td>" + size + "</td>");
-			rows.slice(1).each(function() {
-				django.jQuery(this).append("<td></td>");
+			rows.slice(1).each(function(i) {
+				django.jQuery(this).append("<td><input type='text' size='4' name='price__" + row_headers[i] + "__" + size + "'></td>");
 			});
 		}
 
