@@ -122,6 +122,20 @@
 			});
 		}
 
+		{# onchange event dispatchers #}
+		function sel_change_cc(cc, checked) {
+			if (checked)
+				matrix_add_cc(cc);
+			else
+				matrix_rm_cc(cc);
+		}
+		function sel_change_size(size, checked) {
+			if (checked)
+				matrix_add_size(size);
+			else
+				matrix_rm_size(size);
+		}
+
 	</script>
 
 {% endblock %}
@@ -138,14 +152,14 @@
 		<div id="cc_column" class="matrix_column">
 			<ul>
 				{% for cc in color_categories %}
-					<li><input type="checkbox" id="cc-{{ cc.pk }}" name="cc" value="{{ cc.pk }}"><label for="cc-{{ cc.pk }}">{{ cc }}</li>
+					<li><input type="checkbox" id="cc-{{ cc.pk }}" name="cc" value="{{ cc.pk }}" onchange="sel_change_cc('{{ cc }}', checked);"><label for="cc-{{ cc.pk }}">{{ cc }}</li>
 				{% endfor %}
 			</ul>
 		</div>
 		<div id="size_column" class="matrix_column">
 			<ul>
 				{% for size in sizes %}
-					<li><input type="checkbox" id="size-{{ size.pk }}" name="size" value="{{ size.pk }}"><label for="size-{{ size.pk }}">{{ size }}</li>
+					<li><input type="checkbox" id="size-{{ size.pk }}" name="size" value="{{ size.pk }}" onchange="sel_change_size('{{ size.ShirtSizeAbbr }}', checked);"><label for="size-{{ size.pk }}">{{ size }}</li>
 				{% endfor %}
 			</ul>
 		</div>
