@@ -92,7 +92,7 @@
 
 		{# Add a matrix column for a shirt size #}
 		function matrix_add_size(size) {
-			if (cc === "")
+			if (size === "")
 				return;
 			var rows = django.jQuery("#matrix_table tr");
 			django.jQuery(rows[0]).append("<td>" + size + "</td>");
