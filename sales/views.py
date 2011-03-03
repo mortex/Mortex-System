@@ -1,9 +1,10 @@
 # Create your views here.
-from sales.models import Color, ShirtStyle, ShirtSKUInventory, ShirtSKU, CustomerAddress, ShirtPrice
+from sales.models import Color, ShirtStyle, ShirtSKUInventory, ShirtSKU, CustomerAddress, ShirtPrice, ShirtSize
 from django.shortcuts import render_to_response
 from django.db.models import Sum
 from django.core import serializers
 from django.http import HttpRequest, HttpResponse
+from django.db.models import Count
 
 def styleorder(request, object_id):
     colors = Color.objects.all()
@@ -66,5 +67,16 @@ def styleprices(request):
     json_serializer = serializers.get_serializer("json")()
     response = HttpResponse(mimetype="application/json")
     json_serializer.serialize(shirtprices, ensure_ascii=False, stream=response)
+    
+    return response
+    
+def shirtsizes(request):
+    shirtstyleid = request.GET['shirtstyleid']
+    
+    shirtsizes = ShirtSize.objects.filter(shirtprice__ShirtStyle__exact=shirtstyleid).annotate(Count('ShirtSizeAbbr'))
+    
+    json_serializer = serializers.get_serializer("json")()
+    response = HttpResponse(mimetype="application/json")
+    json_serializer.serialize(shirtsizes, ensure_ascii=False, stream=response)
     
     return response

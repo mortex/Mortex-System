@@ -33,8 +33,14 @@
         function addstyle(shirtstyleid){
             $.get('/app/shirtstyles', {"shirtstyleid": shirtstyleid}, function(data){
                 $.each(data, function(i, item) {
-                    $('#orderstyles').append("<tr id='row" + orderstyle + "'><td>" + item.fields.ShirtStyleNumber + " " + item.fields.ShirtStyleDescription + "</td><td><select onChange='selectcolor(this.value, " + item.pk + ", " + orderstyle + ")' id='color" + orderstyle + "'></select></td></tr>");
+                    $('#orderstyles').append("<tr id='row" + orderstyle + "'><td><h4>" + item.fields.ShirtStyleNumber + " " + item.fields.ShirtStyleDescription + "</h4></td><td style='vertical-align:middle'><select onChange='selectcolor(this.value, " + item.pk + ", " + orderstyle + ")' id='color" + orderstyle + "'></select></td></tr>");
+                    $.get('/app/shirtsizes', {"shirtstyleid": shirtstyleid}, function(data){
+                        $.each(data, function(i, item) {
+                            $('#row' + orderstyle).append("<td>" + item.fields.ShirtSizeAbbr + "<span id=price" + orderstyle + "-" + item.pk + " class=price" + orderstyle + "></span><br/><input type='text' style='width:50px;' id=input" + orderstyle + "-" + item.pk + " class=input" + orderstyle + " disabled=true/></td>");
+                        });
+                    });
                     $.get('/app/colors', {"shirtstyleid": shirtstyleid}, function(data){
+                        $('#color' + orderstyle).append(new Option('-----', ''));
                         $.each(data, function(i, item) {
                             $('#color' + orderstyle).append(new Option(item.fields.ColorName, item.pk));
                         });
@@ -44,12 +50,17 @@
             });
         }
         function selectcolor(colorid, shirtstyleid, row){
-            $.get('/app/styleprices', {"colorid": colorid, "shirtstyleid": shirtstyleid}, function(data){
-                $('.' + orderstyle).remove();
-                $.each(data, function(i, item) {
-                    $('#row' + row).append("<td class='" + orderstyle + "'>" + item.fields.ShirtPrice + "<br/><input type='text'/>");
+            $('.price' + row).html('');
+            $('.input' + row).attr('disabled', true);
+            if(colorid != ''){
+                $.get('/app/styleprices', {"colorid": colorid, "shirtstyleid": shirtstyleid}, function(data){
+                    $.each(data, function(i, item) {
+                        //alert('price' + row + '-' + item.fields.ShirtSize);
+                        $('#price' + row + '-' + item.fields.ShirtSize).html(" - $" + item.fields.ShirtPrice);
+                        $('#input' + row + '-' + item.fields.ShirtSize).attr('disabled', false);
+                    });
                 });
-            });
+            }
         }
     </script>
 {% endblock %}
@@ -97,15 +108,6 @@
 </div>
 
 <table id="orderstyles" style="float:left;margin-left:20px;">
-    <tr>
-        <td>Style</td>
-        <td>Color</td>
-        <td>Size1</td>
-        <td>Size2</td>
-        <td>Size3</td>
-        <td>Size4</td>
-        <td>Size5</td>
-        <td>Size6</td>
-    </tr>
+
 </table>
 {% endblock %}
