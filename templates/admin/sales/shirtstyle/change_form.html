@@ -63,18 +63,18 @@
 
 	<script type="application/javascript">
 
-		// Add a matrix row for a color category
+		{# Add a matrix row for a color category #}
 		function matrix_add_cc(cc) {
 			var num_cols = django.jQuery("#matrix_table")[0].rows[0].cells.length;
 			var new_row = "<tr>";
-			new_row += "<td>" + cc + "</td>";	// First cell contains color category name
+			new_row += "<td>" + cc + "</td>";	{# First cell contains color category name #}
 			for (var i = 2; i <= num_cols; ++i)
 				new_row += "<td></td>";
 			new_row += "</tr>";
 			django.jQuery("#matrix_table tbody").append(new_row);
 		}
 
-		// Add a matrix column for a shirt size
+		{# Add a matrix column for a shirt size #}
 		function matrix_add_size(size) {
 			var rows = django.jQuery("#matrix_table tr");
 			django.jQuery(rows[0]).append("<td>" + size + "</td>");
