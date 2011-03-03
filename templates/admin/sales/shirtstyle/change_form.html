@@ -101,6 +101,27 @@
 			});
 		}
 
+		{# Remove a matrix column for a shirt size #}
+		function matrix_rm_size(size) {
+			if (size === "")
+				return;
+			var rows = django.jQuery("#matrix_table")[0].rows;
+			var first_row = rows[0].cells;
+			var found = false;
+			for (var col_num = 0; col_num < first_row.length; ++col_num) {
+				if (first_row[col_num].innerHTML === size) {
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				return;
+			++col_num;
+			django.jQuery(rows).each(function(i, row) {
+				django.jQuery(row).children("td:nth-child(" + col_num + ")").remove();
+			});
+		}
+
 	</script>
 
 {% endblock %}
