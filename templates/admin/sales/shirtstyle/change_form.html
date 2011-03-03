@@ -72,6 +72,8 @@
 
 		{# Add a matrix row for a color category #}
 		function matrix_add_cc(cc) {
+			if (cc === "")
+				return;
 			var num_cols = django.jQuery("#matrix_table")[0].rows[0].cells.length;
 			var new_row = "<tr>";
 			new_row += "<td>" + cc + "</td>";	{# First cell contains color category name #}
@@ -83,6 +85,8 @@
 
 		{# Add a matrix column for a shirt size #}
 		function matrix_add_size(size) {
+			if (cc === "")
+				return;
 			var rows = django.jQuery("#matrix_table tr");
 			django.jQuery(rows[0]).append("<td>" + size + "</td>");
 			rows.slice(1).each(function() {
