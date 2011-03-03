@@ -83,6 +83,13 @@
 			django.jQuery("#matrix_table tbody").append(new_row);
 		}
 
+		{# Remove a matrix row for a color category #}
+		function matrix_rm_cc(cc) {
+			if (cc === "")
+				return;
+			django.jQuery("#matrix_table tr:has(td:containsExact('" + cc + "'):first-child)").remove();
+		}
+
 		{# Add a matrix column for a shirt size #}
 		function matrix_add_size(size) {
 			if (cc === "")
