@@ -40,7 +40,7 @@ class ShirtPrice(models.Model):
 	ShirtPrice = models.FloatField('Size Price')
 	Active = models.BooleanField()
 	def __unicode__(self):
-        	return self.ShirtSize + ' - ' + str(self.ColorCategory)
+        	return str(self.ShirtSize) + ' - ' + str(self.ColorCategory)
 
 class ShirtSKU(models.Model):
 	ShirtPrice = models.ForeignKey(ShirtPrice)
