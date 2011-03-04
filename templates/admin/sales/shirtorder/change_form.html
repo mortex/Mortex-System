@@ -1,0 +1,113 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrahead %}{{ block.super }}
+    <script type="application/javascript">
+        function createtree() {
+            $('#styletree').jstree({ 
+                "plugins" : [ "themes", "html_data", "ui" ],
+                "themes" : {
+                    "theme" : "default"
+                },
+                "core" : {
+                    "initially_open" : ["unique", "public"]
+                }
+            });
+        }
+        
+        function selectcustomer(customerid){
+            $('#id_Address').find('option').remove()
+            $.get('/app/addresses', {"customerid": customerid}, function(data){
+                $.each(data, function(i, item) {
+                    $('#id_Address').append(new Option(item.fields.Address1 + ', ' + item.fields.City, item.pk));
+                });
+            });
+            $.get('/app/shirtstyles', {"customerid": customerid}, function(data){
+                $('#unique').html("<a href=''>Unique to this Customer</a><ul id='uniquelist'></ul>");
+                $.each(data, function(i, item) {
+                    $('#uniquelist').append("<li onDblClick='addstyle(this.id)' id=" + item.pk + "><a href=''>" + item.fields.ShirtStyleNumber + " " + item.fields.ShirtStyleDescription + "</a></li>");
+                });
+                createtree();
+            });
+        }
+        var orderstyle = 1
+        function addstyle(shirtstyleid){
+            $.get('/app/shirtstyles', {"shirtstyleid": shirtstyleid}, function(data){
+                $.each(data, function(i, item) {
+                    $('#orderstyles').append("<tr id='row" + orderstyle + "'><td><h4>" + item.fields.ShirtStyleNumber + " " + item.fields.ShirtStyleDescription + "</h4></td><td style='vertical-align:middle'><select onChange='selectcolor(this.value, " + item.pk + ", " + orderstyle + ")' id='color" + orderstyle + "'></select></td></tr>");
+                    $.get('/app/shirtsizes', {"shirtstyleid": shirtstyleid}, function(data){
+                        $.each(data, function(i, item) {
+                            $('#row' + orderstyle).append("<td>" + item.fields.ShirtSizeAbbr + "<span id=price" + orderstyle + "-" + item.pk + " class=price" + orderstyle + "></span><br/><input type='text' style='width:50px;' id=input" + orderstyle + "-" + item.pk + " class=input" + orderstyle + " disabled=true/></td>");
+                        });
+                    });
+                    $.get('/app/colors', {"shirtstyleid": shirtstyleid}, function(data){
+                        $('#color' + orderstyle).append(new Option('-----', ''));
+                        $.each(data, function(i, item) {
+                            $('#color' + orderstyle).append(new Option(item.fields.ColorName, item.pk));
+                        });
+                        orderstyle += 1;
+                    });
+                });
+            });
+        }
+        function selectcolor(colorid, shirtstyleid, row){
+            $('.price' + row).html('');
+            $('.input' + row).attr('disabled', true);
+            if(colorid != ''){
+                $.get('/app/styleprices', {"colorid": colorid, "shirtstyleid": shirtstyleid}, function(data){
+                    $.each(data, function(i, item) {
+                        //alert('price' + row + '-' + item.fields.ShirtSize);
+                        $('#price' + row + '-' + item.fields.ShirtSize).html(" - $" + item.fields.ShirtPrice);
+                        $('#input' + row + '-' + item.fields.ShirtSize).attr('disabled', false);
+                    });
+                });
+            }
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+<fieldset class="module aligned ">
+    <div class="form-row">
+        <div>
+            <label for="id_Customer" class="required">Customer</label>
+            <select name="customer" id="id_Customer" onChange="selectcustomer(this.value);">
+                <option value="" selected="selected">---------</option>
+                {% for cust in customers %}
+                    <option value="{{ cust.id }}">{{ cust }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-row">
+        <div>
+            <label for="id_Address" class="required">Delivery Address</label>
+            <select name="address" id="id_Address">
+                <option value="" selected="selected">---------</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-row">
+        <div>
+            <label for="address_id" class="required">PO Number</label>
+            <input name="ponumber" value="" class="vTextField" maxlength="20" type="text" id="id_PONumber">
+        </div>
+    </div>
+</fieldset>
+
+<div id="styletree" style="float:left;">
+    <ul>
+        <li id="unique"><a href="">Unique to this Customer</a></li>
+        <li id="public"><a href="">Public Styles</a><ul>
+            {% for ss in shirtstyles %}
+                {% if ss.Customer == None %}
+                    <li id={{ ss.id }} onDblClick='addstyle(this.id)'><a href="">{{ ss }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul></li>
+    </ul>
+</div>
+
+<table id="orderstyles" style="float:left;margin-left:20px;">
+
+</table>
+{% endblock %}
