@@ -1,4 +1,7 @@
+import re
+
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 
 #Style Creation
 from sales.models import ShirtStyle
@@ -6,14 +9,45 @@ from sales.models import ShirtPrice
 from sales.models import ShirtSKU
 from sales.models import ShirtSKUInventory
 from sales.models import ShirtSize
+from sales.models import ColorCategory
 
 class ShirtPriceInline(admin.TabularInline):
 	model = ShirtPrice
 	extra = 1
 
 class ShirtStyleAdmin(admin.ModelAdmin):
-	inlines = [ShirtPriceInline]
-	search_fields = ['ShirtStyleNumber', 'ShirtStyleDescription']
+	
+    def add_view(self, request, form_url="", extra_context=None):
+        if request.method == "POST":
+            response = super(ShirtStyleAdmin, self).add_view(request, form_url="")
+            new_style = ShirtStyle.objects.get(ShirtStyleNumber=request.POST["ShirtStyleNumber"])
+            new_prices = []
+            for param in [p for p in request.POST if p.startswith("price__") and request.POST[p] != ""]:
+                match = re.match(r"price__(?P<cc>.*)__(?P<size>.*)", param)
+                try:
+                    cc = ColorCategory.objects.get(ColorCategoryName=match.group("cc"))
+                    size = ShirtSize.objects.get(ShirtSizeAbbr=match.group("size"))
+                    price = float(request.POST[param])
+                except ColorCategory.DoesNotExist:
+                    raise ValidationError("Invalid color category")
+                except ShirtSize.DoesNotExist:
+                    raise ValidationErorr("Invalid shirt size")
+                except ValueError:
+                    raise ValidationError("Price must be a number")
+                new_prices.append(ShirtPrice( ShirtStyle=new_style
+                                            , ColorCategory=cc
+                                            , ShirtSize=size
+                                            , ShirtPrice=price
+                                            , Active=True
+                                            ))
+            for price in new_prices:
+                price.save()
+            return response
+        else:
+            my_context = { "color_categories": ColorCategory.objects.all()
+                         , "sizes": ShirtSize.objects.all()
+                         }
+            return super(ShirtStyleAdmin, self).add_view(request, form_url="", extra_context=my_context)
 
 class ShirtSKUInventoryInline(admin.TabularInline):
 	model = ShirtSKUInventory

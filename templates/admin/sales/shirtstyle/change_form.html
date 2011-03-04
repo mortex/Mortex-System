@@ -1,0 +1,177 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrastyle %}
+
+	{{ block.super }}
+
+	<style type="text/css">
+		
+		#matrix_fieldset {
+			padding-left: 200px;
+			padding-right: 200px;
+			height: 400px;
+		}
+
+		#matrix_fieldset ul {
+			padding: 10px;
+		}
+
+		#matrix_fieldset ul li {
+			list-style: none;
+		}
+
+		.matrix_column {
+			float: left;
+			margin: 0px;
+			padding: 0px;
+			position: relative;
+			height: 100%;
+		}
+
+		.matrix_column ul li label {
+			margin-left: 5px;
+		}
+
+		#cc_column {
+			width: 200px;
+			margin-left: -100%;
+			right: 201px;
+			border-right: 1px solid gray;
+		}
+
+		#matrix {
+			width: 100%;
+		}
+		
+		#matrix_table {
+			margin: 10px;
+		}
+
+		#size_column {
+			width: 200px;
+			margin-right: -201px;
+			border-left: 1px solid gray;
+		}
+
+	</style>
+
+{% endblock %}
+
+{% block extrahead %}
+
+	{{ block.super }}
+
+	<script type="application/javascript">
+
+		{# jQuery selector for exact match on element contents #}
+		django.jQuery.extend(django.jQuery.expr[":"], {
+			containsExact: function(a, i, m) {
+				return django.jQuery.trim(a.innerHTML) === m[3];
+			}
+		});
+
+		{# Add a matrix row for a color category #}
+		function matrix_add_cc(cc) {
+			if (cc === "")
+				return;
+			var first_row = django.jQuery("#matrix_table")[0].rows[0].cells;
+			var num_cols = first_row.length;
+			var col_headers = [];
+			django.jQuery(first_row).each(function(i, cell) {
+				col_headers.push(cell.innerHTML);
+			});
+			var new_row = "<tr>";
+			new_row += "<td>" + cc + "</td>";	{# First cell contains color category name #}
+			for (var i = 1; i < num_cols; ++i)
+				new_row += "<td><input type='text' size='4' name='price__" + cc + "__" + col_headers[i] + "'></td>";
+			new_row += "</tr>";
+			django.jQuery("#matrix_table tbody").append(new_row);
+		}
+
+		{# Remove a matrix row for a color category #}
+		function matrix_rm_cc(cc) {
+			if (cc === "")
+				return;
+			django.jQuery("#matrix_table tr:has(td:containsExact('" + cc + "'):first-child)").remove();
+		}
+
+		{# Add a matrix column for a shirt size #}
+		function matrix_add_size(size) {
+			if (size === "")
+				return;
+			var rows = django.jQuery("#matrix_table tr");
+			var row_headers = [];
+			rows.each(function(i, row) {
+				row_headers.push(django.jQuery(row).children("td:first-child")[0].innerHTML);
+			});
+			row_headers = row_headers.slice(1);
+			django.jQuery(rows[0]).append("<td>" + size + "</td>");
+			rows.slice(1).each(function(i) {
+				django.jQuery(this).append("<td><input type='text' size='4' name='price__" + row_headers[i] + "__" + size + "'></td>");
+			});
+		}
+
+		{# Remove a matrix column for a shirt size #}
+		function matrix_rm_size(size) {
+			if (size === "")
+				return;
+			var rows = django.jQuery("#matrix_table")[0].rows;
+			var first_row = rows[0].cells;
+			var found = false;
+			for (var col_num = 0; col_num < first_row.length; ++col_num) {
+				if (first_row[col_num].innerHTML === size) {
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				return;
+			++col_num;
+			django.jQuery(rows).each(function(i, row) {
+				django.jQuery(row).children("td:nth-child(" + col_num + ")").remove();
+			});
+		}
+
+		{# onchange event dispatchers #}
+		function sel_change_cc(cc, checked) {
+			if (checked)
+				matrix_add_cc(cc);
+			else
+				matrix_rm_cc(cc);
+		}
+		function sel_change_size(size, checked) {
+			if (checked)
+				matrix_add_size(size);
+			else
+				matrix_rm_size(size);
+		}
+
+	</script>
+
+{% endblock %}
+
+{% block after_field_sets %}
+	<fieldset id="matrix_fieldset">
+		<div id="matrix" class="matrix_column">
+			<table id="matrix_table">
+				<tbody>
+					<tr><td></td></tr>
+				</tbody>
+			</table>
+		</div>
+		<div id="cc_column" class="matrix_column">
+			<ul>
+				{% for cc in color_categories %}
+					<li><input type="checkbox" id="cc-{{ cc.pk }}" name="cc" value="{{ cc.pk }}" onchange="sel_change_cc('{{ cc }}', checked);"><label for="cc-{{ cc.pk }}">{{ cc }}</li>
+				{% endfor %}
+			</ul>
+		</div>
+		<div id="size_column" class="matrix_column">
+			<ul>
+				{% for size in sizes %}
+					<li><input type="checkbox" id="size-{{ size.pk }}" name="size" value="{{ size.pk }}" onchange="sel_change_size('{{ size.ShirtSizeAbbr }}', checked);"><label for="size-{{ size.pk }}">{{ size }}</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</fieldset>
+{% endblock %}
