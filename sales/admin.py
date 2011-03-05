@@ -15,10 +15,6 @@ from sales.models import ShirtSize
 from sales.models import ShirtSKUInventory
 from sales.models import ColorCategory
 
-class ShirtPriceInline(admin.TabularInline):
-	model = ShirtPrice
-	extra = 1
-
 class ShirtPriceMatrixRow(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ShirtPriceMatrixRow, self).__init__(*args, **kwargs)
