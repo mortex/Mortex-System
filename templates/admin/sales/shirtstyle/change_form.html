@@ -176,7 +176,7 @@
 		</div>
 		<div id="cc_column" class="matrix_column">
 			<ul>
-				{% for cc in color_categories %}
+				{% for cc, row in matrix %}
 					<li><input type="checkbox" id="cc-{{ cc.pk }}" name="cc" value="{{ cc.pk }}" onchange="sel_change_cc('{{ cc }}', checked);"><label for="cc-{{ cc.pk }}">{{ cc }}</li>
 				{% endfor %}
 			</ul>
