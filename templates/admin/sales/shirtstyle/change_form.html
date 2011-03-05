@@ -154,9 +154,18 @@
 	<fieldset id="matrix_fieldset">
 		<div id="matrix" class="matrix_column">
 			<table id="matrix_table">
+				<thead>
+					<tr>
+						<th></th>
+						{% for size in sizes %}
+							<th>{{ size }}</th>
+						{% endfor %}
+					</tr>
+				</thead>
 				<tbody>
-					{% for row in matrix %}
+					{% for cc, row in matrix %}
 						<tr>
+							<th scope="row">{{ cc }}</th>
 							{% for field in row %}
 								<td>{{ field }}</td>
 							{% endfor %}

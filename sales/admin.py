@@ -19,7 +19,7 @@ class ShirtPriceMatrixRow(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ShirtPriceMatrixRow, self).__init__(*args, **kwargs)
         for size in [s.ShirtSizeAbbr for s in ShirtSize.objects.all()]:
-            self.fields[size] = forms.DecimalField(min_value=Decimal(0), decimal_places=2)
+            self.fields[size] = forms.DecimalField(min_value=Decimal(0), decimal_places=2, widget=forms.TextInput(attrs={"size": "4"}))
 
 class ShirtStyleAdmin(admin.ModelAdmin):
 	
@@ -52,8 +52,12 @@ class ShirtStyleAdmin(admin.ModelAdmin):
             return response
 
         else:
+            ccs = ColorCategory.objects.all()
+            sizes = ShirtSize.objects.all()
             matrix = [ShirtPriceMatrixRow(prefix="price__{0}".format(cc)) for cc in ColorCategory.objects.all()]
-            my_context = {"matrix": matrix}
+            my_context = { "sizes": sizes
+                         , "matrix": zip(ccs, matrix)
+                         }
             return super(ShirtStyleAdmin, self).add_view(request, form_url="", extra_context=my_context)
 
 admin.site.register(ShirtStyle, ShirtStyleAdmin)
