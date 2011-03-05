@@ -6,13 +6,18 @@ from sales.models import ShirtPrice
 from sales.models import ShirtSKU
 from sales.models import ShirtSKUInventory
 from sales.models import ShirtSize
+from sales.models import ShirtStyleVariation
 
 class ShirtPriceInline(admin.TabularInline):
 	model = ShirtPrice
 	extra = 1
 
+class ShirtStyleVariationInline(admin.TabularInline):
+    model = ShirtStyleVariation
+    extra = 1
+
 class ShirtStyleAdmin(admin.ModelAdmin):
-	inlines = [ShirtPriceInline]
+	inlines = [ShirtPriceInline, ShirtStyleVariationInline]
 	search_fields = ['ShirtStyleNumber', 'ShirtStyleDescription']
 
 class ShirtSKUInventoryInline(admin.TabularInline):

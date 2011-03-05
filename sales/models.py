@@ -14,6 +14,14 @@ class ShirtStyle(models.Model):
     def __unicode__(self):
         return self.ShirtStyleNumber + ' ' + self.ShirtStyleDescription 
 
+class ShirtStyleVariation(models.Model):
+    ShirtStyle = models.ForeignKey(ShirtStyle)
+    ShirtStyleNumber = models.CharField('Style Number', max_length=20)
+    Customer = models.ForeignKey(Customer, null=True, blank=True)
+    PriceChange = models.FloatField()
+    def __unicode__(self):
+        return self.ShirtStyleNumber + ' ' + self.ShirtStyle.ShirtStyleDescription
+
 class ColorCategory(models.Model):
     ColorCategoryName = models.CharField('Color Category', max_length=20)
     def __unicode__(self):
@@ -73,7 +81,7 @@ class ShirtOrderSKU(models.Model):
     OrderQuantity = models.IntegerField('Quantity')
     Price = models.FloatField()
     CustomLabel = models.BooleanField('Custom Label')
-    
+
 class ShirtSKUInventory(models.Model):
     Color = models.ForeignKey(Color)
     ShirtPrice = models.ForeignKey(ShirtPrice)
