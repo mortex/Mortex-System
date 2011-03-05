@@ -97,6 +97,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
 )
 
+SERIALIZATION_MODULES = {"json": "wadofstuff.django.serializers.json"}
+
 # Import machine-specific settings to override settings in this file
 try:
     from local.settings import *
