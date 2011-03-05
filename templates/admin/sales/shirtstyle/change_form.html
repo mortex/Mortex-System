@@ -155,7 +155,13 @@
 		<div id="matrix" class="matrix_column">
 			<table id="matrix_table">
 				<tbody>
-					<tr><td></td></tr>
+					{% for row in matrix %}
+						<tr>
+							{% for field in row %}
+								<td>{{ field }}</td>
+							{% endfor %}
+						</tr>
+					{% endfor %}
 				</tbody>
 			</table>
 		</div>

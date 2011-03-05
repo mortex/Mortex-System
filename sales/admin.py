@@ -19,17 +19,16 @@ class ShirtPriceInline(admin.TabularInline):
 	model = ShirtPrice
 	extra = 1
 
-class ShirtPriceMatrix(forms.Form):
+class ShirtPriceMatrixRow(forms.Form):
     def __init__(self, *args, **kwargs):
-        super(ShirtPriceMatrix, self).__init__(*args, **kwargs)
-        ccs = ColorCategory.objects.all()
-        sizes = [s.ShirtSizeAbbr for s in ShirtSize.objects.all()]
-        for cc, size in itertools.product(ccs, sizes):
-            self.fields["price__{0}__{1}".format(cc, size)] = forms.DecimalField(min_value=Decimal(0), decimal_places=2)
+        super(ShirtPriceMatrixRow, self).__init__(*args, **kwargs)
+        for size in [s.ShirtSizeAbbr for s in ShirtSize.objects.all()]:
+            self.fields[size] = forms.DecimalField(min_value=Decimal(0), decimal_places=2)
 
 class ShirtStyleAdmin(admin.ModelAdmin):
 	
     def add_view(self, request, form_url="", extra_context=None):
+
         if request.method == "POST":
             response = super(ShirtStyleAdmin, self).add_view(request, form_url="")
             new_style = ShirtStyle.objects.get(ShirtStyleNumber=request.POST["ShirtStyleNumber"])
@@ -55,9 +54,10 @@ class ShirtStyleAdmin(admin.ModelAdmin):
             for price in new_prices:
                 price.save()
             return response
+
         else:
-            matrix = ShirtPriceMatrix()
-            my_context = {"matrix": ShirtPriceMatrix()}
+            matrix = [ShirtPriceMatrixRow(prefix="price__{0}".format(cc)) for cc in ColorCategory.objects.all()]
+            my_context = {"matrix": matrix}
             return super(ShirtStyleAdmin, self).add_view(request, form_url="", extra_context=my_context)
 
 admin.site.register(ShirtStyle, ShirtStyleAdmin)
