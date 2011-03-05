@@ -1,5 +1,9 @@
+import itertools
 import re
 
+from decimal import Decimal
+
+from django import forms
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 
@@ -14,6 +18,14 @@ from sales.models import ColorCategory
 class ShirtPriceInline(admin.TabularInline):
 	model = ShirtPrice
 	extra = 1
+
+class ShirtPriceMatrix(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(ShirtPriceMatrix, self).__init__(*args, **kwargs)
+        ccs = ColorCategory.objects.all()
+        sizes = [s.ShirtSizeAbbr for s in ShirtSize.objects.all()]
+        for cc, size in itertools.product(ccs, sizes):
+            self.fields["price__{0}__{1}".format(cc, size)] = forms.DecimalField(min_value=Decimal(0), decimal_places=2)
 
 class ShirtStyleAdmin(admin.ModelAdmin):
 	
@@ -44,9 +56,8 @@ class ShirtStyleAdmin(admin.ModelAdmin):
                 price.save()
             return response
         else:
-            my_context = { "color_categories": ColorCategory.objects.all()
-                         , "sizes": ShirtSize.objects.all()
-                         }
+            matrix = ShirtPriceMatrix()
+            my_context = {"matrix": ShirtPriceMatrix()}
             return super(ShirtStyleAdmin, self).add_view(request, form_url="", extra_context=my_context)
 
 admin.site.register(ShirtStyle, ShirtStyleAdmin)
