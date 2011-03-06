@@ -14,7 +14,7 @@
         {% if not field.is_hidden %}
             <td>
                 {{ field.label_tag }}
-                <span id="price{{ form.prefix }}{{ field.html_name }}" class="price{{ form.prefix }}"></span><br/>
+                <span id="price{{ field.html_name }}" class="price{{ form.prefix }}"></span><br/>
                 {{ field }}
             </td>
         {% endif %}

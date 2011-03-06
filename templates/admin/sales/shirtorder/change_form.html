@@ -64,14 +64,14 @@
         }
         
         function selectcolor(colorid, shirtstyleid, prefix){
-            $('.price' + prefix).html('');
-            $('#row' + prefix + " input[type=text]").attr('disabled', true);
             if(colorid != ''){
                 $.get('/app/styleprices', {"colorid": colorid, "shirtstyleid": shirtstyleid}, function(data){
+                $('.price' + prefix).html('');
+                $('#row' + prefix + " input[type=text]").attr('disabled', true);
                     $.each(data, function(i, item) {
                         //alert('price' + row + '-' + item.fields.ShirtSize);
                         $('#price' + prefix + '-' + item.fields.ShirtSize).html(" - $" + item.fields.ShirtPrice);
-                        $('id_' + prefix + '-' + item.fields.ShirtSize).attr('disabled', false);
+                        $('#id_' + prefix + '-' + item.fields.ShirtSize).attr('disabled', false);
                     });
                 });
             }
