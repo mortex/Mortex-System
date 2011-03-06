@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from django.shortcuts import render_to_response
 
 #Style Creation
 from sales.models import ShirtStyle
@@ -72,6 +74,31 @@ class ShirtOrderAdmin(admin.ModelAdmin):
         css = {
             "all": ("css/jquery-ui-1.8.10.custom.css",)
         }
-        js = ("js/jquery-1.4.4.min.js","js/jquery-ui-1.8.10.custom.min.js","js/jstree/jquery.jstree.js")
+        js = ("js/jquery-1.4.4.min.js","js/jquery-ui-1.8.10.custom.min.js","js/jstree/jquery.jstree.js","js/FlexBox/js/jquery.flexbox.js")
 
 admin.site.register(ShirtOrder, ShirtOrderAdmin)
+
+class OrderLine(forms.Form):
+    def __init__(self, shirtstyleid, *args, **kwargs):
+        super(OrderLine, self).__init__(*args, **kwargs)
+        self.fields["color"] = forms.ModelChoiceField(queryset=Color.objects.distinct().filter(ColorCategory__shirtprice__ShirtStyle__id=shirtstyleid))
+        shirtsizes = ShirtSize.objects.filter(shirtprice__ShirtStyle__exact=shirtstyleid).distinct()
+        for size in shirtsizes:
+            self.fields[size.ShirtSizeAbbr] = forms.IntegerField(min_value=0, required=False, widget=forms.TextInput(attrs={"disabled":None}))
+
+def orderform(request):
+    if "shirtstyleid" in request.GET:
+        shirtstyleid = request.GET['shirtstyleid']
+        shirtstyle = ShirtStyle.objects.get(pk=shirtstyleid)
+        dictionary = {}
+    elif "shirtstylevariationid" in request.GET:
+        shirtstylevariationid = request.GET['shirtstylevariationid']
+        shirtstylevariation = ShirtStyleVariation.objects.get(pk=shirtstylevariationid)
+        shirtstyle = shirtstylevariation.ShirtStyle
+        shirtstyleid = shirtstyle.pk
+        dictionary = {"shirtstylevariation": shirtstylevariation}
+    else:
+        print 'hello world'
+    dictionary["form"] = OrderLine(shirtstyleid)
+    dictionary["shirtstyle"] = shirtstyle
+    return render_to_response('admin/sales/form.html', dictionary)

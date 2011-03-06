@@ -18,7 +18,8 @@ class ShirtStyleVariation(models.Model):
     ShirtStyle = models.ForeignKey(ShirtStyle)
     ShirtStyleNumber = models.CharField('Style Number', max_length=20)
     Customer = models.ForeignKey(Customer, null=True, blank=True)
-    PriceChange = models.FloatField()
+    PriceChange = models.DecimalField('Price Change', max_digits=10, decimal_places=2)
+    VariationDescription = models.TextField('Variation Description')
     def __unicode__(self):
         return self.ShirtStyleNumber + ' ' + self.ShirtStyle.ShirtStyleDescription
 
@@ -77,6 +78,7 @@ class ShirtOrder(models.Model):
 class ShirtOrderSKU(models.Model):
     ShirtOrder = models.ForeignKey(ShirtOrder)
     ShirtPrice = models.ForeignKey(ShirtPrice)
+    ShirtStyleVariation = models.ForeignKey(ShirtStyleVariation, null=True, blank=True)
     Color = models.ForeignKey(Color)
     OrderQuantity = models.IntegerField('Quantity')
     Price = models.FloatField()
@@ -85,6 +87,7 @@ class ShirtOrderSKU(models.Model):
 class ShirtSKUInventory(models.Model):
     Color = models.ForeignKey(Color)
     ShirtPrice = models.ForeignKey(ShirtPrice)
+    ShirtStyleVariation = models.ForeignKey(ShirtStyleVariation, null=True, blank=True)
     CutOrder = models.CharField('Cut Order', max_length=20)
     Pieces = models.IntegerField()
     Add = models.BooleanField(default = True)
