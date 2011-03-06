@@ -1,0 +1,22 @@
+<tr id='row{{ form.prefix }}'>
+    <td style='vertical-align:middle;' class='delete'>
+        <div onClick="removestyle('{{ form.prefix }}')"><a class='inline-deletelink' href='javascript:void(0)'>Remove</a></div>
+    </td>
+    <td>{{ form.shirtstyle }}{{ form.shirtstylevariation }}
+    <h4>
+    {% if shirtstylevariation %}
+        {{ shirtstylevariation.ShirtStyleNumber }}
+    {% else %}
+        {{ shirtstyle.ShirtStyleNumber }} 
+    {% endif %}
+    {{ shirtstyle.ShirtStyleDescription }}</h4></td>
+    {% for field in form %}
+        {% if not field.is_hidden %}
+            <td>
+                {{ field.label_tag }}
+                <span id="price{{ form.prefix }}{{ field.html_name }}" class="price{{ form.prefix }}"></span><br/>
+                {{ field }}
+            </td>
+        {% endif %}
+    {% endfor %}
+</tr>

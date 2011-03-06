@@ -74,14 +74,17 @@ class ShirtOrderAdmin(admin.ModelAdmin):
         css = {
             "all": ("css/jquery-ui-1.8.10.custom.css",)
         }
-        js = ("js/jquery-1.4.4.min.js","js/jquery-ui-1.8.10.custom.min.js","js/jstree/jquery.jstree.js","js/FlexBox/js/jquery.flexbox.js")
+        js = ("js/jquery-1.4.4.min.js", "js/jquery-ui-1.8.10.custom.min.js", "js/jstree/jquery.jstree.js")
 
 admin.site.register(ShirtOrder, ShirtOrderAdmin)
 
 class OrderLine(forms.Form):
-    def __init__(self, shirtstyleid, *args, **kwargs):
+    def __init__(self, shirtstyleid, shirtstylevariationid=None, *args, **kwargs):
         super(OrderLine, self).__init__(*args, **kwargs)
-        self.fields["color"] = forms.ModelChoiceField(queryset=Color.objects.distinct().filter(ColorCategory__shirtprice__ShirtStyle__id=shirtstyleid))
+        self.fields["shirtstyle"] = forms.IntegerField(widget=forms.HiddenInput(), initial=shirtstyleid)
+        if shirtstylevariationid:
+            self.fields["shirtstylevariation"] = forms.IntegerField(widget=forms.HiddenInput(), initial=shirtstylevariationid)
+        self.fields["color"] = forms.ModelChoiceField(queryset=Color.objects.distinct().filter(ColorCategory__shirtprice__ShirtStyle__id=shirtstyleid), widget=forms.Select(attrs={"onChange":"selectcolor(this.value, " + str(shirtstyleid) + ", " + str(self.prefix) + ")"}))
         shirtsizes = ShirtSize.objects.filter(shirtprice__ShirtStyle__exact=shirtstyleid).distinct()
         for size in shirtsizes:
             self.fields[size.ShirtSizeAbbr] = forms.IntegerField(min_value=0, required=False, widget=forms.TextInput(attrs={"disabled":None}))
@@ -91,6 +94,7 @@ def orderform(request):
         shirtstyleid = request.GET['shirtstyleid']
         shirtstyle = ShirtStyle.objects.get(pk=shirtstyleid)
         dictionary = {}
+        shirtstylevariationid = None
     elif "shirtstylevariationid" in request.GET:
         shirtstylevariationid = request.GET['shirtstylevariationid']
         shirtstylevariation = ShirtStyleVariation.objects.get(pk=shirtstylevariationid)
@@ -99,6 +103,6 @@ def orderform(request):
         dictionary = {"shirtstylevariation": shirtstylevariation}
     else:
         print 'hello world'
-    dictionary["form"] = OrderLine(shirtstyleid)
+    dictionary["form"] = OrderLine(shirtstyleid, shirtstylevariationid, prefix=request.GET['prefix'])
     dictionary["shirtstyle"] = shirtstyle
     return render_to_response('admin/sales/form.html', dictionary)

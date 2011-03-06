@@ -43,54 +43,35 @@
             });
         }
         
-        var orderstyle = 1
+        var prefix = 1;
         function addstyle(shirtstyleid, shirtstylevariationid){
-            if(!shirtstylevariationid){
-                var url = '/app/shirtstyles';
-                var parametervalue = shirtstyleid;
+            if(shirtstylevariationid){
+                var params = {shirtstylevariationid: shirtstylevariationid};
             }
             else{
-                var url = '/app/shirtstylevariations';
-                var parametervalue = shirtstylevariationid;
+                var params = {shirtstyleid: shirtstyleid};
             }
-            $.get(url, {id: parametervalue, getparent: "true"}, function(data){
-                if(!shirtstylevariationid){
-                    var shirtstyledescription = data[0].fields.ShirtStyleDescription;
-                }
-                else{
-                    var shirtstyledescription = data[0].fields.ShirtStyle.fields.ShirtStyleDescription;
-                    shirtstyleid = data[0].fields.ShirtStyle.pk;
-                }
-                $('#orderstyles').append("<tr id='row" + orderstyle + "'><td style='vertical-align:middle;' class='delete'><div onClick='removestyle(" + orderstyle + ")'><a class='inline-deletelink' href='javascript:void(0)'>Remove</a></div></td><td><h4>" + data[0].fields.ShirtStyleNumber + " " + shirtstyledescription + "</h4></td><td style='vertical-align:middle'><select onChange='selectcolor(this.value, " + shirtstyleid + ", " + orderstyle + ")' id='color" + orderstyle + "'></select></td></tr>");
-                $.get('/app/shirtsizes', {"shirtstyleid": shirtstyleid}, function(data){
-                    $.each(data, function(i, item) {
-                        $('#row' + orderstyle).append("<td>" + item.fields.ShirtSizeAbbr + "<span id=price" + orderstyle + "-" + item.pk + " class=price" + orderstyle + "></span><br/><input type='text' style='width:50px;' id=input" + orderstyle + "-" + item.pk + " class=input" + orderstyle + " disabled=true/></td>");
-                    });
-                });
-                $.get('/app/colors', {"shirtstyleid": shirtstyleid}, function(data){
-                    $('#color' + orderstyle).append(new Option('-----', ''));
-                    $.each(data, function(i, item) {
-                        $('#color' + orderstyle).append(new Option(item.fields.ColorName, item.pk));
-                    });
-                    orderstyle += 1;
-                });
+            params["prefix"] = prefix;
+            $.get('/admin/orderform/', params, function(data){
+                $('#orderstyles').append(data);
+                ++prefix;
             });
-            window.event.cancelBubble = true
+            window.event.cancelBubble = true;
         }
         
         function removestyle(orderstyle){
             $('#row' + orderstyle).remove();
         }
         
-        function selectcolor(colorid, shirtstyleid, row){
-            $('.price' + row).html('');
-            $('.input' + row).attr('disabled', true);
+        function selectcolor(colorid, shirtstyleid, prefix){
+            $('.price' + prefix).html('');
+            $('#row' + prefix + " input[type=text]").attr('disabled', true);
             if(colorid != ''){
                 $.get('/app/styleprices', {"colorid": colorid, "shirtstyleid": shirtstyleid}, function(data){
                     $.each(data, function(i, item) {
                         //alert('price' + row + '-' + item.fields.ShirtSize);
-                        $('#price' + row + '-' + item.fields.ShirtSize).html(" - $" + item.fields.ShirtPrice);
-                        $('#input' + row + '-' + item.fields.ShirtSize).attr('disabled', false);
+                        $('#price' + prefix + '-' + item.fields.ShirtSize).html(" - $" + item.fields.ShirtPrice);
+                        $('id_' + prefix + '-' + item.fields.ShirtSize).attr('disabled', false);
                     });
                 });
             }
