@@ -155,17 +155,17 @@
 		<div id="matrix" class="matrix_column">
 			<table id="matrix_table">
 				<thead>
-					<tr>
-						<th></th>
+					<tr id="row__head">
+						<th class="col__head"></th>
 						{% for size in sizes %}
-							<th>{{ size }}</th>
+							<th class="col__{{ size.ShirtSizeAbbr }}">{{ size.ShirtSizeAbbr }}</th>
 						{% endfor %}
 					</tr>
 				</thead>
 				<tbody>
 					{% for cc, row in matrix %}
-						<tr>
-							<th scope="row">{{ cc }}</th>
+						<tr id="row__{{ cc }}">
+							<th scope="row" class="col__head">{{ cc }}</th>
 							{% for field in row %}
 								<td>{{ field }}</td>
 							{% endfor %}
