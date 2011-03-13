@@ -79,20 +79,13 @@
 
 		{# Add a matrix row for a color category #}
 		function matrix_add_cc(cc) {
+
 			if (cc === "")
 				return;
-			var first_row = django.jQuery("#matrix_table")[0].rows[0].cells;
-			var num_cols = first_row.length;
-			var col_headers = [];
-			django.jQuery(first_row).each(function(i, cell) {
-				col_headers.push(cell.innerHTML);
-			});
-			var new_row = "<tr>";
-			new_row += "<td>" + cc + "</td>";	{# First cell contains color category name #}
-			for (var i = 1; i < num_cols; ++i)
-				new_row += "<td><input type='text' size='4' name='price__" + cc + "__" + col_headers[i] + "'></td>";
-			new_row += "</tr>";
-			django.jQuery("#matrix_table tbody").append(new_row);
+			
+			django.jQuery("#matrix_table #row__head").show();
+			django.jQuery("#matrix_table #row__" + cc).children("td").andSelf().show();
+
 		}
 
 		{# Remove a matrix row for a color category #}
