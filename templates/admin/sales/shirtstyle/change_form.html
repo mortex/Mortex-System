@@ -165,16 +165,16 @@
 					<tr id="row__head">
 						<th class="col__head"></th>
 						{% for size in sizes %}
-							<th class="col__{{ size.ShirtSizeAbbr }}">{{ size.ShirtSizeAbbr }}</th>
+							<th class="col__{{ size.ShirtSizeAbbr|unspace }}">{{ size.ShirtSizeAbbr }}</th>
 						{% endfor %}
 					</tr>
 				</thead>
 				<tbody>
 					{% for cc, row in matrix %}
-						<tr id="row__{{ cc }}">
+						<tr id="row__{{ cc|unspace }}">
 							<th scope="row" class="col__head">{{ cc }}</th>
 							{% for field in row.fields %}
-								<td class="col__{{ field }}">{{ row|hash:field }}</td>
+								<td class="col__{{ field|unspace }}">{{ row|hash:field }}</td>
 							{% endfor %}
 						</tr>
 					{% endfor %}
@@ -184,14 +184,14 @@
 		<div id="cc_column" class="matrix_column">
 			<ul>
 				{% for cc, row in matrix %}
-					<li><input type="checkbox" id="cc-{{ cc.pk }}" name="cc" value="{{ cc.pk }}" onchange="sel_change_cc('{{ cc }}', checked);"><label for="cc-{{ cc.pk }}">{{ cc }}</li>
+					<li><input type="checkbox" id="cc-{{ cc.pk }}" name="cc" value="{{ cc.pk }}" onchange="sel_change_cc('{{ cc|unspace }}', checked);"><label for="cc-{{ cc.pk }}">{{ cc }}</li>
 				{% endfor %}
 			</ul>
 		</div>
 		<div id="size_column" class="matrix_column">
 			<ul>
 				{% for size in sizes %}
-					<li><input type="checkbox" id="size-{{ size.pk }}" name="size" value="{{ size.pk }}" onchange="sel_change_size('{{ size.ShirtSizeAbbr }}', checked);"><label for="size-{{ size.pk }}">{{ size }}</li>
+					<li><input type="checkbox" id="size-{{ size.pk }}" name="size" value="{{ size.pk }}" onchange="sel_change_size('{{ size.ShirtSizeAbbr|unspace }}', checked);"><label for="size-{{ size.pk }}">{{ size }}</li>
 				{% endfor %}
 			</ul>
 		</div>
