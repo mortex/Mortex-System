@@ -7,7 +7,7 @@ class Customer(models.Model):
         	return self.CustomerName
 
 class ShirtStyle(models.Model):
-	ShirtStyleNumber = models.CharField('Style Number', max_length=20)
+	ShirtStyleNumber = models.CharField('Style Number', max_length=20, unique=True)
 	ShirtStyleDescription = models.CharField('Description', max_length=200)
 	Customer = models.ForeignKey(Customer, null=True, blank=True)
 	KnitStyleName = models.CharField('Knit Style', max_length=10)
