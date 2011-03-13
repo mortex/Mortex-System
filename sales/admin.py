@@ -86,9 +86,13 @@ class OrderLine(forms.Form):
             self.fields["shirtstylevariation"] = forms.IntegerField(widget=forms.HiddenInput(), initial=shirtstylevariationid)
         self.fields["color"] = forms.ModelChoiceField(queryset=Color.objects.distinct().filter(ColorCategory__shirtprice__ShirtStyle__id=shirtstyleid), widget=forms.Select(attrs={"onChange":"selectcolor(this.value, " + str(shirtstyleid) + ", " + str(self.prefix) + ")"}))
         shirtsizes = ShirtSize.objects.filter(shirtprice__ShirtStyle__exact=shirtstyleid).distinct()
+        self.fieldpairs = []
         for size in shirtsizes:
-            self.fields['quantity'+str(size.pk)] = forms.IntegerField(label=size.ShirtSizeAbbr, min_value=0, required=False, widget=forms.TextInput(attrs={"disabled":None, "size":"6","class":"quantity"}))
-            self.fields['price'+str(size.pk)] = forms.IntegerField(label=None, min_value=0, required=False, widget=forms.TextInput(attrs={"size":"6","class":"price"}))
+            quantityid = 'quantity'+str(size.pk)
+            priceid = 'price'+str(size.pk)
+            self.fieldpairs.append((quantityid, priceid))
+            self.fields[quantityid] = forms.IntegerField(label=size.ShirtSizeAbbr, min_value=0, required=False, widget=forms.TextInput(attrs={"disabled":None, "size":"6","class":"quantity"}))
+            self.fields[priceid] = forms.IntegerField(label=None, min_value=0, required=False, widget=forms.TextInput(attrs={"size":"6","class":"price"}))
 
 def orderform(request):
     if "shirtstyleid" in request.GET:

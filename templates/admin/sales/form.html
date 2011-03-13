@@ -1,3 +1,4 @@
+{% load orderform_extras %}
 <tr id='row{{ form.prefix }}'>
     <td style='vertical-align:middle;' class='delete'>
         <div onClick="removestyle('{{ form.prefix }}')"><a class='inline-deletelink' href='javascript:void(0)'>Remove</a></div>
@@ -10,13 +11,11 @@
         {{ shirtstyle.ShirtStyleNumber }} 
     {% endif %}
     {{ shirtstyle.ShirtStyleDescription }}</h4></td>
-    {% for field in form %}
-        {% if not field.is_hidden %}
+    <td>{{ form.color }}{{ form.shirtstyle }}</td>
+    {% for quantityfield, pricefield in form.fieldpairs %}
             <td>
-                {{ field.label_tag }}
-                <span id="price-{{ field.html_name }}" class="price{{ form.prefix }}"></span><br/>
-                {{ field }}
+                {{ form.fields|hash:quantityfield }}
+                {{ form.fields|hash:pricefield }}
             </td>
-        {% endif %}
     {% endfor %}
 </tr>
