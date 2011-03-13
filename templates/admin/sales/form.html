@@ -12,10 +12,12 @@
     {% endif %}
     {{ shirtstyle.ShirtStyleDescription }}</h4></td>
     <td>{{ form.color }}{{ form.shirtstyle }}</td>
-    {% for quantityfield, pricefield in form.fieldpairs %}
+    {% for quantityfield, pricefield, pricefkeyfield in form.fieldset %}
             <td>
-                {{ form.fields|hash:quantityfield }}
-                {{ form.fields|hash:pricefield }}
+                {{ form|hash:quantityfield|attr:'label' }}
+                {{ form|hash:pricefield }}<br/>
+                {{ form|hash:quantityfield }}<br/>
+                {{ form|hash:pricefkeyfield }}
             </td>
     {% endfor %}
 </tr>

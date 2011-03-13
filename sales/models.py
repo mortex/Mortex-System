@@ -82,7 +82,6 @@ class ShirtOrderSKU(models.Model):
     Color = models.ForeignKey(Color)
     OrderQuantity = models.IntegerField('Quantity')
     Price = models.FloatField()
-    CustomLabel = models.BooleanField('Custom Label')
 
 class ShirtSKUInventory(models.Model):
     Color = models.ForeignKey(Color)
