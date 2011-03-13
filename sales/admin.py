@@ -39,12 +39,12 @@ admin.site.register(ShirtSize)
 from sales.models import Customer
 from sales.models import CustomerAddress
 
-class CustomerAddress(admin.StackedInline):
+class CustomerAddressInline(admin.StackedInline):
 	model = CustomerAddress
 	extra = 1
 
 class CustomerAdmin(admin.ModelAdmin):
-	inlines = [CustomerAddress]
+	inlines = [CustomerAddressInline]
 
 admin.site.register(Customer, CustomerAdmin)
 
@@ -69,15 +69,13 @@ class Order(forms.ModelForm):
         model = ShirtOrder
         exclude = ('CustomerAddress','PONumber','Complete')
     customer = forms.ModelChoiceField(queryset=Customer.objects.all(), widget=forms.Select(attrs={"onChange":"selectcustomer(this.value)"}))
-    customeraddress = forms.ChoiceField(label='Address')
+    customeraddress = forms.ModelChoiceField(queryset=CustomerAddress.objects.all())
     ponumber = forms.CharField(label='PO#', max_length=20)
     def clean_customeraddress(self):
         data=self.cleaned_data['customeraddress']
         if 1!=1:
             raise forms.ValidationError("Hey that's not right!")
         return data     
-    def clean(self):
-        raise forms.ValidationError("this is a test")
     
 class ShirtOrderAdmin(admin.ModelAdmin):
     form = Order
