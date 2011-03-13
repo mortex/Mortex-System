@@ -65,6 +65,11 @@
 
 	<script type="application/javascript">
 
+		{# Hide all table cells & rows on page load #}
+		django.jQuery(function() {
+			django.jQuery("#matrix_table td, #matrix_table tr").hide();
+		});
+
 		{# jQuery selector for exact match on element contents #}
 		django.jQuery.extend(django.jQuery.expr[":"], {
 			containsExact: function(a, i, m) {
