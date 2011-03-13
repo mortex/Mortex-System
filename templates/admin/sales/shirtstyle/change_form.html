@@ -90,9 +90,14 @@
 
 		{# Remove a matrix row for a color category #}
 		function matrix_rm_cc(cc) {
+
 			if (cc === "")
 				return;
-			django.jQuery("#matrix_table tr:has(td:containsExact('" + cc + "'):first-child)").remove();
+
+			django.jQuery("#matrix_table #row__" + cc).children("td").andSelf().hide();
+			if (django.jQuery("#matrix_table>tbody>tr:visible").length === 0)
+				django.jQuery("#matrix_table #row__head").hide()
+
 		}
 
 		{# Add a matrix column for a shirt size #}
