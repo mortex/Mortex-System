@@ -64,7 +64,23 @@ admin.site.register(ColorCategory, ColorCategoryAdmin)
 #Shirt Order Interface
 from sales.models import ShirtOrder
 
+class Order(forms.ModelForm):
+    class Meta:
+        model = ShirtOrder
+        exclude = ('CustomerAddress','PONumber','Complete')
+    customer = forms.ModelChoiceField(queryset=Customer.objects.all(), widget=forms.Select(attrs={"onChange":"selectcustomer(this.value)"}))
+    customeraddress = forms.ChoiceField(label='Address')
+    ponumber = forms.CharField(label='PO#', max_length=20)
+    def clean_customeraddress(self):
+        data=self.cleaned_data['customeraddress']
+        if 1!=1:
+            raise forms.ValidationError("Hey that's not right!")
+        return data     
+    def clean(self):
+        raise forms.ValidationError("this is a test")
+    
 class ShirtOrderAdmin(admin.ModelAdmin):
+    form = Order
     def add_view(self, request, form_url="", extra_context=None):
         customers = Customer.objects.all()
         shirtstyles = ShirtStyle.objects.all()
@@ -81,35 +97,51 @@ admin.site.register(ShirtOrder, ShirtOrderAdmin)
 class OrderLine(forms.Form):
     def __init__(self, shirtstyleid, shirtstylevariationid=None, *args, **kwargs):
         super(OrderLine, self).__init__(*args, **kwargs)
-        self.fields["shirtstyle"] = forms.IntegerField(widget=forms.HiddenInput(), initial=shirtstyleid)
         if shirtstylevariationid:
             self.fields["shirtstylevariation"] = forms.IntegerField(widget=forms.HiddenInput(), initial=shirtstylevariationid)
         self.fields["color"] = forms.ModelChoiceField(queryset=Color.objects.distinct().filter(ColorCategory__shirtprice__ShirtStyle__id=shirtstyleid), widget=forms.Select(attrs={"onChange":"selectcolor(this.value, " + str(shirtstyleid) + ", " + str(self.prefix) + ")"}))
         shirtsizes = ShirtSize.objects.filter(shirtprice__ShirtStyle__exact=shirtstyleid).distinct()
         self.fieldset = []
+        i = 1
         for size in shirtsizes:
-            quantityid = 'quantity'+str(size.pk)
-            priceid = 'price'+str(size.pk)
-            pricefkeyid = 'pricefkey'+str(size.pk)
+            quantityid = 'quantity'+str(i)
+            priceid = 'price'+str(i)
+            pricefkeyid = 'pricefkey'+str(i)
             self.fieldset.append((quantityid, priceid, pricefkeyid))
-            self.fields[quantityid] = forms.IntegerField(label=size.ShirtSizeAbbr, min_value=0, required=False, widget=forms.TextInput(attrs={"disabled":None, "size":"6","class":"quantity"}))
-            self.fields[priceid] = forms.IntegerField(label=None, min_value=0, required=False, widget=forms.TextInput(attrs={"size":"6","class":"price"}))
-            self.fields[pricefkeyid] = forms.IntegerField(label='fkey', required=False, widget=forms.TextInput(attrs={"size":"6"}))
+            self.fields[quantityid] = forms.IntegerField(label=size.ShirtSizeAbbr, min_value=0, required=False, widget=forms.TextInput(attrs={"disabled":None, "size":"6","class":"quantity size"+str(size.pk)}))
+            self.fields[priceid] = forms.IntegerField(label=None, min_value=0, required=False, widget=forms.TextInput(attrs={"size":"6","class":"price size"+str(size.pk)}))
+            self.fields[pricefkeyid] = forms.IntegerField(label='fkey', required=False, widget=forms.HiddenInput(attrs={"class":"pricefkey size"+str(size.pk)}))
+            i+=1
+        self.fields["sizes"] = forms.IntegerField(widget=forms.HiddenInput(), initial=i-1)
 
 def orderform(request):
-    if "shirtstyleid" in request.GET:
-        shirtstyleid = request.GET['shirtstyleid']
-        shirtstyle = ShirtStyle.objects.get(pk=shirtstyleid)
-        dictionary = {}
-        shirtstylevariationid = None
-    elif "shirtstylevariationid" in request.GET:
-        shirtstylevariationid = request.GET['shirtstylevariationid']
-        shirtstylevariation = ShirtStyleVariation.objects.get(pk=shirtstylevariationid)
-        shirtstyle = shirtstylevariation.ShirtStyle
-        shirtstyleid = shirtstyle.pk
-        dictionary = {"shirtstylevariation": shirtstylevariation}
+    if request.method == 'GET':
+        if "shirtstyleid" in request.GET:
+            shirtstyleid = request.GET['shirtstyleid']
+            shirtstyle = ShirtStyle.objects.get(pk=shirtstyleid)
+            dictionary = {}
+            shirtstylevariationid = None
+        elif "shirtstylevariationid" in request.GET:
+            shirtstylevariationid = request.GET['shirtstylevariationid']
+            shirtstylevariation = ShirtStyleVariation.objects.get(pk=shirtstylevariationid)
+            shirtstyle = shirtstylevariation.ShirtStyle
+            shirtstyleid = shirtstyle.pk
+            dictionary = {"shirtstylevariation": shirtstylevariation}
+        else:
+            print 'hello world'
+        dictionary["form"] = OrderLine(shirtstyleid, shirtstylevariationid, prefix=request.GET['prefix'])
+        dictionary["shirtstyle"] = shirtstyle
+        return render_to_response('admin/sales/form.html', dictionary)
     else:
-        print 'hello world'
-    dictionary["form"] = OrderLine(shirtstyleid, shirtstylevariationid, prefix=request.GET['prefix'])
-    dictionary["shirtstyle"] = shirtstyle
-    return render_to_response('admin/sales/form.html', dictionary)
+        order = Order(request.POST)
+        if order.is_valid():
+            shirtorder = ShirtOrder(CustomerAddress=order.cleaned_data['customeraddress'], PONumber=order.cleaned_data['ponumber']).save()
+        orderlines = []
+        for i in xrange(1,int(request.POST['rows'])):
+            orderlines.append(OrderLine(request.POST,prefix=i))
+        
+        for orderline in orderlines:
+            if orderline.is_valid():
+                for s in xrange(1,orderline.sizes):
+                    if 'quantity'+s in orderline.fields:
+                        ShirtOrderSKU(ShirtOrder=shirtorder.id, ShirtPrice=orderline.cleaned_data['pricefkey'+s], ShirtStyleVariation=orderlinecleaned_data['shirtstylevariation'], Color=orderline.cleaned_data['color'], OrderQuantity=orderline.cleaned_data['quantity'+s], Price=orderline.cleaned_data['price'+s])

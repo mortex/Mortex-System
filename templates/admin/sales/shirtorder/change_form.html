@@ -1,6 +1,11 @@
 {% extends "admin/change_form.html" %}
 
 {% block extrahead %}{{ block.super }}
+    <style type="text/css">
+        .price {
+            border:none !important;
+        }
+    </style>
     <script type="application/javascript">
         $(function createtree() {
             $('#styletree').jstree({ 
@@ -15,10 +20,10 @@
         });
         
         function selectcustomer(customerid){
-            $('#id_Address').find('option').remove()
+            $('#id_customeraddress').find('option').remove()
             $.get('/app/addresses', {"customerid": customerid}, function(data){
                 $.each(data, function(i, item) {
-                    $('#id_Address').append(new Option(item.fields.Address1 + ', ' + item.fields.City, item.pk));
+                    $('#id_customeraddress').append(new Option(item.fields.Address1 + ', ' + item.fields.City, item.pk));
                 });
             });
             addstyles(customerid);
@@ -54,6 +59,7 @@
             params["prefix"] = prefix;
             $.get('/admin/orderform/', params, function(data){
                 $('#orderstyles').append(data);
+                $('#rows').val(prefix);
                 ++prefix;
             });
             window.event.cancelBubble = true;
@@ -64,14 +70,15 @@
         }
         
         function selectcolor(colorid, shirtstyleid, prefix){
-            $('#row' + prefix + " input.quantity[type=text]").attr('disabled', true);
-            $('.price' + prefix).html('');
             if(colorid != ''){
                 $.get('/app/styleprices', {"colorid": colorid, "shirtstyleid": shirtstyleid}, function(data){
+                    $('#row' + prefix + " input.quantity[type=text]").attr('disabled', true);
+                    $('#row' + prefix + ' .price, #row' + prefix + ' .pricefkey').val('');
                     $.each(data, function(i, item) {
                         //alert('price' + row + '-' + item.fields.ShirtSize);
-                        $('#price' + prefix + '-' + item.fields.ShirtSize).html(" - $" + item.fields.ShirtPrice);
-                        $('#id_' + prefix + '-quantity' + item.fields.ShirtSize).attr('disabled', false);
+                        $('#row' + prefix + ' .price.size' + item.fields.ShirtSize).val(item.fields.ShirtPrice);
+                        $('#row' + prefix + ' .quantity.size' + item.fields.ShirtSize).attr('disabled', false);
+                        $('#row' + prefix + ' .pricefkey.size' + item.fields.ShirtSize).val(item.pk);
                     });
                 });
             }
@@ -79,35 +86,7 @@
     </script>
 {% endblock %}
 
-{% block content %}
-<fieldset class="module aligned ">
-    <div class="form-row">
-        <div>
-            <label for="id_Customer" class="required">Customer</label>
-            <select name="customer" id="id_Customer" onChange="selectcustomer(this.value);">
-                <option value="" selected="selected">---------</option>
-                {% for cust in customers %}
-                    <option value="{{ cust.id }}">{{ cust }}</option>
-                {% endfor %}
-            </select>
-        </div>
-    </div>
-    <div class="form-row">
-        <div>
-            <label for="id_Address" class="required">Delivery Address</label>
-            <select name="address" id="id_Address">
-                <option value="" selected="selected">---------</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-row">
-        <div>
-            <label for="address_id" class="required">PO Number</label>
-            <input name="ponumber" value="" class="vTextField" maxlength="20" type="text" id="id_PONumber">
-        </div>
-    </div>
-</fieldset>
-
+{% block after_field_sets %}
 <div id="styletree" style="float:left;">
     <ul>
         <li id="unique"><a href="">Unique to this Customer</a></li>
@@ -124,4 +103,6 @@
 <table id="orderstyles" style="float:left;margin-left:20px;">
 
 </table>
+<input type="hidden" id="rows" name="rows"/>
+<div class="clear"></div>
 {% endblock %}

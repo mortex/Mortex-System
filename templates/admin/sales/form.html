@@ -11,11 +11,11 @@
         {{ shirtstyle.ShirtStyleNumber }} 
     {% endif %}
     {{ shirtstyle.ShirtStyleDescription }}</h4></td>
-    <td>{{ form.color }}{{ form.shirtstyle }}</td>
+    <td>{{ form.color }}{{ form.shirtstylevariation }}{{ form.sizes }}</td>
     {% for quantityfield, pricefield, pricefkeyfield in form.fieldset %}
             <td>
                 {{ form|hash:quantityfield|attr:'label' }}
-                {{ form|hash:pricefield }}<br/>
+                ${{ form|hash:pricefield }}<br/>
                 {{ form|hash:quantityfield }}<br/>
                 {{ form|hash:pricefkeyfield }}
             </td>
