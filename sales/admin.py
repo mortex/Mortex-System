@@ -78,12 +78,32 @@ class Order(forms.ModelForm):
         return data     
     
 class ShirtOrderAdmin(admin.ModelAdmin):
+
     form = Order
+
     def add_view(self, request, form_url="", extra_context=None):
-        customers = Customer.objects.all()
-        shirtstyles = ShirtStyle.objects.all()
-        my_context = {"customers": customers, "shirtstyles": shirtstyles}
-        return super(ShirtOrderAdmin, self).add_view(request, form_url="", extra_context=my_context)
+
+        if request.method == "GET":
+            customers = Customer.objects.all()
+            shirtstyles = ShirtStyle.objects.all()
+            my_context = {"customers": customers, "shirtstyles": shirtstyles}
+            return super(ShirtOrderAdmin, self).add_view(request, form_url="", extra_context=my_context)
+
+        else:
+            order = Order(request.POST)
+            if order.is_valid():
+                shirtorder = ShirtOrder(CustomerAddress=order.cleaned_data['customeraddress'], PONumber=order.cleaned_data['ponumber']).save()
+            orderlines = []
+            for i in xrange(1,int(request.POST['rows'])):
+                orderlines.append(OrderLine(request.POST,prefix=i))
+            
+            for orderline in orderlines:
+                if orderline.is_valid():
+                    for s in xrange(1,orderline.sizes):
+                        if 'quantity'+s in orderline.fields:
+                            ShirtOrderSKU(ShirtOrder=shirtorder.id, ShirtPrice=orderline.cleaned_data['pricefkey'+s], ShirtStyleVariation=orderlinecleaned_data['shirtstylevariation'], Color=orderline.cleaned_data['color'], OrderQuantity=orderline.cleaned_data['quantity'+s], Price=orderline.cleaned_data['price'+s])
+            return super(ShirtOrderAdmin, self).add_view(request, form_url="")
+
     class Media:
         css = {
             "all": ("css/jquery-ui-1.8.10.custom.css",)
@@ -113,33 +133,19 @@ class OrderLine(forms.Form):
         self.fields["sizes"] = forms.IntegerField(widget=forms.HiddenInput(), initial=i-1)
 
 def orderform(request):
-    if request.method == 'GET':
-        if "shirtstyleid" in request.GET:
-            shirtstyleid = request.GET['shirtstyleid']
-            shirtstyle = ShirtStyle.objects.get(pk=shirtstyleid)
-            dictionary = {}
-            shirtstylevariationid = None
-        elif "shirtstylevariationid" in request.GET:
-            shirtstylevariationid = request.GET['shirtstylevariationid']
-            shirtstylevariation = ShirtStyleVariation.objects.get(pk=shirtstylevariationid)
-            shirtstyle = shirtstylevariation.ShirtStyle
-            shirtstyleid = shirtstyle.pk
-            dictionary = {"shirtstylevariation": shirtstylevariation}
-        else:
-            print 'hello world'
-        dictionary["form"] = OrderLine(shirtstyleid, shirtstylevariationid, prefix=request.GET['prefix'])
-        dictionary["shirtstyle"] = shirtstyle
-        return render_to_response('admin/sales/form.html', dictionary)
+    if "shirtstyleid" in request.GET:
+        shirtstyleid = request.GET['shirtstyleid']
+        shirtstyle = ShirtStyle.objects.get(pk=shirtstyleid)
+        dictionary = {}
+        shirtstylevariationid = None
+    elif "shirtstylevariationid" in request.GET:
+        shirtstylevariationid = request.GET['shirtstylevariationid']
+        shirtstylevariation = ShirtStyleVariation.objects.get(pk=shirtstylevariationid)
+        shirtstyle = shirtstylevariation.ShirtStyle
+        shirtstyleid = shirtstyle.pk
+        dictionary = {"shirtstylevariation": shirtstylevariation}
     else:
-        order = Order(request.POST)
-        if order.is_valid():
-            shirtorder = ShirtOrder(CustomerAddress=order.cleaned_data['customeraddress'], PONumber=order.cleaned_data['ponumber']).save()
-        orderlines = []
-        for i in xrange(1,int(request.POST['rows'])):
-            orderlines.append(OrderLine(request.POST,prefix=i))
-        
-        for orderline in orderlines:
-            if orderline.is_valid():
-                for s in xrange(1,orderline.sizes):
-                    if 'quantity'+s in orderline.fields:
-                        ShirtOrderSKU(ShirtOrder=shirtorder.id, ShirtPrice=orderline.cleaned_data['pricefkey'+s], ShirtStyleVariation=orderlinecleaned_data['shirtstylevariation'], Color=orderline.cleaned_data['color'], OrderQuantity=orderline.cleaned_data['quantity'+s], Price=orderline.cleaned_data['price'+s])
+        print 'hello world'
+    dictionary["form"] = OrderLine(shirtstyleid, shirtstylevariationid, prefix=request.GET['prefix'])
+    dictionary["shirtstyle"] = shirtstyle
+    return render_to_response('admin/sales/form.html', dictionary)
