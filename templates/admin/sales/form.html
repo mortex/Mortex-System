@@ -11,7 +11,7 @@
         {{ shirtstyle.ShirtStyleNumber }} 
     {% endif %}
     {{ shirtstyle.ShirtStyleDescription }}</h4></td>
-    <td>{{ form.color }}{{ form.shirtstylevariation }}{{ form.sizes }}</td>
+    <td>{{ form.color }}{{ form.shirtstylevariation }}{{ form.sizes }}{{ form.shirtstyleid }}</td>
     {% for quantityfield, pricefield, pricefkeyfield in form.fieldset %}
             <td>
                 {{ form|hash:quantityfield|attr:'label' }}
