@@ -90,19 +90,20 @@ class ShirtOrderAdmin(admin.ModelAdmin):
             return super(ShirtOrderAdmin, self).add_view(request, form_url="", extra_context=my_context)
 
         else:
+
+            response = super(ShirtOrderAdmin, self).add_view(request, form_url="")
             order = Order(request.POST)
             if order.is_valid():
-                shirtorder = ShirtOrder(CustomerAddress=order.cleaned_data['CustomerAddress'], PONumber=order.cleaned_data['PONumber']).save()
+                shirtorder = ShirtOrder(CustomerAddress=order.cleaned_data['CustomerAddress'], PONumber=order.cleaned_data['PONumber'])
             orderlines = []
             for i in xrange(1,int(request.POST['rows'])):
                 orderlines.append(OrderLine(request.POST,prefix=i))
-            
             for orderline in orderlines:
                 if orderline.is_valid():
                     for s in xrange(1,orderline.sizes):
                         if 'quantity'+s in orderline.fields:
                             ShirtOrderSKU(ShirtOrder=shirtorder.id, ShirtPrice=orderline.cleaned_data['pricefkey'+s], ShirtStyleVariation=orderlinecleaned_data['shirtstylevariation'], Color=orderline.cleaned_data['color'], OrderQuantity=orderline.cleaned_data['quantity'+s], Price=orderline.cleaned_data['price'+s])
-            return super(ShirtOrderAdmin, self).add_view(request, form_url="")
+            return response
 
     class Media:
         css = {
