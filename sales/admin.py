@@ -100,7 +100,7 @@ class ShirtOrderAdmin(admin.ModelAdmin):
                 orderlines.append(OrderLine(request.POST, prefix=i, shirtstyleid=request.POST[str(i) + "-shirtstyleid"]))
             for orderline in orderlines:
                 if orderline.is_valid():
-                    for s in xrange(1,orderline.sizes):
+                    for s in xrange(1, orderline.cleaned_data["sizes"]):
                         if 'quantity'+s in orderline.fields:
                             ShirtOrderSKU( ShirtOrder=shirtorder.id
                                          , ShirtPrice=orderline.cleaned_data['pricefkey'+s]
