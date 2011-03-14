@@ -67,12 +67,11 @@ from sales.models import ShirtOrder
 class Order(forms.ModelForm):
     class Meta:
         model = ShirtOrder
-        exclude = ('CustomerAddress','PONumber','Complete')
+        exclude = ('Complete')
     customer = forms.ModelChoiceField(queryset=Customer.objects.all(), widget=forms.Select(attrs={"onChange":"selectcustomer(this.value)"}))
-    customeraddress = forms.ModelChoiceField(queryset=CustomerAddress.objects.all())
-    ponumber = forms.CharField(label='PO#', max_length=20)
+    CustomerAddress = forms.ModelChoiceField(queryset=CustomerAddress.objects.all())
     def clean_customeraddress(self):
-        data=self.cleaned_data['customeraddress']
+        data=self.cleaned_data['CustomerAddress']
         if 1!=1:
             raise forms.ValidationError("Hey that's not right!")
         return data     
@@ -92,7 +91,7 @@ class ShirtOrderAdmin(admin.ModelAdmin):
         else:
             order = Order(request.POST)
             if order.is_valid():
-                shirtorder = ShirtOrder(CustomerAddress=order.cleaned_data['customeraddress'], PONumber=order.cleaned_data['ponumber']).save()
+                shirtorder = ShirtOrder(CustomerAddress=order.cleaned_data['CustomerAddress'], PONumber=order.cleaned_data['PONumber']).save()
             orderlines = []
             for i in xrange(1,int(request.POST['rows'])):
                 orderlines.append(OrderLine(request.POST,prefix=i))

@@ -18,12 +18,16 @@
                 }
             });
         });
+
+		$(function() {
+			$("#id_CustomerAddress option").remove();
+		});
         
         function selectcustomer(customerid){
-            $('#id_customeraddress').find('option').remove()
+            $('#id_CustomerAddress').find('option').remove()
             $.get('/app/addresses', {"customerid": customerid}, function(data){
                 $.each(data, function(i, item) {
-                    $('#id_customeraddress').append(new Option(item.fields.Address1 + ', ' + item.fields.City, item.pk));
+                    $('#id_CustomerAddress').append(new Option(item.fields.Address1 + ', ' + item.fields.City, item.pk));
                 });
             });
             addstyles(customerid);
