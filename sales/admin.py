@@ -96,8 +96,8 @@ class ShirtOrderAdmin(admin.ModelAdmin):
             if order.is_valid():
                 shirtorder = ShirtOrder(CustomerAddress=order.cleaned_data['CustomerAddress'], PONumber=order.cleaned_data['PONumber'])
             orderlines = []
-            for i in xrange(1,int(request.POST['rows'])):
-                orderlines.append(OrderLine(request.POST,prefix=i))
+            for i in xrange(1, int(request.POST['rows']) + 1):
+                orderlines.append(OrderLine(request.POST, prefix=i))
             for orderline in orderlines:
                 if orderline.is_valid():
                     for s in xrange(1,orderline.sizes):
