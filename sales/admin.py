@@ -102,7 +102,13 @@ class ShirtOrderAdmin(admin.ModelAdmin):
                 if orderline.is_valid():
                     for s in xrange(1,orderline.sizes):
                         if 'quantity'+s in orderline.fields:
-                            ShirtOrderSKU(ShirtOrder=shirtorder.id, ShirtPrice=orderline.cleaned_data['pricefkey'+s], ShirtStyleVariation=orderlinecleaned_data['shirtstylevariation'], Color=orderline.cleaned_data['color'], OrderQuantity=orderline.cleaned_data['quantity'+s], Price=orderline.cleaned_data['price'+s])
+                            ShirtOrderSKU( ShirtOrder=shirtorder.id
+                                         , ShirtPrice=orderline.cleaned_data['pricefkey'+s]
+                                         , ShirtStyleVariation=orderlinecleaned_data['shirtstylevariation']
+                                         , Color=orderline.cleaned_data['color']
+                                         , OrderQuantity=orderline.cleaned_data['quantity'+s]
+                                         , Price=orderline.cleaned_data['price'+s]
+                                         ).save()
             return response
 
     class Media:
