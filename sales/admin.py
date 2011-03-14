@@ -68,6 +68,7 @@ class Order(forms.ModelForm):
     class Meta:
         model = ShirtOrder
         exclude = ('Complete')
+        fields = ("customer", "CustomerAddress", "PONumber")
     customer = forms.ModelChoiceField(queryset=Customer.objects.all(), widget=forms.Select(attrs={"onChange":"selectcustomer(this.value)"}))
     CustomerAddress = forms.ModelChoiceField(queryset=CustomerAddress.objects.all())
     def clean_customeraddress(self):
