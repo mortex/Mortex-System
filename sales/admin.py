@@ -99,7 +99,9 @@ class ShirtOrderAdmin(admin.ModelAdmin):
             for i in xrange(1, int(request.POST['rows']) + 1):
                 orderlines.append(OrderLine(request.POST, prefix=i, shirtstyleid=request.POST[str(i) + "-shirtstyleid"]))
             for orderline in orderlines:
+                print orderline
                 if orderline.is_valid():
+                    print "test2"
                     for s in xrange(1, orderline.cleaned_data["sizes"]):
                         if 'quantity'+s in orderline.fields:
                             ShirtOrderSKU( ShirtOrder=shirtorder.id
@@ -109,6 +111,8 @@ class ShirtOrderAdmin(admin.ModelAdmin):
                                          , OrderQuantity=orderline.cleaned_data['quantity'+s]
                                          , Price=orderline.cleaned_data['price'+s]
                                          ).save()
+                else:
+                    print "failed"
             return response
 
     class Media:
@@ -142,7 +146,7 @@ class OrderLine(forms.Form):
             pricefkeyid = 'pricefkey'+str(i)
             self.fieldset.append((quantityid, priceid, pricefkeyid))
             self.fields[quantityid] = forms.IntegerField(label=size.ShirtSizeAbbr, min_value=0, required=False, widget=forms.TextInput(attrs={"disabled":None, "size":"6","class":"quantity size"+str(size.pk)}))
-            self.fields[priceid] = forms.IntegerField(label=None, min_value=0, required=False, widget=forms.TextInput(attrs={"size":"6","class":"price size"+str(size.pk)}))
+            self.fields[priceid] = forms.DecimalField(label=None, min_value=0, max_digits=8, decimal_places=2, required=False, widget=forms.TextInput(attrs={"size":"6","class":"price size"+str(size.pk)}))
             self.fields[pricefkeyid] = forms.IntegerField(label='fkey', required=False, widget=forms.HiddenInput(attrs={"class":"pricefkey size"+str(size.pk)}))
             i+=1
 
