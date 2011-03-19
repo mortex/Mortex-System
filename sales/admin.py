@@ -9,6 +9,7 @@ from sales.models import ShirtSKU
 from sales.models import ShirtSKUInventory
 from sales.models import ShirtSize
 from sales.models import ShirtStyleVariation
+from sales.models import ShirtOrderSKU
 
 class ShirtPriceInline(admin.TabularInline):
 	model = ShirtPrice
@@ -95,21 +96,20 @@ class ShirtOrderAdmin(admin.ModelAdmin):
             order = Order(request.POST)
             if order.is_valid():
                 shirtorder = ShirtOrder(CustomerAddress=order.cleaned_data['CustomerAddress'], PONumber=order.cleaned_data['PONumber'])
+                shirtorder.save()
             orderlines = []
             for i in xrange(1, int(request.POST['rows']) + 1):
                 orderlines.append(OrderLine(request.POST, prefix=i, shirtstyleid=request.POST[str(i) + "-shirtstyleid"]))
             for orderline in orderlines:
-                print orderline
                 if orderline.is_valid():
-                    print "test2"
                     for s in xrange(1, orderline.cleaned_data["sizes"]):
-                        if 'quantity'+s in orderline.fields:
-                            ShirtOrderSKU( ShirtOrder=shirtorder.id
-                                         , ShirtPrice=orderline.cleaned_data['pricefkey'+s]
-                                         , ShirtStyleVariation=orderlinecleaned_data['shirtstylevariation']
+                        if 'quantity'+str(s) in orderline.fields and orderline.cleaned_data['quantity'+str(s)] != None:
+                            ShirtOrderSKU( ShirtOrder=shirtorder
+                                         , ShirtPrice=ShirtPrice.objects.get(pk=orderline.cleaned_data['pricefkey'+str(s)])
+                                         , ShirtStyleVariation= None if orderline.cleaned_data['shirtstylevariation']==None else ShirtStyleVariation.objects.get(pk=orderline.cleaned_data['shirtstylevariation'])
                                          , Color=orderline.cleaned_data['color']
-                                         , OrderQuantity=orderline.cleaned_data['quantity'+s]
-                                         , Price=orderline.cleaned_data['price'+s]
+                                         , OrderQuantity=orderline.cleaned_data['quantity'+str(s)]
+                                         , Price=orderline.cleaned_data['price'+str(s)]
                                          ).save()
                 else:
                     print "failed"
@@ -131,8 +131,7 @@ class OrderLine(forms.Form):
 
         super(OrderLine, self).__init__(*args, **kwargs)
 
-        if shirtstylevariationid:
-            self.fields["shirtstylevariation"] = forms.IntegerField(widget=forms.HiddenInput(), initial=shirtstylevariationid)
+        self.fields["shirtstylevariation"] = forms.IntegerField(widget=forms.HiddenInput(), required=False, initial=shirtstylevariationid)
 
         self.fields["shirtstyleid"] = forms.IntegerField(widget=forms.HiddenInput(), initial=shirtstyleid)
         self.fields["color"] = forms.ModelChoiceField(queryset=Color.objects.distinct().filter(ColorCategory__shirtprice__ShirtStyle__id=shirtstyleid), widget=forms.Select(attrs={"onChange":"selectcolor(this.value, " + str(shirtstyleid) + ", " + str(self.prefix) + ")"}))
