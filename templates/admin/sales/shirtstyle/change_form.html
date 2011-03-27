@@ -65,10 +65,52 @@
 
 	<script type="application/javascript">
 
-		{# Hide all table cells & rows on page load #}
+		var sizes, ccs, matrix;
+
+		{# Init state arrays & matrix DOM state #}
 		django.jQuery(function() {
-			django.jQuery("#matrix_table").children().children("tr").children("td, th").andSelf().hide();
+
+			{# Init array of sizes #}
+			sizes = new Array();
+			{% for size in sizes %}
+				sizes.push("{{ size.shirtSizeAbbr|unspace }}");
+			{% endfor %}
+
+			{# Init array of color categories #}
+			ccs = new Array();
+			{% for cc, row in matrix %}
+				ccs.push("{{ cc|unspace }}");
+			{% endfor %}
+
+			{# Init 2D array to represent matrix state #}
+			matrix = new Array();
+			django.jQuery.each(ccs, function(i, cc) {
+				matrix[cc] = new Array();
+				django.jQuery.each(sizes, function(i, size) {
+					matrix[cc][size] = { "cc": cc
+									   , "size": size
+									   , visible: false
+									   };
+				});
+			});
+
+			{# Sync DOM matrix with array representation #}
+			refresh_matrix();
+
 		});
+
+		{# Refresh the state of the DOM matrix to match that of the 2D array representation #}
+		function refresh_matrix() {
+			django.jQuery.each(ccs, function(i, cc) {
+				django.jQuery.each(sizes, function(i, size) {
+					var dom_cell = django.jQuery("#matrix_table #cell__" + cc + "__" + size);
+					if (matrix[cc][size].visible)
+						dom_cell.show();
+					else
+						dom_cell.hide();
+				});
+			});
+		}
 
 		{# jQuery selector for exact match on element contents #}
 		django.jQuery.extend(django.jQuery.expr[":"], {
@@ -171,8 +213,8 @@
 					{% for cc, row in matrix %}
 						<tr id="row__{{ cc|unspace }}">
 							<th scope="row" class="col__head">{{ cc }}</th>
-							{% for field in row.fields %}
-								<td class="col__{{ field|unspace }}">{{ row|hash:field }}</td>
+							{% for size, field in row.fields.items %}
+								<td id="cell__{{ cc|unspace }}__{{ size.ShirtSizeAbbr|unspace }}" class="col__{{ size|unspace }}">{{ row|hash:size }}</td>
 							{% endfor %}
 						</tr>
 					{% endfor %}
