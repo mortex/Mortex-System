@@ -10,6 +10,7 @@ from sales.models import ShirtSKUInventory
 from sales.models import ShirtSize
 from sales.models import ShirtStyleVariation
 from sales.models import ShirtOrderSKU
+from django.http import HttpResponseRedirect
 
 class ShirtPriceInline(admin.TabularInline):
 	model = ShirtPrice
@@ -93,7 +94,6 @@ class ShirtOrderAdmin(admin.ModelAdmin):
         else:
             #created variable to test validation
             passedvalidation = True
-            response = super(ShirtOrderAdmin, self).add_view(request, form_url="")
             order = Order(request.POST)
             
             #if order is not valid, change validation variable
@@ -133,7 +133,7 @@ class ShirtOrderAdmin(admin.ModelAdmin):
 
                                          , Price=orderline.cleaned_data['price'+str(s)]
                                          ).save()
-            return response
+                return super(ShirtOrderAdmin, self).add_view(request, form_url="")
 
     class Media:
         css = {
