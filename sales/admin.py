@@ -38,7 +38,7 @@ class ShirtStyleAdmin(admin.ModelAdmin):
                 except ColorCategory.DoesNotExist:
                     raise ValidationError("Invalid color category")
                 except ShirtSize.DoesNotExist:
-                    raise ValidationErorr("Invalid shirt size")
+                    raise ValidationError("Invalid shirt size")
                 except ValueError:
                     raise ValidationError("Price must be a number")
                 new_prices.append(ShirtPrice( ShirtStyle=new_style
