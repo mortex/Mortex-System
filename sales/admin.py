@@ -87,21 +87,41 @@ class ShirtOrderAdmin(admin.ModelAdmin):
         if request.method == "GET":
             customers = Customer.objects.all()
             shirtstyles = ShirtStyle.objects.all()
-            my_context = {"customers": customers, "shirtstyles": shirtstyles}
+            my_context = {"customers": customers, "shirtstyles": shirtstyles, "existing": []}
             return super(ShirtOrderAdmin, self).add_view(request, form_url="", extra_context=my_context)
 
         else:
-
+            #created variable to test validation
+            passedvalidation = True
             response = super(ShirtOrderAdmin, self).add_view(request, form_url="")
             order = Order(request.POST)
-            if order.is_valid():
-                shirtorder = ShirtOrder(CustomerAddress=order.cleaned_data['CustomerAddress'], PONumber=order.cleaned_data['PONumber'])
-                shirtorder.save()
+            
+            #if order is not valid, change validation variable
+            if not order.is_valid():
+                passedvalidation = False
+                
+            #created separate orderlines from post data
             orderlines = []
             for i in xrange(1, int(request.POST['rows']) + 1):
                 orderlines.append(OrderLine(request.POST, prefix=i, shirtstyleid=request.POST[str(i) + "-shirtstyleid"]))
+            
+            #check each orderline for validity, change validation variable if any of them fail
             for orderline in orderlines:
-                if orderline.is_valid():
+                if not orderline.is_valid():
+                    passedvalidation = False
+            
+            #if any validation failed, send data back to page for revision
+            if passedvalidation == False:
+                customers = Customer.objects.all()
+                shirtstyles = ShirtStyle.objects.all()
+                my_context = {"customers": customers, "shirtstyles": shirtstyles, "existing": orderlines}
+                return super(ShirtOrderAdmin, self).add_view(request, form_url="", extra_context=my_context)
+            
+            #if all validation passed, save order, then save orderlines
+            else:
+                shirtorder = ShirtOrder(CustomerAddress=order.cleaned_data['CustomerAddress'], PONumber=order.cleaned_data['PONumber'])
+                shirtorder.save()
+                for orderline in orderlines:
                     for s in xrange(1, orderline.cleaned_data["sizes"]):
                         if 'quantity'+str(s) in orderline.fields and orderline.cleaned_data['quantity'+str(s)] != None:
                             ShirtOrderSKU( ShirtOrder=shirtorder
@@ -109,10 +129,9 @@ class ShirtOrderAdmin(admin.ModelAdmin):
                                          , ShirtStyleVariation= None if orderline.cleaned_data['shirtstylevariation']==None else ShirtStyleVariation.objects.get(pk=orderline.cleaned_data['shirtstylevariation'])
                                          , Color=orderline.cleaned_data['color']
                                          , OrderQuantity=orderline.cleaned_data['quantity'+str(s)]
+
                                          , Price=orderline.cleaned_data['price'+str(s)]
                                          ).save()
-                else:
-                    print "failed"
             return response
 
     class Media:
