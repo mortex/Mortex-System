@@ -112,9 +112,10 @@ class ShirtOrderAdmin(admin.ModelAdmin):
             
             #if any validation failed, send data back to page for revision
             if passedvalidation == False:
+                print orderlines[0]
                 customers = Customer.objects.all()
                 shirtstyles = ShirtStyle.objects.all()
-                my_context = {"customers": customers, "shirtstyles": shirtstyles, "existing": orderlines}
+                my_context = {"customers": customers, "shirtstyles": shirtstyles, "orderlines": orderlines}
                 return super(ShirtOrderAdmin, self).add_view(request, form_url="", extra_context=my_context)
             
             #if all validation passed, save order, then save orderlines
@@ -184,6 +185,6 @@ def orderform(request):
         dictionary = {"shirtstylevariation": shirtstylevariation}
     else:
         print 'hello world'
-    dictionary["form"] = OrderLine(shirtstyleid=shirtstyleid, shirtstylevariationid=shirtstylevariationid, prefix=request.GET['prefix'])
+    dictionary["orderlines"] = [OrderLine(shirtstyleid=shirtstyleid, shirtstylevariationid=shirtstylevariationid, prefix=request.GET['prefix'])]
     dictionary["shirtstyle"] = shirtstyle
     return render_to_response('admin/sales/form.html', dictionary)
