@@ -5,4 +5,7 @@ info_dict = {
     'queryset': ShirtStyle.objects.all(),
 }
 
-urlpatterns = patterns('',)
+urlpatterns = patterns('',
+    (r'^shirtorders/(?P<orderid>\d+)$', 'sales.views.shirtorderview'),
+    (r'^shirtorders/$', 'sales.views.shirtorders'),
+)
