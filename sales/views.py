@@ -14,4 +14,8 @@ def shirtorderview(request, orderid):
     return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder})
     
 def shirtorderadd(request):
-    return render_to_response('sales/shirtorders/add.html', {'shirtorder':Order()})
+    shirtstyles = ShirtStyle.objects.filter(Customer=None)
+    return render_to_response('sales/shirtorders/add.html', {'shirtorder':Order(),'shirtstyles':shirtstyles})
+    
+def orderline(request):
+    
