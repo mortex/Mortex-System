@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import fields
+from django.forms import fields, ModelForm
 
 from sales.models import *
 
@@ -211,3 +211,9 @@ class CustomerAddressForm(forms.ModelForm):
         super(CustomerAddressForm, self).__init__(*args, **kwargs)
         self.fields['pk'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
         self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
+
+class ShirtStyleForm(ModelForm):
+    """Form for adding/changing shirt styles, not including matrix data"""
+
+    class Meta:
+        model = ShirtStyle
