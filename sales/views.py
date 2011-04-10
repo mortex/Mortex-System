@@ -11,3 +11,6 @@ def shirtorderview(request, orderid):
     shirtorder = ShirtOrder.objects.get(pk=orderid)
     
     return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder})
+    
+def shirtorderadd(request):
+    #a;sunva;su;na
