@@ -9,5 +9,6 @@ urlpatterns = patterns('',
     (r'^shirtorders/(?P<orderid>\d+)$', 'sales.views.shirtorderview'),
     (r'^shirtorders/add$', 'sales.views.shirtorderadd'),
     (r'^shirtorders/orderline/$', 'sales.views.orderline'),
+    (r'^data/customeraddresses/$', 'sales.data_views.customeraddresses'),
     (r'^shirtorders/$', 'sales.views.shirtorders'),
 )

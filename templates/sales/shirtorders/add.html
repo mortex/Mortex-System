@@ -32,7 +32,7 @@
         
         function selectcustomer(customerid){
             $('#id_CustomerAddress').find('option').remove()
-            $.get('/app/addresses', {"customerid": customerid}, function(data){
+            $.get('/app/data/customeraddresses/', {"customerid": customerid}, function(data){
                 $.each(data, function(i, item) {
                     $('#id_CustomerAddress').append(new Option(item.fields.Address1 + ', ' + item.fields.City, item.pk));
                 });
