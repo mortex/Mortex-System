@@ -1,11 +1,12 @@
 {% extends "sales/base.html" %}
 
-{{% block extrahead %}{{ block.super }}
+{% block extrahead %}{{ block.super }}
     <style type="text/css">
         .price {
             border:none !important;
         }
     </style>
+    <script type="application/javascript" src="/static/common/js/jquery.jstree.js"></script>
     <script type="application/javascript">
         $(function createtree() {
             $('#styletree').jstree({ 
@@ -25,7 +26,7 @@
 		
 		$(function() {
 	        $('#id_Customer').bind('change',function(){
-                alert('it worked!');
+                selectcustomer(this.value);
             });
         });
         
@@ -67,7 +68,7 @@
                 var params = {shirtstyleid: shirtstyleid};
             }
             params["prefix"] = prefix;
-            $.get('/admin/orderform/', params, function(data){
+            $.get('/app/shirtorders/orderline', params, function(data){
                 $('#orderstyles').append(data);
                 $('#rows').val(prefix);
                 ++prefix;
@@ -94,26 +95,27 @@
             }
         }
     </script>
-{{% endblock %}}
+{% endblock %}
 
-{{% block body %}}
-<table>
-    {{ shirtorder }}
-</table>
-<div id="styletree" style="float:left;">
-    <ul>
-        <li id="unique"><a href="">Unique to this Customer</a></li>
-        <li id="public"><a href="">Public Styles</a><ul>
-            {% for ss in shirtstyles %}
-                {% if ss.Customer == None %}
-                    <li id={{ ss.id }} onDblClick='addstyle(this.id)'><a href="">{{ ss }}</a></li>
-                {% endif %}
-            {% endfor %}
-        </ul></li>
-    </ul>
-</div>
+{% block body %}
+    <table>
+        {{ shirtorder }}
+    </table>
+    <div id="styletree" style="float:left;">
+        <ul>
+            <li id="unique"><a href="">Unique to this Customer</a></li>
+            <li id="public"><a href="">Public Styles</a><ul>
+                {% for ss in shirtstyles %}
+                    {% if ss.Customer == None %}
+                        <li id={{ ss.id }} onDblClick='addstyle(this.id)'><a href="">{{ ss }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul></li>
+        </ul>
+    </div>
 
-<table id="orderstyles" style="float:left;margin-left:20px;">
-</table>
-<input type="hidden" id="rows" name="rows" value="0"/>
-<div class="clear"></div>
+    <table id="orderstyles" style="float:left;margin-left:20px;">
+    </table>
+    <input type="hidden" id="rows" name="rows" value="0"/>
+    <div class="clear"></div>
+{% endblock %}
