@@ -1,7 +1,12 @@
 from django import forms
 from django.forms import fields, ModelForm
+from django.forms.fields import IntegerField
+from django.forms.widgets import TextInput
 
 from sales.models import *
+
+from itertools import product
+
 
 class CutSSIForm(forms.ModelForm):
     'allows you to create transactions for new cut orders of a shirt SKU'
@@ -213,7 +218,22 @@ class CustomerAddressForm(forms.ModelForm):
         self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
 
 class ShirtStyleForm(ModelForm):
-    """Form for adding/changing shirt styles, not including matrix data"""
+    """Form for adding/changing shirt styles"""
 
     class Meta:
         model = ShirtStyle
+
+    def __init__(self, *args, **kwargs):
+        
+        super(ShirtStyleForm, self).__init__(*args, **kwargs)
+
+        # Add matrix fields for each size/color category combination
+        ccs = ColorCategory.objects.all()
+        sizes = ShirtSize.objects.all()
+        for (cc, size) in product(ccs, sizes):
+            ccName = cc.ColorCategoryName
+            sizeName = size.ShirtSizeAbbr
+            self.fields["qty__" + ccName + "__" + sizeName] = IntegerField(
+                label=ccName + " " + sizeName,
+                widget=TextInput(attrs={"size": "4"})
+            )
