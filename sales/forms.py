@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import fields
 
-from sales.models import ShirtOrder, ShirtOrderSKU, CustomerAddress
+from sales.models import ShirtOrder, ShirtOrderSKU, CustomerAddress, Color, ShirtSize
 
 class Order(forms.ModelForm):
     class Meta:

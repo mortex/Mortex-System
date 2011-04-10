@@ -1,3 +1,6 @@
+{% extends "sales/base.html" %}
+
+{{% block extrahead %}{{ block.super }}
     <style type="text/css">
         .price {
             border:none !important;
@@ -20,7 +23,7 @@
 			$("#id_CustomerAddress option").remove();
 		});
 		
-		$function() {
+		$(function() {
 	        $('#id_Customer').bind('change',function(){
                 alert('it worked!');
             });
@@ -91,7 +94,9 @@
             }
         }
     </script>
+{{% endblock %}}
 
+{{% block body %}}
 <table>
     {{ shirtorder }}
 </table>
