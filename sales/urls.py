@@ -22,9 +22,9 @@ urlpatterns = patterns('',
     (r'^shirtorders/search/$', 'sales.views.shirtordersearch'),
     
     #data urls
-    (r'^styles/$', 'django.views.generic.list_detail.object_list', info_dict),
-    (r'^styles/(?P<object_id>\d+)/$', 'sales.views.styleorder'),
-    (r'^styles/add$', 'sales.views.add_style'),
+    (r'^shirtstyles/$', 'django.views.generic.list_detail.object_list', info_dict),
+    (r'^shirtstyles/(?P<object_id>\d+)/$', 'sales.views.styleorder'),
+    (r'^shirtstyles/add$', 'sales.views.add_style'),
     (r'^data/customeraddresses/$', 'sales.data_views.customeraddresses'),
     (r'^data/shirtstyles/$', 'sales.data_views.shirtstyles'),
     (r'^data/styleprices/$', 'sales.data_views.styleprices'),
