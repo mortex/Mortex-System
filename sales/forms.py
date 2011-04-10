@@ -1,23 +1,25 @@
 from django import forms
 from django.forms import fields
 
-from sales.models import ShirtOrder, ShirtOrderSKU, CustomerAddress, Color, ShirtSize
+from sales.models import ShirtOrder, ShirtOrderSKU, CustomerAddress, Color, ShirtSize, ShirtStyle, ShirtStyleVariation
 
 class Order(forms.ModelForm):
     class Meta:
         model = ShirtOrder
         exclude = ("Complete")
-    CustomerAddress = forms.ModelChoiceField(label="Address",queryset=CustomerAddress.objects.none())
 
 class OrderLine(forms.Form):
     def __init__(self, *args, **kwargs):
 
         shirtstyleid = kwargs.pop("shirtstyleid")
         shirtstylevariationid = kwargs.pop("shirtstylevariationid", None)
+        if shirtstylevariationid != None:
+            self.shirtstylevariation = ShirtStyleVariation.objects.get(pk=shirtstylevariationid)
+        self.shirtstyle = ShirtStyle.objects.get(pk=shirtstyleid)
 
         super(OrderLine, self).__init__(*args, **kwargs)
 
-        self.fields["shirtstylevariation"] = forms.IntegerField(widget=forms.HiddenInput(), required=False, initial=shirtstylevariationid)
+        self.fields["shirtstylevariationid"] = forms.IntegerField(widget=forms.HiddenInput(), required=False, initial=shirtstylevariationid)
 
         self.fields["shirtstyleid"] = forms.IntegerField(widget=forms.HiddenInput(), initial=shirtstyleid)
         self.fields["color"] = forms.ModelChoiceField(queryset=Color.objects.distinct().filter(ColorCategory__shirtprice__ShirtStyle__id=shirtstyleid), widget=forms.Select(attrs={"onChange":"selectcolor(this.value, " + str(shirtstyleid) + ", " + str(self.prefix) + ")"}))
