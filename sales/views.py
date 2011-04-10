@@ -588,3 +588,9 @@ def addcustomeraddress(request):
     prefix = 'a' + str(request.GET['prefix'])
     addressform = CustomerAddressForm(prefix=prefix)
     return render_to_response('sales/customers/address.html', {'addressform':addressform})
+
+def add_style(request):
+    """Add a new shirt style to the database"""
+
+    if request.method == "GET":
+        return render_to_response("sales/add_style.html", {"form": ShirtStyleForm()})
