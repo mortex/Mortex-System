@@ -593,4 +593,4 @@ def add_style(request):
     """Add a new shirt style to the database"""
 
     if request.method == "GET":
-        return render_to_response("sales/add_style.html", {"form": ShirtStyleForm()})
+        return render_to_response("sales/shirtstyles/add.html", {"form": ShirtStyleForm()})
