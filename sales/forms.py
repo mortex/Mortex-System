@@ -228,9 +228,7 @@ class ShirtStyleForm(ModelForm):
         super(ShirtStyleForm, self).__init__(*args, **kwargs)
 
         # Add matrix fields for each size/color category combination
-        ccs = ColorCategory.objects.all()
-        sizes = ShirtSize.objects.all()
-        for (cc, size) in product(ccs, sizes):
+        for (cc, size) in product(ColorCategory.objects.all(), ShirtSize.objects.all()):
             ccName = cc.ColorCategoryName
             sizeName = size.ShirtSizeAbbr
             self.fields["qty__" + ccName + "__" + sizeName] = IntegerField(
