@@ -230,7 +230,7 @@ class ShirtStyleForm(ModelForm):
         for (cc, size) in product(ColorCategory.objects.all(), ShirtSize.objects.all()):
             ccName = cc.ColorCategoryName
             sizeName = size.ShirtSizeAbbr
-            self.fields["qty__" + ccName + "__" + sizeName] = DecimalField(
+            self.fields["price__" + ccName + "__" + sizeName] = DecimalField(
                 label=ccName + " " + sizeName,
                 widget=TextInput(attrs={"size": "4"}),
                 required=False

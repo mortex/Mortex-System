@@ -612,7 +612,7 @@ def add_style(request):
             # Construct a ShirtPrice model instance from a submitted matrix
             # field
             def construct_ShirtPrice(k, v):
-                mobj = re.match(r"qty__(?P<cc>[^_]+)__(?P<size>.+)", k)
+                mobj = re.match(r"price__(?P<cc>[^_]+)__(?P<size>.+)", k)
                 return ShirtPrice(
                     ShirtStyle=new_style,
                     ColorCategory=ColorCategory.objects.get(
@@ -627,7 +627,7 @@ def add_style(request):
             # Create needed ShirtPrice instances and persist models to DB
             for price in [construct_ShirtPrice(k, v)
                             for k, v in form.cleaned_data.items()
-                            if k.startswith("qty__") and v != None]:
+                            if k.startswith("price__") and v != None]:
                 price.save()
 
             return HttpResponseRedirect("/shirtstyles/")
