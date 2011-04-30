@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import fields, ModelForm
-from django.forms.fields import IntegerField
+from django.forms.fields import DecimalField, IntegerField
 from django.forms.widgets import TextInput
 
 from sales.models import *
@@ -223,14 +223,14 @@ class ShirtStyleForm(ModelForm):
         model = ShirtStyle
 
     def __init__(self, *args, **kwargs):
-        
+
         super(ShirtStyleForm, self).__init__(*args, **kwargs)
 
         # Add matrix fields for each size/color category combination
         for (cc, size) in product(ColorCategory.objects.all(), ShirtSize.objects.all()):
             ccName = cc.ColorCategoryName
             sizeName = size.ShirtSizeAbbr
-            self.fields["qty__" + ccName + "__" + sizeName] = IntegerField(
+            self.fields["qty__" + ccName + "__" + sizeName] = DecimalField(
                 label=ccName + " " + sizeName,
                 widget=TextInput(attrs={"size": "4"}),
                 required=False
