@@ -7,7 +7,6 @@ from sales.models import *
 
 from itertools import product
 
-
 class CutSSIForm(forms.ModelForm):
     'allows you to create transactions for new cut orders of a shirt SKU'
     class Meta:

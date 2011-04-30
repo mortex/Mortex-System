@@ -1,7 +1,8 @@
-from django.shortcuts import render_to_response
 from django.db.models import Sum
 from sales.models import *
 from sales.forms import *
+from django.http import HttpResponse
+from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.db import transaction
@@ -593,4 +594,19 @@ def add_style(request):
     """Add a new shirt style to the database"""
 
     if request.method == "GET":
-        return render_to_response("sales/shirtstyles/add.html", {"form": ShirtStyleForm()})
+        return render_to_response(
+            "sales/shirtstyles/add.html",
+            RequestContext(request, {"form": ShirtStyleForm()})
+        )
+
+    if request.method == "POST":
+        form = ShirtStyleForm(request.POST)
+        if form.is_valid():
+            new_style = form.save(commit=False)
+            # TODO Handle matrix fields
+            return HttpResponse("Valid")
+        else:
+            return render_to_response(
+                "sales/shirtstyles/add.html",
+                RequestContext(request, {"form": form})
+            )
