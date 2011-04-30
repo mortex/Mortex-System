@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
-from sales.models import ShirtStyle
+from sales.models import ShirtPrice, ShirtStyle
 from django.views.generic.simple import direct_to_template
 
 info_dict = {
@@ -23,7 +23,14 @@ urlpatterns = patterns('',
     
     #data urls
     (r'^shirtstyles/$', 'django.views.generic.list_detail.object_list', info_dict),
-    (r'^shirtstyles/(?P<object_id>\d+)/$', 'sales.views.styleorder'),
+    ( r'^shirtstyles/(?P<object_id>\d+)/$',
+      'django.views.generic.list_detail.object_detail',
+      info_dict,
+    ),
+    ( r'^shirtprices/(?P<object_id>\d+)/$',
+      'django.views.generic.list_detail.object_detail',
+      {"queryset": ShirtPrice.objects.all()},
+    ),
     (r'^shirtstyles/add$', 'sales.views.add_style'),
     (r'^data/customeraddresses/$', 'sales.data_views.customeraddresses'),
     (r'^data/shirtstyles/$', 'sales.data_views.shirtstyles'),

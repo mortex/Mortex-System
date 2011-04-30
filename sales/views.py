@@ -1,7 +1,9 @@
+import re
+
 from django.db.models import Sum
 from sales.models import *
 from sales.forms import *
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
@@ -600,11 +602,36 @@ def add_style(request):
         )
 
     if request.method == "POST":
+
         form = ShirtStyleForm(request.POST)
+
         if form.is_valid():
-            new_style = form.save(commit=False)
-            # TODO Handle matrix fields
-            return HttpResponse("Valid")
+
+            new_style = form.save()
+
+            # Construct a ShirtPrice model instance from a submitted matrix
+            # field
+            def construct_ShirtPrice(k, v):
+                mobj = re.match(r"qty__(?P<cc>[^_]+)__(?P<size>.+)", k)
+                return ShirtPrice(
+                    ShirtStyle=new_style,
+                    ColorCategory=ColorCategory.objects.get(
+                        ColorCategoryName=mobj.group("cc")
+                    ),
+                    ShirtSize=ShirtSize.objects.get(
+                        ShirtSizeAbbr=mobj.group("size")
+                    ),
+                    ShirtPrice=v
+                )
+
+            # Create needed ShirtPrice instances and persist models to DB
+            for price in [construct_ShirtPrice(k, v)
+                            for k, v in form.cleaned_data.items()
+                            if k.startswith("qty__") and v != None]:
+                price.save()
+
+            return HttpResponseRedirect("/shirtstyles/")
+
         else:
             return render_to_response(
                 "sales/shirtstyles/add.html",
