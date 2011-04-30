@@ -91,14 +91,21 @@
             $('#row' + orderstyle).remove();
         }
         
+        var colorcounter = 0;
+        var colormax = {{ orderlines|length }};
         function selectcolor(colorid, shirtstyleid, prefix){
+            ++colorcounter;
             if(colorid != ''){
                 $.get('/data/styleprices', {"colorid": colorid, "shirtstyleid": shirtstyleid}, function(data){
                     $('#row' + prefix + " input.quantity[type=text]").attr('disabled', true);
-                    $('#row' + prefix + ' .price, #row' + prefix + ' .pricefkey').val('');
+                    if(colorcounter>colormax){
+                        $('#row' + prefix + ' .price, #row' + prefix + ' .pricefkey').val('');
+                    }
                     $.each(data, function(i, item) {
                         //alert('price' + row + '-' + item.fields.ShirtSize);
-                        $('#row' + prefix + ' .price.size' + item.fields.ShirtSize).val(item.fields.ShirtPrice);
+                        if(colorcounter>colormax){
+                            $('#row' + prefix + ' .price.size' + item.fields.ShirtSize).val(item.fields.ShirtPrice);
+                        }
                         $('#row' + prefix + ' .quantity.size' + item.fields.ShirtSize).attr('disabled', false);
                         $('#row' + prefix + ' .pricefkey.size' + item.fields.ShirtSize).val(item.pk);
                     });
