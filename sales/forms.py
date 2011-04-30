@@ -233,5 +233,6 @@ class ShirtStyleForm(ModelForm):
             sizeName = size.ShirtSizeAbbr
             self.fields["qty__" + ccName + "__" + sizeName] = IntegerField(
                 label=ccName + " " + sizeName,
-                widget=TextInput(attrs={"size": "4"})
+                widget=TextInput(attrs={"size": "4"}),
+                required=False
             )
