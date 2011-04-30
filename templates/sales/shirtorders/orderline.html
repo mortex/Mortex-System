@@ -13,13 +13,13 @@
         {% endif %}
         {{ orderline.shirtstyle.ShirtStyleDescription }}</h4></td>
         <td>{{ orderline.color }}{{ orderline.color.errors }}{{ orderline.shirtstylevariationid }}{{ orderline.sizes }}{{ orderline.shirtstyleid }}</td>
-        {% for quantityfield, pricefield, pricefkeyfield in orderline.fieldset %}
-                <td>
-                    {{ orderline|hash:quantityfield|attr:'label' }}
-                    ${{ orderline|hash:pricefield }}<br/>
-                    {{ orderline|hash:quantityfield }}<br/>
-                    {{ orderline|hash:pricefkeyfield }}
-                </td>
+        {% for quantity, price, pricefkey in orderline.fieldlist %}
+            <td>
+            {{ quantity.label }}
+            {{ price }}<br/>
+            {{ quantity }}{{ quantity.errors }}<br/>
+            {{ pricefkey }}
+            </td>
         {% endfor %}
     </tr>
 {% endfor %}

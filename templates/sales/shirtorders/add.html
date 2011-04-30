@@ -18,18 +18,20 @@
                     "initially_open" : ["unique", "public"]
                 }
             });
-        });
-
-		$(function() {
-			$("#id_CustomerAddress option").remove();
-		});
-		
-		$(function() {
+            
+            {# removes all customer address options #}
+            if($('#id_Customer').val() === ""){
+			    $("#id_CustomerAddress option").remove();
+			}
+            
+            {# binds an onChange function to the customer select box #}
 	        $('#id_Customer').bind('change',function(){
                 selectcustomer(this.value);
             });
+            
+
         });
-        
+
         function selectcustomer(customerid){
             $('#id_CustomerAddress').find('option').remove()
             $.get('/data/customeraddresses/', {"customerid": customerid}, function(data){
