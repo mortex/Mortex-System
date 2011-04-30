@@ -6,6 +6,7 @@ info_dict = {
 }
 
 urlpatterns = patterns('',
+    (r'^shirtorders/(?P<orderid>\d+)/edit/$', 'sales.views.shirtorderadd'),
     (r'^shirtorders/(?P<orderid>\d+)$', 'sales.views.shirtorderview'),
     (r'^shirtorders/add$', 'sales.views.shirtorderadd'),
     (r'^shirtorders/orderline/$', 'sales.views.orderline'),

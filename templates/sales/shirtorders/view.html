@@ -1,6 +1,7 @@
 <p>
     {{ shirtorder.CustomerAddress }}<br/>
     {{ shirtorder.PONumber }}
+    <a href="{{ shirtorder.id }}/edit/">edit order</a>
 </p>
 <ul>
     {% regroup shirtorder.shirtordersku_set.all by ShirtPrice.ShirtStyle as style_list %}

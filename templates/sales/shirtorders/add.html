@@ -23,21 +23,30 @@
             if($('#id_Customer').val() === ""){
 			    $("#id_CustomerAddress option").remove();
 			}
+			else {
+			    var selectedaddress = $('#id_CustomerAddress').val();
+			    $("#id_CustomerAddress option").remove();
+			    selectcustomer($('#id_Customer').val(), selectedaddress);
+			}
             
             {# binds an onChange function to the customer select box #}
 	        $('#id_Customer').bind('change',function(){
                 selectcustomer(this.value);
             });
             
-
+            $('.colorselector').trigger('change');
+            
         });
 
-        function selectcustomer(customerid){
+        function selectcustomer(customerid, selectedaddress){
             $('#id_CustomerAddress').find('option').remove()
             $.get('/data/customeraddresses/', {"customerid": customerid}, function(data){
                 $.each(data, function(i, item) {
                     $('#id_CustomerAddress').append(new Option(item.fields.Address1 + ', ' + item.fields.City, item.pk));
                 });
+                if(selectedaddress !== undefined){
+    			    $('#id_CustomerAddress').val(selectedaddress);
+                }
             });
             addstyles(customerid);
         }
@@ -61,7 +70,7 @@
             });
         }
         
-        var prefix = 1;
+        var prefix = 1 + {{ orderlines|length }};
         function addstyle(shirtstyleid, shirtstylevariationid){
             if(shirtstylevariationid){
                 var params = {shirtstylevariationid: shirtstylevariationid};

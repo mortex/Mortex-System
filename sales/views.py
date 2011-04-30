@@ -1,8 +1,9 @@
 # Create your views here.
-from sales.models import Color, ShirtStyle, ShirtOrder, ShirtStyleVariation
+from sales.models import Color, ShirtStyle, ShirtOrder, ShirtStyleVariation, ShirtOrderSKU, ShirtPrice
 from django.shortcuts import render_to_response
 from sales.forms import Order, OrderLine
 from django.template import RequestContext
+from django.http import HttpResponseRedirect
 
 def shirtorders(request):
     shirtorders = ShirtOrder.objects.all()
@@ -41,25 +42,25 @@ def shirtorderadd(request):
     if passedvalidation == False:
         #print orderlines[0]
         shirtstyles = ShirtStyle.objects.filter(Customer=None)
-        my_context = {"orderlines": orderlines, "shirtorder": order, "shirtstyles":shirtstyles}
+        my_context = RequestContext(request, {"orderlines": orderlines, "shirtorder": order, "shirtstyles":shirtstyles})
         return render_to_response("sales/shirtorders/add.html", my_context)
     
     #if all validation passed, save order, then save orderlines
     else:
-        shirtorder = ShirtOrder(CustomerAddress=order.cleaned_data['CustomerAddress'], PONumber=order.cleaned_data['PONumber'])
+        shirtorder = ShirtOrder(Customer=order.cleaned_data['Customer'], CustomerAddress=order.cleaned_data['CustomerAddress'], PONumber=order.cleaned_data['PONumber'])
         shirtorder.save()
         for orderline in orderlines:
             for s in xrange(1, orderline.cleaned_data["sizes"]):
                 if 'quantity'+str(s) in orderline.fields and orderline.cleaned_data['quantity'+str(s)] != None:
                     ShirtOrderSKU( ShirtOrder=shirtorder
                                  , ShirtPrice=ShirtPrice.objects.get(pk=orderline.cleaned_data['pricefkey'+str(s)])
-                                 , ShirtStyleVariation= None if orderline.cleaned_data['shirtstylevariation']==None else ShirtStyleVariation.objects.get(pk=orderline.cleaned_data['shirtstylevariation'])
+                                 , ShirtStyleVariation=None if orderline.cleaned_data['shirtstylevariationid']==None else ShirtStyleVariation.objects.get(pk=orderline.cleaned_data['shirtstylevariationid'])
                                  , Color=orderline.cleaned_data['color']
                                  , OrderQuantity=orderline.cleaned_data['quantity'+str(s)]
 
                                  , Price=orderline.cleaned_data['price'+str(s)]
                                  ).save()
-        return super(ShirtOrderAdmin, self).add_view(request, form_url="")
+        return HttpResponseRedirect('/shirtorders/')
     
 def orderline(request):
     if "shirtstyleid" in request.GET:
