@@ -137,7 +137,7 @@
         <table id="orderstyles" style="float:left;margin-left:20px;">
             {% include "sales/shirtorders/orderline.html" %}
         </table>
-        <input type="hidden" id="rows" name="rows" value="0"/>
+        <input type="hidden" id="rows" name="rows" value="{{ orderlines|length }}"/>
         <div class="clear"></div>
         <input type="submit" value="Submit"/>
     </form>

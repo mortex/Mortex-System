@@ -45,7 +45,8 @@ def shirtorderadd(request, orderid=None):
     else:
         #created variable to test validation
         passedvalidation = True
-        order = Order(request.POST)
+        editorder = ShirtOrder.objects.get(pk=orderid) if orderid != None else None
+        order = Order(request.POST, instance=editorder)
         
         #if order is not valid, change validation variable
         if not order.is_valid():
@@ -55,7 +56,7 @@ def shirtorderadd(request, orderid=None):
         orderlines = []
         for i in xrange(1, int(request.POST['rows']) + 1):
             orderlines.append(OrderLine(request.POST, prefix=i, shirtstyleid=request.POST[str(i) + "-shirtstyleid"]))
-        
+
         #check each orderline for validity, change validation variable if any of them fail
         for orderline in orderlines:
             if not orderline.is_valid():
@@ -70,20 +71,25 @@ def shirtorderadd(request, orderid=None):
         
         #if all validation passed, save order, then save orderlines
         else:
-            shirtorder = ShirtOrder(Customer=order.cleaned_data['Customer'], CustomerAddress=order.cleaned_data['CustomerAddress'], PONumber=order.cleaned_data['PONumber'])
-            shirtorder.save()
+            shirtorder = order.save()
+            ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).delete()
             for orderline in orderlines:
                 for s in xrange(1, orderline.cleaned_data["sizes"]):
                     if 'quantity'+str(s) in orderline.fields and orderline.cleaned_data['quantity'+str(s)] != None:
+                        shirtprice = ShirtPrice.objects.get(pk=orderline.cleaned_data['pricefkey'+str(s)])
+                        shirtstylevariation = None if orderline.cleaned_data['shirtstylevariationid']==None else ShirtStyleVariation.objects.get(pk=orderline.cleaned_data['shirtstylevariationid'])
+                        color = orderline.cleaned_data['color']
+                        orderquantity = orderline.cleaned_data['quantity'+str(s)]
+                        price = orderline.cleaned_data['price'+str(s)]
                         ShirtOrderSKU( ShirtOrder=shirtorder
-                                     , ShirtPrice=ShirtPrice.objects.get(pk=orderline.cleaned_data['pricefkey'+str(s)])
-                                     , ShirtStyleVariation=None if orderline.cleaned_data['shirtstylevariationid']==None else ShirtStyleVariation.objects.get(pk=orderline.cleaned_data['shirtstylevariationid'])
-                                     , Color=orderline.cleaned_data['color']
-                                     , OrderQuantity=orderline.cleaned_data['quantity'+str(s)]
-
-                                     , Price=orderline.cleaned_data['price'+str(s)]
+                                     , ShirtPrice=shirtprice
+                                     , ShirtStyleVariation=shirtstylevariation
+                                     , Color=color
+                                     , OrderQuantity=orderquantity
+                                     , Price=price
                                      ).save()
-            return HttpResponseRedirect('/shirtorders/')
+
+            return HttpResponseRedirect('/shirtorders/' + str(shirtorder.id))
     
 def orderline(request):
     if "shirtstyleid" in request.GET:

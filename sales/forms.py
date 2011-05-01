@@ -14,7 +14,7 @@ class OrderLine(forms.Form):
         shirtstyleid = kwargs.pop("shirtstyleid")
         shirtstylevariationid = kwargs.pop("shirtstylevariationid", None)
         colorid = kwargs.pop("colorid", None)
-        existingskus = kwargs.pop("existingskus", None)
+        existingskus = kwargs.pop("existingskus", [])
         
         self.color = Color.objects.get(pk=colorid) if colorid else None
         if shirtstylevariationid != None:
