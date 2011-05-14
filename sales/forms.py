@@ -13,10 +13,13 @@ class CutSSIForm(forms.ModelForm):
         exclude = ("Date",)
     Pieces = forms.IntegerField(required=False, min_value=0)
     def __init__(self, *args, **kwargs):
-        super(CutSSIForm, self).__init__(*args, **kwargs)
         if "instance" in kwargs:
             self.shirtsize = kwargs["instance"].ShirtPrice.ShirtSize
             self.cutorder = kwargs["instance"].CutOrder
+        else:
+            self.shirtsize = ShirtSize.objects.get(shirtprice__id=kwargs.pop("shirtprice"))
+            self.cutorder = kwargs.pop("cutorder")
+        super(CutSSIForm, self).__init__(*args, **kwargs)
 
 class NewCutSSIForm(CutSSIForm):
     FormType = forms.CharField(initial='new', widget=forms.HiddenInput())

@@ -15,7 +15,7 @@ def manageinventory(request, shirtstyleid, variationid, colorid):
         for i in xrange(1, int(request.POST["totalforms"])):
             formtype = request.POST[str(i) + "-FormType"]
             classname = NewCutSSIForm if formtype == "new" else ExistingCutSSIForm
-            transactions.append(classname(request.POST, prefix=i))
+            transactions.append(classname(request.POST, prefix=i, shirtprice=request.POST[str(i)+"-ShirtPrice"], cutorder=request.POST[str(i)+"-CutOrder"]))
             if not transactions[-1].is_valid():
                 passedvalidation = False
 
