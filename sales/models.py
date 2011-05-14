@@ -89,7 +89,6 @@ class ShirtSKUInventory(models.Model):
     ShirtStyleVariation = models.ForeignKey(ShirtStyleVariation, null=True, blank=True)
     CutOrder = models.CharField('Cut Order', max_length=20)
     Pieces = models.IntegerField()
-    Add = models.BooleanField(default = True)
     Date = models.DateField(default = datetime.datetime.today())
 
 class Shipment(models.Model):
