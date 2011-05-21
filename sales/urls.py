@@ -6,8 +6,5 @@ info_dict = {
 }
 
 urlpatterns = patterns('',
-    (r'^styles/$', 'django.views.generic.list_detail.object_list', info_dict),
-    (r'^styles/(?P<object_id>\d+)/$', 'sales.views.styleorder'),
-    (r'^inventory/$', 'django.views.generic.list_detail.object_list', info_dict),
-    (r'^inventory/(?P<object_id>\d+)/$', 'sales.views.manageinventory'),
+    (r'^inventory/(?P<shirtstyleid>\d+)/(?P<variationid>\d+)/(?P<colorid>\d+)$', 'sales.views.manageinventory'),
 )
