@@ -1,0 +1,12 @@
+{% regroup ordercolors by parentstyle as parentstyles %}
+    <ul>
+    {% for parentstyle in parentstyles %}
+        <li>{{ parentstyle.grouper }}
+            <ul>
+                {% for color in parentstyle.list %}
+                    <li>{{ color }}</li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+    </ul>

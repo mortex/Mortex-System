@@ -1,6 +1,6 @@
 from django.shortcuts import render_to_response
 from django.db.models import Sum
-from sales.models import ShirtSKUTransaction, ShirtPrice, Color, ShirtStyleVariation, ShirtSize, ShirtStyle, ShirtOrder, ShirtOrderSKU
+from sales.models import ShirtSKUTransactions, ShirtPrice, Color, ShirtStyleVariation, ShirtSize, ShirtStyle, ShirtOrder, ShirtOrderSKU, CustomerAddress
 from sales.forms import ExistingCutSSIForm, NewCutSSIForm, Order, OrderLine
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
@@ -185,3 +185,13 @@ def orderline(request):
         print 'hello world'
     dictionary = {"orderlines":[OrderLine(shirtstyleid=shirtstyleid, shirtstylevariationid=shirtstylevariationid, prefix=request.GET['prefix'])]}
     return render_to_response('sales/shirtorders/orderline.html', dictionary)
+    
+    
+def orderaddresses(request):
+    addresses = CustomerAddress.objects.filter(shirtorder__Complete=False).distinct()
+    return render_to_response('sales/shipping/orderaddresses.html', {'addresses': addresses})
+    
+def addshipment(request, customeraddressid):
+    orderskus = ShirtOrderSKU.objects.filter(ShirtOrder__CustomerAddress__id = customeraddressid)
+    ordercolors = {{'parentstyle': sku.parentstyle, 'color': sku.Color} for sku in orderskus}
+    return render_to_response('sales/shipping/addshipment.html', {'ordercolors': ordercolors})

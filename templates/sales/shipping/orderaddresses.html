@@ -1,0 +1,12 @@
+{% regroup addresses by Customer as customers %}
+    <ul>
+    {% for customer in customers %}
+        <li>{{ customer.grouper }}
+            <ul>
+                {% for address in customer.list %}
+                    <li><a href="{{ address.id }}">{{ address }}</a></li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+    </ul>
