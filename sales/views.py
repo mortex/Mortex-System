@@ -14,8 +14,18 @@ def manageinventory(request, shirtstyleid, variationid, colorid):
         passedvalidation = True
         for i in xrange(1, int(request.POST["totalforms"])):
             formtype = request.POST[str(i) + "-FormType"]
-            classname = NewCutSSIForm if formtype == "new" else ExistingCutSSIForm
-            transactions.append(classname(request.POST, prefix=i, shirtprice=request.POST[str(i)+"-ShirtPrice"], cutorder=request.POST[str(i)+"-CutOrder"]))
+            cutorder = request.POST[str(i) + "-CutOrder"]
+            shirtprice = request.POST[str(i)+"-ShirtPrice"]
+            if formtype == "new":
+                transactions.append(NewCutSSIForm(request.POST, prefix=i, shirtprice=shirtprice, cutorder=cutorder))
+            else:
+                print variationid
+                total_pieces = ShirtSKUInventory.objects.filter(CutOrder=cutorder, 
+                                                                ShirtPrice=ShirtPrice.objects.get(pk=shirtprice), 
+                                                                Color=Color.objects.get(pk=colorid), 
+                                                                ShirtStyleVariation=(ShirtStyleVariation.objects.get(pk=variationid) if variationid!=str(0) else None
+                                                                )).aggregate(total_pieces=Sum('Pieces'))
+                transactions.append(ExistingCutSSIForm(request.POST, prefix=i, shirtprice=shirtprice, cutorder=cutorder, total_pieces=total_pieces['total_pieces']))
             if not transactions[-1].is_valid():
                 passedvalidation = False
 
@@ -26,6 +36,7 @@ def manageinventory(request, shirtstyleid, variationid, colorid):
             return manageinventory_get(request, shirtstyleid, variationid, colorid)
         
         else:
+            transactions.sort(key=lambda i: str(i.shirtsize), reverse=True)
             return render_to_response('sales/inventory/manage.html',RequestContext(request, {'transactionlist': transactions,'totalforms':request.POST["totalforms"]}))
 
 
