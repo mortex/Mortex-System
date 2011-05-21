@@ -69,6 +69,7 @@ class CustomerAddress(models.Model):
         return "%s, %s" % (self.Address1, self.City)
 
 class ShirtOrder(models.Model):
+    Customer = models.ForeignKey(Customer)
     CustomerAddress = models.ForeignKey(CustomerAddress)
     PONumber = models.CharField('PO#', max_length=20)
     Complete = models.BooleanField()

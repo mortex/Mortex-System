@@ -1,0 +1,25 @@
+{% load orderform_extras %}
+{% for orderline in orderlines %}
+    <tr id='row{{ orderline.prefix }}'>
+        <td style='vertical-align:middle;' class='delete'>
+            <div onClick="removestyle('{{ orderline.prefix }}')"><a class='inline-deletelink' href='javascript:void(0)'>Remove</a></div>
+        </td>
+        <td>
+        <h4>
+        {% if orderline.shirtstylevariation %}
+            {{ orderline.shirtstylevariation.ShirtStyleNumber }}
+        {% else %}
+            {{ orderline.shirtstyle.ShirtStyleNumber }} 
+        {% endif %}
+        {{ orderline.shirtstyle.ShirtStyleDescription }}</h4></td>
+        <td>{{ orderline.color }}{{ orderline.color.errors }}{{ orderline.shirtstylevariationid }}{{ orderline.sizes }}{{ orderline.shirtstyleid }}</td>
+        {% for quantity, price, pricefkey in orderline.fieldlist %}
+            <td>
+            {{ quantity.label }}
+            {{ price }}<br/>
+            {{ quantity }}{{ quantity.errors }}<br/>
+            {{ pricefkey }}
+            </td>
+        {% endfor %}
+    </tr>
+{% endfor %}
