@@ -5,7 +5,7 @@ from sales.models import ShirtStyle
 from sales.models import ShirtPrice
 from sales.models import ColorCategory
 from sales.models import ShirtSize
-from sales.models import ShirtSKUInventory
+from sales.models import ShirtSKUTransactions
 
 class ShirtPriceInline(admin.TabularInline):
 	model = ShirtPrice
@@ -16,7 +16,7 @@ class ShirtStyleAdmin(admin.ModelAdmin):
 	search_fields = ['ShirtStyleNumber', 'ShirtStyleDescription']
 
 admin.site.register(ShirtStyle, ShirtStyleAdmin)
-admin.site.register(ShirtSKUInventory)
+admin.site.register(ShirtSKUTransactions)
 admin.site.register(ShirtSize)
 
 #Customer Creation

@@ -1,6 +1,6 @@
 from django.shortcuts import render_to_response
 from django.db.models import Sum
-from sales.models import ShirtSKUInventory, ShirtPrice, Color, ShirtStyleVariation, ShirtSize, ShirtStyle, ShirtOrder, ShirtOrderSKU
+from sales.models import ShirtSKUTransactions, ShirtPrice, Color, ShirtStyleVariation, ShirtSize, ShirtStyle, ShirtOrder, ShirtOrderSKU
 from sales.forms import ExistingCutSSIForm, NewCutSSIForm, Order, OrderLine
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
@@ -21,7 +21,7 @@ def manageinventory(request, shirtstyleid, variationid, colorid):
                 transactions.append(NewCutSSIForm(request.POST, prefix=i, shirtprice=shirtprice, cutorder=cutorder))
             else:
                 print variationid
-                total_pieces = ShirtSKUInventory.objects.filter(CutOrder=cutorder, 
+                total_pieces = ShirtSKUTransactions.objects.filter(CutOrder=cutorder, 
                                                                 ShirtPrice=ShirtPrice.objects.get(pk=shirtprice), 
                                                                 Color=Color.objects.get(pk=colorid), 
                                                                 ShirtStyleVariation=(ShirtStyleVariation.objects.get(pk=variationid) if variationid!=str(0) else None
@@ -42,7 +42,7 @@ def manageinventory(request, shirtstyleid, variationid, colorid):
 
 
 def manageinventory_get(request, shirtstyleid, variationid, colorid):
-    transactions = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid).filter(Color__id=colorid)
+    transactions = ShirtSKUTransactions.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid).filter(Color__id=colorid)
     if variationid != '0':
         transactions = transactions.filter(ShirtStyleVariation__id=variationid)
         variation = ShirtStyleVariation.objects.get(pk=variationid)
@@ -61,7 +61,7 @@ def manageinventory_get(request, shirtstyleid, variationid, colorid):
             shirtstylevariation = ShirtStyleVariation.objects.get(pk=transaction['ShirtStyleVariation'])
         else:
             shirtstylevariation = None
-        transactionlist.append(ExistingCutSSIForm(instance=ShirtSKUInventory(CutOrder=cutorder, 
+        transactionlist.append(ExistingCutSSIForm(instance=ShirtSKUTransactions(CutOrder=cutorder, 
                                                                                 ShirtPrice=shirtprice, 
                                                                                 Color=color, 
                                                                                 ShirtStyleVariation=shirtstylevariation),total_pieces=transaction['total_pieces'],prefix=prefix))
@@ -70,7 +70,7 @@ def manageinventory_get(request, shirtstyleid, variationid, colorid):
     sizes = ShirtSize.objects.filter(shirtprice__ShirtStyle__id=shirtstyleid).filter(shirtprice__ColorCategory__color__id=colorid).distinct()
 
     for size in sizes:
-        transactionlist.append(NewCutSSIForm(instance=ShirtSKUInventory(ShirtPrice=ShirtPrice.objects
+        transactionlist.append(NewCutSSIForm(instance=ShirtSKUTransactions(ShirtPrice=ShirtPrice.objects
                                                                             .filter(ShirtStyle__id=shirtstyleid)
                                                                             .filter(ColorCategory__color__id=colorid)
                                                                             .get(ShirtSize__id=size.id),
