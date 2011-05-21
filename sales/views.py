@@ -1,6 +1,6 @@
 from django.shortcuts import render_to_response
 from django.db.models import Sum
-from sales.models import ShirtSKUTransactions, ShirtPrice, Color, ShirtStyleVariation, ShirtSize, ShirtStyle, ShirtOrder, ShirtOrderSKU, CustomerAddress
+from sales.models import ShirtSKUTransaction, ShirtPrice, Color, ShirtStyleVariation, ShirtSize, ShirtStyle, ShirtOrder, ShirtOrderSKU, CustomerAddress, ShirtSKUInventory
 from sales.forms import ExistingCutSSIForm, NewCutSSIForm, Order, OrderLine
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
@@ -21,12 +21,12 @@ def manageinventory(request, shirtstyleid, variationid, colorid):
                 transactions.append(NewCutSSIForm(request.POST, prefix=i, shirtprice=shirtprice, cutorder=cutorder))
             else:
                 print variationid
-                total_pieces = ShirtSKUTransaction.objects.filter(CutOrder=cutorder, 
+                total_pieces = ShirtSKUInventory.objects.get(CutOrder=cutorder, 
                                                                 ShirtPrice=ShirtPrice.objects.get(pk=shirtprice), 
                                                                 Color=Color.objects.get(pk=colorid), 
                                                                 ShirtStyleVariation=(ShirtStyleVariation.objects.get(pk=variationid) if variationid!=str(0) else None
-                                                                )).aggregate(total_pieces=Sum('Pieces'))
-                transactions.append(ExistingCutSSIForm(request.POST, prefix=i, shirtprice=shirtprice, cutorder=cutorder, total_pieces=total_pieces['total_pieces']))
+                                                                ))
+                transactions.append(ExistingCutSSIForm(request.POST, prefix=i, shirtprice=shirtprice, cutorder=cutorder, total_pieces=total_pieces.Inventory))
             if not transactions[-1].is_valid():
                 passedvalidation = False
 
@@ -42,45 +42,33 @@ def manageinventory(request, shirtstyleid, variationid, colorid):
 
 
 def manageinventory_get(request, shirtstyleid, variationid, colorid):
-    transactions = ShirtSKUTransaction.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid).filter(Color__id=colorid)
-    if variationid != '0':
-        transactions = transactions.filter(ShirtStyleVariation__id=variationid)
-        variation = ShirtStyleVariation.objects.get(pk=variationid)
-    else: 
-        variation = None
-    
-    annotatedtransactions = transactions.values('CutOrder','ShirtPrice','Color','ShirtStyleVariation').annotate(total_pieces=Sum('Pieces'))
-    
-    transactionlist = []
+    shirtstylevariation = ShirtStyleVariation.objects.get(id=variationid) if variationid!="0" else None
+    inventories = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, Color__id=colorid, ShirtStyleVariation=shirtstylevariation)
+    inventorylist = []
     prefix = 1
-    for transaction in annotatedtransactions:
-        cutorder = transaction['CutOrder']
-        shirtprice = ShirtPrice.objects.get(pk=transaction['ShirtPrice'])
-        color = Color.objects.get(pk=transaction['Color'])
-        if transaction['ShirtStyleVariation']:
-            shirtstylevariation = ShirtStyleVariation.objects.get(pk=transaction['ShirtStyleVariation'])
-        else:
-            shirtstylevariation = None
-        transactionlist.append(ExistingCutSSIForm(instance=ShirtSKUTransaction(CutOrder=cutorder, 
-                                                                                ShirtPrice=shirtprice, 
-                                                                                Color=color, 
-                                                                                ShirtStyleVariation=shirtstylevariation),total_pieces=transaction['total_pieces'],prefix=prefix))
+    print inventories
+    for inventory in inventories:
+        inventorylist.append(ExistingCutSSIForm(instance=ShirtSKUTransaction(CutOrder=inventory.CutOrder, 
+                                                                             ShirtPrice=inventory.ShirtPrice, 
+                                                                             Color=inventory.Color, 
+                                                                             ShirtStyleVariation=shirtstylevariation),
+                                                total_pieces=inventory.Inventory, prefix=prefix))
         prefix += 1
                                                                                 
     sizes = ShirtSize.objects.filter(shirtprice__ShirtStyle__id=shirtstyleid).filter(shirtprice__ColorCategory__color__id=colorid).distinct()
 
     for size in sizes:
-        transactionlist.append(NewCutSSIForm(instance=ShirtSKUTransaction(ShirtPrice=ShirtPrice.objects
+        inventorylist.append(NewCutSSIForm(instance=ShirtSKUTransaction(ShirtPrice=ShirtPrice.objects
                                                                             .filter(ShirtStyle__id=shirtstyleid)
                                                                             .filter(ColorCategory__color__id=colorid)
                                                                             .get(ShirtSize__id=size.id),
                                                                         Color=Color.objects.get(pk=colorid),
-                                                                        ShirtStyleVariation=variation), prefix=prefix))
+                                                                        ShirtStyleVariation=shirtstylevariation), prefix=prefix))
         prefix += 1
 
-    transactionlist.sort(key=lambda i: str(i.shirtsize), reverse=True)
+    inventorylist.sort(key=lambda i: str(i.shirtsize), reverse=True)
 
-    return render_to_response('sales/inventory/manage.html',RequestContext(request, {'transactionlist': transactionlist,'totalforms':prefix}))
+    return render_to_response('sales/inventory/manage.html',RequestContext(request, {'transactionlist': inventorylist,'totalforms':prefix}))
 
 
 # Shirt Orders
@@ -192,6 +180,8 @@ def orderaddresses(request):
     return render_to_response('sales/shipping/orderaddresses.html', {'addresses': addresses})
     
 def addshipment(request, customeraddressid):
-    orderskus = ShirtOrderSKU.objects.filter(ShirtOrder__CustomerAddress__id = customeraddressid)
-    ordercolors = {{'parentstyle': sku.parentstyle, 'color': sku.Color} for sku in orderskus}
-    return render_to_response('sales/shipping/addshipment.html', {'ordercolors': ordercolors})
+    orderskus = ShirtOrderSKU.objects.filter(ShirtOrder__CustomerAddress__id = customeraddressid).values("ShirtPrice__ShirtStyle", "ShirtStyleVariation", "Color").distinct()
+    for ordersku in orderskus:
+        ordersku['parentstyle'] = ShirtStyleVariation.objects.get(pk=ordersku['ShirtStyleVariation']) if ordersku['ShirtStyleVariation'] else ShirtStyle.objects.get(pk=ordersku['ShirtPrice__ShirtStyle'])
+        ordersku['Color'] = Color.objects.get(pk=ordersku['Color'])
+    return render_to_response('sales/shipping/addshipment.html', {'ordercolors': orderskus})

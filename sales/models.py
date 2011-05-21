@@ -83,7 +83,6 @@ class ShirtOrderSKU(models.Model):
     Color = models.ForeignKey(Color)
     OrderQuantity = models.IntegerField('Quantity')
     Price = models.FloatField()
-    parentstyle = property(lambda self: self.ShirtStyleVariation if self.ShirtStyleVariation else self.ShirtPrice.ShirtStyle)
 
 class ShirtSKUTransaction(models.Model):
     Color = models.ForeignKey(Color)
@@ -92,6 +91,21 @@ class ShirtSKUTransaction(models.Model):
     CutOrder = models.CharField('Cut Order', max_length=20)
     Pieces = models.IntegerField()
     Date = models.DateField(default = datetime.datetime.today())
+    def save(self):
+        super(ShirtSKUTransaction, self).save()
+        try:
+            skuinventory = ShirtSKUInventory.objects.get(Color=self.Color, ShirtPrice=self.ShirtPrice, ShirtStyleVariation=self.ShirtStyleVariation, CutOrder=self.CutOrder)
+            skuinventory.Inventory += self.Pieces
+            skuinventory.save()
+        except ShirtSKUInventory.DoesNotExist:
+            ShirtSKUInventory(Color=self.Color, ShirtPrice=self.ShirtPrice, ShirtStyleVariation=self.ShirtStyleVariation, Inventory=self.Pieces, CutOrder=self.CutOrder).save()
+    
+class ShirtSKUInventory(models.Model):
+    Color = models.ForeignKey(Color)
+    ShirtPrice = models.ForeignKey(ShirtPrice)
+    ShirtStyleVariation = models.ForeignKey(ShirtStyleVariation, null=True, blank=True)
+    CutOrder = models.CharField('Cut Order', max_length=20)
+    Inventory = models.IntegerField()
 
 class Shipment(models.Model):
     DateShipped = models.DateTimeField('Date Shipped')
