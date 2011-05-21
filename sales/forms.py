@@ -1,12 +1,12 @@
 from django import forms
 from django.forms import fields
 
-from sales.models import ShirtOrder, ShirtOrderSKU, CustomerAddress, Color, ShirtSize, ShirtStyle, ShirtStyleVariation, ShirtSKUTransactions, ShirtSize
+from sales.models import ShirtOrder, ShirtOrderSKU, CustomerAddress, Color, ShirtSize, ShirtStyle, ShirtStyleVariation, ShirtSKUTransaction, ShirtSize
 
 class CutSSIForm(forms.ModelForm):
     'allows you to create transactions for new cut orders of a shirt SKU'
     class Meta:
-        model = ShirtSKUTransactions
+        model = ShirtSKUTransaction
         widgets = {
             "Color": forms.HiddenInput(),
             "ShirtPrice": forms.HiddenInput(),
@@ -30,7 +30,7 @@ class NewCutSSIForm(CutSSIForm):
 class ExistingCutSSIForm(CutSSIForm):
     'allows you to create transactions for existing cut orders of a shirt SKU'
     class Meta:
-        model = ShirtSKUTransactions
+        model = ShirtSKUTransaction
         widgets = {
             "CutOrder":forms.HiddenInput(),
             "Color": forms.HiddenInput(),

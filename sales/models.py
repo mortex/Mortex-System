@@ -84,7 +84,7 @@ class ShirtOrderSKU(models.Model):
     OrderQuantity = models.IntegerField('Quantity')
     Price = models.FloatField()
 
-class ShirtSKUTransactions(models.Model):
+class ShirtSKUTransaction(models.Model):
     Color = models.ForeignKey(Color)
     ShirtPrice = models.ForeignKey(ShirtPrice)
     ShirtStyleVariation = models.ForeignKey(ShirtStyleVariation, null=True, blank=True)
