@@ -1,12 +1,40 @@
+{% extends "sales/base.html" %}
+
+{% block extrahead %}
+<script type="application/javascript">
+    function choosecolor(shirtstyleid, shirtstylevariationid, colorid){
+        var customeraddressid = {{ customeraddressid }};
+        if(shirtstylevariationid===null)
+            shirtstylevariationid=0;
+        $.getJSON('/data/skuinventory/', {'shirtstyleid':shirtstyleid, 'variationid':shirtstylevariationid, 'colorid':colorid, 'addressid':customeraddressid}, function(data){
+            var sizelist = ""
+            $.each(data, function(i, item) {
+                sizelist += "<li id='" + item.ShirtPrice + "'>Shirt Size: " + item.abbr + " - Inventory: " + item.total + "<ul>";
+                $.each(item.orderedpieces, function(i, po) {
+                    sizelist += "<li id='" + po.shirtordersku + "'>PO#" + po.ponumber + " - " + po.orderquantity + " Shirts</li>";
+                });
+                sizelist += "</ul></li>";
+            });
+            sizelist += "</li>";
+            $('#sizelist').html(sizelist);
+        });
+    }
+</script>
+{% endblock %}
+
+{% block body %}
 {% regroup ordercolors by parentstyle as parentstyles %}
     <ul>
     {% for parentstyle in parentstyles %}
         <li>{{ parentstyle.grouper }}
             <ul>
                 {% for color in parentstyle.list %}
-                    <li>{{ color.Color }}</li>
+                    <li><a href="#" onClick="choosecolor({{ color.ShirtPrice__ShirtStyle }},{{ color.ShirtStyleVariation|default:'null' }},{{ color.Color.id }})">{{ color.Color }}</a></li>
                 {% endfor %}
             </ul>
         </li>
     {% endfor %}
     </ul>
+    
+    <ul id='sizelist'></ul>
+{% endblock %}

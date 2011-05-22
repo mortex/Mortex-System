@@ -1,4 +1,4 @@
-from sales.models import CustomerAddress, ShirtStyle, ShirtPrice, ShirtStyleVariation, ShirtSKUInventory, Color
+from sales.models import CustomerAddress, ShirtStyle, ShirtPrice, ShirtStyleVariation, ShirtSKUInventory, Color, ShirtOrderSKU
 from django.core import serializers
 from django.http import HttpRequest, HttpResponse
 from django.db.models import Sum
@@ -53,9 +53,24 @@ def skuinventory(request):
     'gets the inventory of each size of a given style/color'
     shirtstyleid = request.GET['shirtstyleid']
     variationid = request.GET['variationid']
+    shirtstylevariation = ShirtStyleVariation.objects.get(pk=variationid) if variationid!=str(0) else None
     colorid = request.GET['colorid']
-    total_pieces = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, 
+    addressid = request.GET['addressid']
+    sizeinventories = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, 
                                                     Color__id=colorid, 
-                                                    ShirtStyleVariation=(ShirtStyleVariation.objects.get(pk=variationid) if variationid!=str(0) else None
+                                                    ShirtStyleVariation=(shirtstylevariation
                                                     )).values('ShirtPrice', 'ShirtPrice__ShirtSize__ShirtSizeAbbr').annotate(total=Sum('Inventory'))
-    return HttpResponse(json.dumps(list(total_pieces)))
+
+    #gets the active ordesr for skus of a given style/color
+    allorderedpieces = ShirtOrderSKU.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid,
+                                                    Color__id=colorid,
+                                                    ShirtStyleVariation=shirtstylevariation,
+                                                    ShirtOrder__CustomerAddress__id=addressid)
+
+    for size in sizeinventories:
+        size['abbr'] = size['ShirtPrice__ShirtSize__ShirtSizeAbbr']
+        del size['ShirtPrice__ShirtSize__ShirtSizeAbbr']
+        size['orderedpieces'] = [{'shirtprice':piece.ShirtPrice.id,'shirtordersku':piece.id,'orderquantity':piece.OrderQuantity,'ponumber':piece.ShirtOrder.PONumber} for piece in allorderedpieces if piece.ShirtPrice.id == size['ShirtPrice']]
+                                                    
+    return HttpResponse(json.dumps(list(sizeinventories)))
+

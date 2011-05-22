@@ -184,4 +184,4 @@ def addshipment(request, customeraddressid):
     for ordersku in orderskus:
         ordersku['parentstyle'] = ShirtStyleVariation.objects.get(pk=ordersku['ShirtStyleVariation']) if ordersku['ShirtStyleVariation'] else ShirtStyle.objects.get(pk=ordersku['ShirtPrice__ShirtStyle'])
         ordersku['Color'] = Color.objects.get(pk=ordersku['Color'])
-    return render_to_response('sales/shipping/addshipment.html', {'ordercolors': orderskus})
+    return render_to_response('sales/shipping/addshipment.html', {'ordercolors': orderskus, 'customeraddressid':customeraddressid})
