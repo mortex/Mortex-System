@@ -17,10 +17,10 @@
                 orderlist += "<li id='" + item.ShirtPrice + "'>Shirt Size: " + item.abbr + " - Inventory: " + item.total + "<ul>";
                 cutlist += "<li id='" + item.ShirtPrice + "'>Shirt Size: " + item.abbr + " - Inventory: " + item.total + "<ul>";
                 $.each(item.orderedpieces, function(i, po) {
-                    orderlist += "<li id='" + po.shirtordersku + "'>PO#" + po.ponumber + " - " + po.orderquantity + " Shirts</li>";
+                    orderlist += "<li class='orderselectable' data-ordersku='" + po.shirtordersku + "'>PO#" + po.ponumber + " - " + po.orderquantity + " Shirts</li>";
                 });
                 $.each(item.cutpieces, function(i, cut) {
-                    cutlist += "<li id='" + cut.cutorder + "'>cut#" + cut.cutorder + " - " + cut.inventory + " Shirts</li>";
+                    cutlist += "<li class='cutselectable' data-cutorder='" + cut.cutorder + "'>cut#" + cut.cutorder + " - " + cut.inventory + " Shirts</li>";
                 });
                 orderlist += "</ul></li>";
                 cutlist += "</ul></li>";
@@ -28,6 +28,14 @@
             orderlist += "</li>";
             $('#orderlist').html(orderlist);
             $('#cutlist').html(cutlist);
+            $('.orderselectable').click(function(){
+                $('#orderselected').attr('id','');
+                $(this).attr('id','orderselected');
+            });
+            $('.cutselectable').click(function(){
+                $('#cutselected').attr('id','');
+                $(this).attr('id','cutselected');
+            });
         });
     }
 </script>
@@ -37,6 +45,12 @@
     }
     #cutlist {
         float:right;
+    }
+    .orderselectable, .cutselectable {
+        cursor:pointer;
+    }
+    #orderselected, #cutselected {
+        background-color:yellow;
     }
 </style>
 {% endblock %}
