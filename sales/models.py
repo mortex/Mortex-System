@@ -115,3 +115,4 @@ class ShipmentSKU(models.Model):
     Shipment = models.ForeignKey(Shipment)
     ShirtOrderSKU = models.ForeignKey(ShirtOrderSKU)
     CutOrder = models.CharField('Cut Order', max_length=20)
+    BoxNumber = models.IntegerField('Box #')

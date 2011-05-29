@@ -49,8 +49,8 @@ def shirtstylevariations(request):
 
     return serialize(shirtstylevariations)
     
-def skuinventory(request):
-    'gets the inventory of each size of a given style/color'
+def shippingorderskus(request):
+    'gets the specific orders of each size of a given style/color'
     shirtstyleid = request.GET['shirtstyleid']
     variationid = request.GET['variationid']
     shirtstylevariation = ShirtStyleVariation.objects.get(pk=variationid) if variationid!=str(0) else None
@@ -61,16 +61,25 @@ def skuinventory(request):
                                                     ShirtStyleVariation=(shirtstylevariation
                                                     )).values('ShirtPrice', 'ShirtPrice__ShirtSize__ShirtSizeAbbr').annotate(total=Sum('Inventory'))
 
-    #gets the active ordesr for skus of a given style/color
+    #gets the active orders for skus of a given style/color
     allorderedpieces = ShirtOrderSKU.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid,
                                                     Color__id=colorid,
                                                     ShirtStyleVariation=shirtstylevariation,
                                                     ShirtOrder__CustomerAddress__id=addressid)
+                                                    
+    #gets the inventory broken out by cut order of a given style/color
+    cutinventory = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, 
+                                                    Color__id=colorid, 
+                                                    ShirtStyleVariation=shirtstylevariation)
 
     for size in sizeinventories:
         size['abbr'] = size['ShirtPrice__ShirtSize__ShirtSizeAbbr']
         del size['ShirtPrice__ShirtSize__ShirtSizeAbbr']
         size['orderedpieces'] = [{'shirtprice':piece.ShirtPrice.id,'shirtordersku':piece.id,'orderquantity':piece.OrderQuantity,'ponumber':piece.ShirtOrder.PONumber} for piece in allorderedpieces if piece.ShirtPrice.id == size['ShirtPrice']]
+        size['cutpieces'] = [{'shirtprice':piece.ShirtPrice.id,'inventory':piece.Inventory,'cutorder':piece.CutOrder} for piece in cutinventory if piece.ShirtPrice.id == size['ShirtPrice']]
                                                     
     return HttpResponse(json.dumps(list(sizeinventories)))
 
+def shippinginventoryskus(request):
+    'gets the specific cut order inventory of each size of a given style/color'
+    shirtstyleid = request.GET['shirtstyleid']
