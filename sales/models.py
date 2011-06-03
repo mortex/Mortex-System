@@ -83,6 +83,8 @@ class ShirtOrderSKU(models.Model):
     Color = models.ForeignKey(Color)
     OrderQuantity = models.IntegerField('Quantity')
     Price = models.FloatField()
+    def __unicode__(self):
+        return str(self.ShirtPrice.ShirtStyle) + " " + str(self.ShirtPrice)
 
 class ShirtSKUTransaction(models.Model):
     Color = models.ForeignKey(Color)
@@ -116,3 +118,4 @@ class ShipmentSKU(models.Model):
     ShirtOrderSKU = models.ForeignKey(ShirtOrderSKU)
     CutOrder = models.CharField('Cut Order', max_length=20)
     BoxNumber = models.IntegerField('Box #')
+    ShippedQuantity = models.IntegerField('Shipped Quantity')

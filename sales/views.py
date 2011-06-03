@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response
 from django.db.models import Sum
-from sales.models import ShirtSKUTransaction, ShirtPrice, Color, ShirtStyleVariation, ShirtSize, ShirtStyle, ShirtOrder, ShirtOrderSKU, CustomerAddress, ShirtSKUInventory
-from sales.forms import ExistingCutSSIForm, NewCutSSIForm, Order, OrderLine
+from sales.models import ShirtSKUTransaction, ShirtPrice, Color, ShirtStyleVariation, ShirtSize, ShirtStyle, ShirtOrder, ShirtOrderSKU, CustomerAddress, ShirtSKUInventory, ShipmentSKU
+from sales.forms import ExistingCutSSIForm, NewCutSSIForm, Order, OrderLine, ShipmentSKUForm
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 
@@ -185,3 +185,8 @@ def addshipment(request, customeraddressid):
         ordersku['parentstyle'] = ShirtStyleVariation.objects.get(pk=ordersku['ShirtStyleVariation']) if ordersku['ShirtStyleVariation'] else ShirtStyle.objects.get(pk=ordersku['ShirtPrice__ShirtStyle'])
         ordersku['Color'] = Color.objects.get(pk=ordersku['Color'])
     return render_to_response('sales/shipping/addshipment.html', {'ordercolors': orderskus, 'customeraddressid':customeraddressid})
+    
+def addshipmentsku(request, shirtorderskuid):
+    shirtordersku = ShirtOrderSKU.objects.get(pk=shirtorderskuid)
+    shipmentsku = ShipmentSKUForm(instance=ShipmentSKU(ShirtOrderSKU=shirtordersku),prefix=1)
+    return render_to_response('sales/shipping/shipmentsku.html', {'shipmentsku': shipmentsku})

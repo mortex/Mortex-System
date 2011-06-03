@@ -3,7 +3,7 @@
 {% block extrahead %}
 <script type="application/javascript">
     $(function(){
-        $('.selectable').selectable();
+        //$('.selectable').selectable();
     });
 
     function choosecolor(shirtstyleid, shirtstylevariationid, colorid){
@@ -17,10 +17,10 @@
                 orderlist += "<li id='" + item.ShirtPrice + "'>Shirt Size: " + item.abbr + " - Inventory: " + item.total + "<ul>";
                 cutlist += "<li id='" + item.ShirtPrice + "'>Shirt Size: " + item.abbr + " - Inventory: " + item.total + "<ul>";
                 $.each(item.orderedpieces, function(i, po) {
-                    orderlist += "<li class='orderselectable' data-ordersku='" + po.shirtordersku + "'>PO#" + po.ponumber + " - " + po.orderquantity + " Shirts</li>";
+                    orderlist += "<li class='orderselectable' data-shirtprice='" + po.shirtprice + "' data-ordersku='" + po.shirtordersku + "'>PO#" + po.ponumber + " - " + po.orderquantity + " Shirts</li>";
                 });
                 $.each(item.cutpieces, function(i, cut) {
-                    cutlist += "<li class='cutselectable' data-cutorder='" + cut.cutorder + "'>cut#" + cut.cutorder + " - " + cut.inventory + " Shirts</li>";
+                    cutlist += "<li class='cut unselectable' data-shirtprice='" + cut.shirtprice + "' data-cutorder='" + cut.cutorder + "'>cut#" + cut.cutorder + " - " + cut.inventory + " Shirts</li>";
                 });
                 orderlist += "</ul></li>";
                 cutlist += "</ul></li>";
@@ -31,10 +31,18 @@
             $('.orderselectable').click(function(){
                 $('#orderselected').attr('id','');
                 $(this).attr('id','orderselected');
-            });
-            $('.cutselectable').click(function(){
+                $('.cut').addClass('unselectable');
                 $('#cutselected').attr('id','');
-                $(this).attr('id','cutselected');
+                $(".cut[data-shirtprice='" + $(this).attr('data-shirtprice') + "']").removeClass('unselectable');
+            });
+            $('.cut').click(function(){
+                if($(this).hasClass('unselectable')){
+                    alert('you must select inventory of the same size!');
+                }
+                else {
+                    $('#cutselected').attr('id','');
+                    $(this).attr('id','cutselected');
+                }
             });
         });
     }
@@ -46,11 +54,14 @@
     #cutlist {
         float:right;
     }
-    .orderselectable, .cutselectable {
+    .orderselectable, .cut {
         cursor:pointer;
     }
     #orderselected, #cutselected {
         background-color:yellow;
+    }
+    .unselectable {
+        color:gray;
     }
 </style>
 {% endblock %}

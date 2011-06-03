@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import fields
 
-from sales.models import ShirtOrder, ShirtOrderSKU, CustomerAddress, Color, ShirtSize, ShirtStyle, ShirtStyleVariation, ShirtSKUTransaction, ShirtSize
+from sales.models import ShirtOrder, ShirtOrderSKU, CustomerAddress, Color, ShirtSize, ShirtStyle, ShirtStyleVariation, ShirtSKUTransaction, ShirtSize, ShipmentSKU
 
 class CutSSIForm(forms.ModelForm):
     'allows you to create transactions for new cut orders of a shirt SKU'
@@ -97,3 +97,7 @@ class OrderLine(forms.Form):
 
         self.fieldlist = zip(self.quantitylist, self.pricelist, self.pricefkeylist)
         self.fields["sizes"] = forms.IntegerField(widget=forms.HiddenInput(), initial=i-1)
+        
+class ShipmentSKUForm(forms.ModelForm):
+    class Meta:
+        model = ShipmentSKU

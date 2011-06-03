@@ -19,4 +19,5 @@ urlpatterns = patterns('',
     (r'^data/shippingorderskus/$', 'sales.data_views.shippingorderskus'),
     (r'^shipping/add/(?P<customeraddressid>\d+)/$', 'sales.views.addshipment'),
     (r'^shipping/add/$', 'sales.views.orderaddresses'),
+    (r'^shipping/shipmentsku/(?P<shirtorderskuid>\d+)/$', 'sales.views.addshipmentsku'),
 )
