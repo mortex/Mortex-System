@@ -5,6 +5,23 @@
     $(function(){
         //$('.selectable').selectable();
     });
+    
+    function fillbox(box){
+        if($('#cutselected').length & $('#orderselected').length){
+            var cutorder = $('#cutselected').attr('data-cutorder');
+            var ordersku = $('#orderselected').attr('data-ordersku');
+            var box = $(box).attr('data-box');
+            $.get('/shipping/shipmentsku/', {'shirtorderskuid':ordersku, 'cutorder':cutorder, 'box':box, 'prefix':'1'}, function(data){
+                $('#box' + box).append(data);
+                deselect();
+            });
+        }
+    }
+    
+    function deselect(){
+        $('#cutselected, #orderselected').attr('id','');
+        $('.cut').addClass('unselectable');
+    }
 
     function choosecolor(shirtstyleid, shirtstylevariationid, colorid){
         var customeraddressid = {{ customeraddressid }};
@@ -63,6 +80,14 @@
     .unselectable {
         color:gray;
     }
+    #boxes {
+        float:left;
+    }
+    .box {
+        height:100px;
+        width:100px;
+        border:1px solid black;
+    }
 </style>
 {% endblock %}
 
@@ -81,5 +106,6 @@
     </ul>
     
     <ul id='orderlist'></ul>
+    <div id='boxes'><div class='box' id='box1' data-box='1' onClick='fillbox(this)'></div></div>
     <ul id='cutlist'></ul>
 {% endblock %}

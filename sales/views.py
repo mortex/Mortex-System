@@ -186,7 +186,10 @@ def addshipment(request, customeraddressid):
         ordersku['Color'] = Color.objects.get(pk=ordersku['Color'])
     return render_to_response('sales/shipping/addshipment.html', {'ordercolors': orderskus, 'customeraddressid':customeraddressid})
     
-def addshipmentsku(request, shirtorderskuid):
-    shirtordersku = ShirtOrderSKU.objects.get(pk=shirtorderskuid)
-    shipmentsku = ShipmentSKUForm(instance=ShipmentSKU(ShirtOrderSKU=shirtordersku),prefix=1)
+def addshipmentsku(request):
+    shirtordersku = ShirtOrderSKU.objects.get(pk=request.GET['shirtorderskuid'])
+    box = request.GET['box']
+    cutorder = request.GET['cutorder']
+    prefix = request.GET['prefix']
+    shipmentsku = ShipmentSKUForm(instance=ShipmentSKU(ShirtOrderSKU=shirtordersku, BoxNumber=box, CutOrder=cutorder),prefix=prefix)
     return render_to_response('sales/shipping/shipmentsku.html', {'shipmentsku': shipmentsku})
