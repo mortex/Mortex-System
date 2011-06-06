@@ -84,8 +84,6 @@
         float:left;
     }
     .box {
-        height:100px;
-        width:100px;
         border:1px solid black;
     }
 </style>
@@ -106,6 +104,15 @@
     </ul>
     
     <ul id='orderlist'></ul>
-    <div id='boxes'><div class='box' id='box1' data-box='1' onClick='fillbox(this)'></div></div>
+    <div id='boxes'>
+        <table class='box' id='box1' data-box='1' onClick='fillbox(this)'>
+            <tr>
+                <th>SKU</th>
+                <th>PO</th>
+                <th>CO</th>
+                <th>Quantity</th>
+            </tr>
+        </table>
+    </div>
     <ul id='cutlist'></ul>
 {% endblock %}

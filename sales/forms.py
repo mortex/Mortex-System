@@ -101,3 +101,12 @@ class OrderLine(forms.Form):
 class ShipmentSKUForm(forms.ModelForm):
     class Meta:
         model = ShipmentSKU
+        widgets = {
+            "Shipment":forms.HiddenInput(),
+            "ShirtOrderSKU":forms.HiddenInput(),
+            "BoxNumber":forms.HiddenInput(),
+            "CutOrder":forms.HiddenInput(),
+        }
+        def __init__(self, *args, **kwargs):
+            self.cutorderlabel = "test"
+            super(ShipmentSKUForm, self).__init__(*args, **kwargs)
