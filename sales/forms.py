@@ -106,6 +106,7 @@ class ShipmentSKUForm(forms.ModelForm):
             "ShirtOrderSKU":forms.HiddenInput(),
             "BoxNumber":forms.HiddenInput(),
             "CutOrder":forms.HiddenInput(),
+            "ShippedQuantity":forms.TextInput(attrs={"class":"shippedquantity"}),
         }
         def __init__(self, *args, **kwargs):
             self.cutorderlabel = "test"

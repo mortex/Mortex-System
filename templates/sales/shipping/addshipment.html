@@ -3,24 +3,64 @@
 {% block extrahead %}
 <script type="application/javascript">
     $(function(){
-        //$('.selectable').selectable();
+        addbox();
     });
     
+    var nextprefix = 1;
     function fillbox(box){
         if($('#cutselected').length & $('#orderselected').length){
             var cutorder = $('#cutselected').attr('data-cutorder');
             var ordersku = $('#orderselected').attr('data-ordersku');
             var box = $(box).attr('data-box');
-            $.get('/shipping/shipmentsku/', {'shirtorderskuid':ordersku, 'cutorder':cutorder, 'box':box, 'prefix':'1'}, function(data){
-                $('#box' + box).append(data);
+            $.get('/shipping/shipmentsku/', {'shirtorderskuid':ordersku, 'cutorder':cutorder, 'box':box, 'prefix':nextprefix}, function(data){
+                $('#box' + box + ' table').append(data);
+                if($('#box' + box).hasClass('hasitems') === false){
+                    addbox();
+                    $('#box' + box).addClass('hasitems')
+                }
+                $('.shippedquantity').change(function() {
+                    quantityupdated(this);
+                });
                 deselect();
+                ++nextprefix;
             });
         }
+    }
+    
+    function quantityupdated(quantityfield){
+        //need to get prefix to grab appropriate prefix for this shippingsku
+        var prefix = 1;
+    
+        var cutorder = $('#id_' + prefix + '-CutOrder').val();
+        var cospan = $('#co' + cutorder + 'remaining');
+        var coremainingquantity = $(cospan).html();
+        
+        var ordersku = $('#id_' + prefix + '-ShirtOrderSKU').val();
+        var sosspan = $('#sos' + ordersku + 'remaining');
+        var sosremainingquantity = $(sosspan).html();
+        
+        var oldvalue = ($(quantityfield).attr('data-oldvalue')) ? $(quantityfield).attr('data-oldvalue') : 0;
+        var newvalue = quantityfield.value;
+        var changevalue = newvalue - oldvalue;
+        
+        $(sosspan).html(sosremainingquantity - changevalue);
+        $(cospan).html(coremainingquantity - changevalue);
+        
+        $(quantityfield).attr('data-oldvalue',newvalue);
     }
     
     function deselect(){
         $('#cutselected, #orderselected').attr('id','');
         $('.cut').addClass('unselectable');
+    }
+    
+    var nextbox = 1;
+    function addbox(){
+        var newbox = $('#boxtemplate').clone();
+        $(newbox).attr('id','box' + nextbox).attr('data-box',nextbox)
+        $('#boxes').append(newbox);
+        $('#box' + nextbox + ' .boxnumber').html(nextbox);
+        ++nextbox;
     }
 
     function choosecolor(shirtstyleid, shirtstylevariationid, colorid){
@@ -34,10 +74,10 @@
                 orderlist += "<li id='" + item.ShirtPrice + "'>Shirt Size: " + item.abbr + " - Inventory: " + item.total + "<ul>";
                 cutlist += "<li id='" + item.ShirtPrice + "'>Shirt Size: " + item.abbr + " - Inventory: " + item.total + "<ul>";
                 $.each(item.orderedpieces, function(i, po) {
-                    orderlist += "<li class='orderselectable' data-shirtprice='" + po.shirtprice + "' data-ordersku='" + po.shirtordersku + "'>PO#" + po.ponumber + " - " + po.orderquantity + " Shirts</li>";
+                    orderlist += "<li class='orderselectable' data-shirtprice='" + po.shirtprice + "' data-ordersku='" + po.shirtordersku + "'>PO#" + po.ponumber + " - <span id='sos" + po.shirtordersku + "quantity'>" + po.orderquantity + "</span> Shirts (<span id='sos" + po.shirtordersku + "remaining'>" + po.orderquantity + "</span> remaining)</li>";
                 });
                 $.each(item.cutpieces, function(i, cut) {
-                    cutlist += "<li class='cut unselectable' data-shirtprice='" + cut.shirtprice + "' data-cutorder='" + cut.cutorder + "'>cut#" + cut.cutorder + " - " + cut.inventory + " Shirts</li>";
+                    cutlist += "<li class='cut unselectable' data-shirtprice='" + cut.shirtprice + "' data-cutorder='" + cut.cutorder + "'>cut#" + cut.cutorder + " - <span id='co" + cut.cutorder + "quantity'>" + cut.inventory + "</span> Shirts (<span id='co" + cut.cutorder + "remaining'>" + cut.inventory + "</span> remaining)</li>";
                 });
                 orderlist += "</ul></li>";
                 cutlist += "</ul></li>";
@@ -86,6 +126,9 @@
     .box {
         border:1px solid black;
     }
+    #boxtemplate {
+        display:none;
+    }
 </style>
 {% endblock %}
 
@@ -105,7 +148,11 @@
     
     <ul id='orderlist'></ul>
     <div id='boxes'>
-        <table class='box' id='box1' data-box='1' onClick='fillbox(this)'>
+    </div>
+    <ul id='cutlist'></ul>
+    <div class='box' id='boxtemplate' data-box='' onClick='fillbox(this)'>
+        Box <span class='boxnumber'></span>
+        <table>
             <tr>
                 <th>SKU</th>
                 <th>PO</th>
@@ -114,5 +161,4 @@
             </tr>
         </table>
     </div>
-    <ul id='cutlist'></ul>
 {% endblock %}
