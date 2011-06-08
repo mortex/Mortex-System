@@ -155,6 +155,9 @@
 {% endblock %}
 
 {% block body %}
+<form method="post" action="">
+{% csrf_token %}
+{{ shipment }}
 {% regroup ordercolors by parentstyle as parentstyles %}
     <ul>
     {% for parentstyle in parentstyles %}
@@ -183,4 +186,6 @@
             </tr>
         </table>
     </div>
+    <input type="submit" value="Submit"/>
+    </form>
 {% endblock %}

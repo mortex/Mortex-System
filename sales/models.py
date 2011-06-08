@@ -110,7 +110,8 @@ class ShirtSKUInventory(models.Model):
     Inventory = models.IntegerField()
 
 class Shipment(models.Model):
-    DateShipped = models.DateTimeField('Date Shipped')
+    CustomerAddress = models.ForeignKey(CustomerAddress)
+    DateShipped = models.DateTimeField('Date Shipped', default = datetime.datetime.today())
     TrackingNumber = models.CharField('Tracking Number', max_length=50)
 
 class ShipmentSKU(models.Model):
