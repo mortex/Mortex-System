@@ -18,7 +18,7 @@
                     addbox();
                     $('#box' + box).addClass('hasitems')
                 }
-                $('.shippedquantity').change(function() {
+                $('#id_' + nextprefix + '-ShippedQuantity').change(function() {
                     quantityupdated(this);
                 });
                 deselect();
@@ -27,10 +27,9 @@
         }
     }
     
-    function quantityupdated(quantityfield){
-        //need to get prefix to grab appropriate prefix for this shippingsku
-        var prefix = 1;
-    
+    function quantityupdated(quantityfield){  
+        var prefix = $(quantityfield).attr("id").match(/[\d]+/);
+
         var cutorder = $('#id_' + prefix + '-CutOrder').val();
         var cospan = $('#co' + cutorder + 'remaining');
         var coremainingquantity = $(cospan).html();
@@ -43,10 +42,17 @@
         var newvalue = quantityfield.value;
         var changevalue = newvalue - oldvalue;
         
-        $(sosspan).html(sosremainingquantity - changevalue);
-        $(cospan).html(coremainingquantity - changevalue);
-        
-        $(quantityfield).attr('data-oldvalue',newvalue);
+        var newsosvalue = sosremainingquantity - changevalue;
+        var newcovalue = coremainingquantity - changevalue;
+        if(newsosvalue < 0 || newcovalue < 0){
+            alert("You don't have that many shirts!");
+            $(quantityfield).val(oldvalue)
+        }
+        else {
+            $(sosspan).html(newsosvalue);
+            $(cospan).html(newcovalue);
+            $(quantityfield).attr('data-oldvalue',newvalue);
+        }
     }
     
     function deselect(){
@@ -128,6 +134,9 @@
     }
     #boxtemplate {
         display:none;
+    }
+    .shippedquantity {
+        width:60px;
     }
 </style>
 {% endblock %}
