@@ -11,6 +11,7 @@
         if($('#cutselected').length & $('#orderselected').length){
             var cutorder = $('#cutselected').attr('data-cutorder');
             var ordersku = $('#orderselected').attr('data-ordersku');
+            var maxquantity = Math.min($('#co' + cutorder + 'remaining').html(),$('#sos' + ordersku + 'remaining').html());
             var box = $(box).attr('data-box');
             $.get('/shipping/shipmentsku/', {'shirtorderskuid':ordersku, 'cutorder':cutorder, 'box':box, 'prefix':nextprefix}, function(data){
                 $('#box' + box + ' table').append(data);
@@ -18,9 +19,12 @@
                     addbox();
                     $('#box' + box).addClass('hasitems')
                 }
-                $('#id_' + nextprefix + '-ShippedQuantity').change(function() {
+                var quantityfield = $('#id_' + nextprefix + '-ShippedQuantity');
+                quantityfield.change(function() {
                     quantityupdated(this);
                 });
+                quantityfield.val(maxquantity);
+                quantityupdated(quantityfield);
                 deselect();
                 ++nextprefix;
             });
@@ -32,18 +36,19 @@
 
         var cutorder = $('#id_' + prefix + '-CutOrder').val();
         var cospan = $('#co' + cutorder + 'remaining');
-        var coremainingquantity = $(cospan).html();
+        var coremainingquantity = cospan.html();
         
         var ordersku = $('#id_' + prefix + '-ShirtOrderSKU').val();
         var sosspan = $('#sos' + ordersku + 'remaining');
-        var sosremainingquantity = $(sosspan).html();
+        var sosremainingquantity = sosspan.html();
         
         var oldvalue = ($(quantityfield).attr('data-oldvalue')) ? $(quantityfield).attr('data-oldvalue') : 0;
-        var newvalue = quantityfield.value;
+        var newvalue = $(quantityfield).val();
         var changevalue = newvalue - oldvalue;
-        
+
         var newsosvalue = sosremainingquantity - changevalue;
         var newcovalue = coremainingquantity - changevalue;
+
         if(newsosvalue < 0 || newcovalue < 0){
             alert("You don't have that many shirts!");
             $(quantityfield).val(oldvalue)
@@ -109,6 +114,13 @@
             });
         });
     }
+    
+    function removesku(prefix){
+        var delquantityfield = $('#id_' + prefix + '-ShippedQuantity')
+        delquantityfield.val('0');
+        quantityupdated(delquantityfield);
+        $('#row' + prefix).remove();
+    }
 </script>
 <style type="text/css">
     #orderlist {
@@ -131,6 +143,7 @@
     }
     .box {
         border:1px solid black;
+        float:left;
     }
     #boxtemplate {
         display:none;

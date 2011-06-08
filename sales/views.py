@@ -194,4 +194,4 @@ def addshipmentsku(request):
     shipmentsku = ShipmentSKUForm(instance=ShipmentSKU(ShirtOrderSKU=shirtordersku, BoxNumber=box, CutOrder=cutorder),prefix=prefix)
     shirtsku = shirtordersku.ShirtPrice.ShirtStyle.ShirtStyleNumber + " " + shirtordersku.Color.ColorName + " " + shirtordersku.ShirtPrice.ShirtSize.ShirtSizeAbbr
     purchaseorder = shirtordersku.ShirtOrder.PONumber
-    return render_to_response('sales/shipping/shipmentsku.html', {'shipmentsku': shipmentsku, 'cutorder':cutorder, 'purchaseorder':purchaseorder, 'shirtskulabel':shirtsku})
+    return render_to_response('sales/shipping/shipmentsku.html', {'shipmentsku': shipmentsku, 'cutorder':cutorder, 'purchaseorder':purchaseorder, 'shirtskulabel':shirtsku, 'prefix':prefix})
