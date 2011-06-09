@@ -179,21 +179,35 @@ def orderaddresses(request):
     addresses = CustomerAddress.objects.filter(shirtorder__Complete=False).distinct()
     return render_to_response('sales/shipping/orderaddresses.html', {'addresses': addresses})
     
-def addshipment(request, customeraddressid):
+def addshipment(request, customeraddressid, shipmentid=None):
     orderskus = ShirtOrderSKU.objects.filter(ShirtOrder__CustomerAddress__id = customeraddressid).values("ShirtPrice__ShirtStyle", "ShirtStyleVariation", "Color").distinct()
-    shipment = ShipmentForm(instance=Shipment(CustomerAddress=CustomerAddress.objects.get(pk=customeraddressid)))
     for ordersku in orderskus:
         ordersku['parentstyle'] = ShirtStyleVariation.objects.get(pk=ordersku['ShirtStyleVariation']) if ordersku['ShirtStyleVariation'] else ShirtStyle.objects.get(pk=ordersku['ShirtPrice__ShirtStyle'])
         ordersku['Color'] = Color.objects.get(pk=ordersku['Color'])
-    return render_to_response('sales/shipping/addshipment.html', {'ordercolors': orderskus, 'customeraddressid':customeraddressid, 'shipment':shipment})
+    if request.method == "GET":
+        shipment = ShipmentForm(instance=Shipment(CustomerAddress=CustomerAddress.objects.get(pk=customeraddressid)))
+
+        return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'ordercolors': orderskus, 'customeraddressid':customeraddressid, 'shipment':shipment}))
+    
+    else:
+        passedvalidation = True
+        editshipment = Shipment.objects.get(pk=shipmentid) if shipmentid != None else None
+        shipment = ShipmentForm(request.POST, instance=editshipment)
+        
+        if not shipment.is_valid():
+            passedvalidation = False
+        
+        if passedvalidation == False:
+            print shipment
+            return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'ordercolors': orderskus, 'customeraddressid':customeraddressid, 'shipment':shipment}))
+
     
 def addshipmentsku(request):
-    if request.method == "GET":
-        shirtordersku = ShirtOrderSKU.objects.get(pk=request.GET['shirtorderskuid'])
-        box = request.GET['box']
-        cutorder = request.GET['cutorder']
-        prefix = request.GET['prefix']
-        shipmentsku = ShipmentSKUForm(instance=ShipmentSKU(ShirtOrderSKU=shirtordersku, BoxNumber=box, CutOrder=cutorder),prefix=prefix)
-        shirtsku = shirtordersku.ShirtPrice.ShirtStyle.ShirtStyleNumber + " " + shirtordersku.Color.ColorName + " " + shirtordersku.ShirtPrice.ShirtSize.ShirtSizeAbbr
-        purchaseorder = shirtordersku.ShirtOrder.PONumber
-        return render_to_response('sales/shipping/shipmentsku.html', {'shipmentsku': shipmentsku, 'cutorder':cutorder, 'purchaseorder':purchaseorder, 'shirtskulabel':shirtsku, 'prefix':prefix})
+    shirtordersku = ShirtOrderSKU.objects.get(pk=request.GET['shirtorderskuid'])
+    box = request.GET['box']
+    cutorder = request.GET['cutorder']
+    prefix = request.GET['prefix']
+    shipmentsku = ShipmentSKUForm(instance=ShipmentSKU(ShirtOrderSKU=shirtordersku, BoxNumber=box, CutOrder=cutorder),prefix=prefix)
+    shirtsku = shirtordersku.ShirtPrice.ShirtStyle.ShirtStyleNumber + " " + shirtordersku.Color.ColorName + " " + shirtordersku.ShirtPrice.ShirtSize.ShirtSizeAbbr
+    purchaseorder = shirtordersku.ShirtOrder.PONumber
+    return render_to_response('sales/shipping/shipmentsku.html', {'shipmentsku': shipmentsku, 'cutorder':cutorder, 'purchaseorder':purchaseorder, 'shirtskulabel':shirtsku, 'prefix':prefix})

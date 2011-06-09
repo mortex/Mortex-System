@@ -157,7 +157,7 @@
 {% block body %}
 <form method="post" action="">
 {% csrf_token %}
-{{ shipment }}
+{{ shipment.as_p }}
 {% regroup ordercolors by parentstyle as parentstyles %}
     <ul>
     {% for parentstyle in parentstyles %}
