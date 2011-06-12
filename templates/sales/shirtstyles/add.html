@@ -80,7 +80,7 @@
                 <tr>
                     <th></th>
                     {% for sizeName in sizeNames %}
-                        <th>{{ sizeName }}</th>
+                        <th><span class="mcol_{{ sizeName|unspace }}">{{ sizeName }}</span></th>
                     {% endfor %}
                 </tr>
             </thead>
