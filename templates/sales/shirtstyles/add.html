@@ -14,11 +14,12 @@
             float: left;
         }
 
-        .m_ctrls h1 {
+        .m_ctrls h1,
+        #matrix_wrapper h1 {
             font-size: 18px;
         }
 
-        #matrix {
+        #matrix_wrapper {
             clear: both;
         }
 
@@ -120,28 +121,31 @@
         </ul>
 
         {# Matrix #}
-        <table id="matrix">
-            <thead>
-                <tr>
-                    <th></th>
-                    {% for sizeName in sizeNames %}
-                        <th><span class="mcol_{{ sizeName|unspace }}">{{ sizeName }}</span></th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for ccName in ccNames %}
-                    <tr id="mrow_{{ ccName|unspace }}">
-                        <th scope="row">{{ ccName }}</th>
-                        {% for field in form %}
-                            {% if field.field.ccName == ccName %}
-                                <td{% if field.errors %} class="error"{% endif %}>{{ field }}</td>
-                            {% endif %}
+        <div id="matrix_wrapper">
+            <h1>Pricing</h1>
+            <table id="matrix">
+                <thead>
+                    <tr>
+                        <th></th>
+                        {% for sizeName in sizeNames %}
+                            <th><span class="mcol_{{ sizeName|unspace }}">{{ sizeName }}</span></th>
                         {% endfor %}
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for ccName in ccNames %}
+                        <tr id="mrow_{{ ccName|unspace }}">
+                            <th scope="row">{{ ccName }}</th>
+                            {% for field in form %}
+                                {% if field.field.ccName == ccName %}
+                                    <td{% if field.errors %} class="error"{% endif %}>{{ field }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
         <input type="submit" value="Submit">
 
