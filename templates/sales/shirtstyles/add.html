@@ -1,5 +1,7 @@
 {% extends "sales/base.html" %}
 
+{% load orderform_extras %}
+
 {% block body %}
 
     <h1>Add Shirt Style</h1>
@@ -16,6 +18,20 @@
                 {% endif %}
             {% endfor %}
         </table>
+
+        {# Matrix controls #}
+        <ul>
+            <h1>Color Categories</h1>
+            {% for ccName in ccNames %}
+                <li><input type="checkbox">{{ ccName }}</li>
+            {% endfor %}
+        </ul>
+        <ul>
+            <h1>Sizes</h1>
+            {% for sizeName in sizeNames %}
+                <li><input type="checkbox">{{ sizeName }}</li>
+            {% endfor %}
+        </ul>
 
         {# Matrix #}
         <table>
