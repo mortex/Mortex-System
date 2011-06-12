@@ -4,6 +4,22 @@
 
 {% block extrahead %}
 
+    <style type="text/css">
+
+        ul {
+            float: left;
+        }
+
+        ul h1 {
+            font-size: 18px;
+        }
+
+        #matrix {
+            clear: both;
+        }
+
+    </style>
+
     <script type="application/javascript">
 
         var rows = {}, cols = {};
@@ -75,7 +91,7 @@
         </ul>
 
         {# Matrix #}
-        <table>
+        <table id="matrix">
             <thead>
                 <tr>
                     <th></th>
