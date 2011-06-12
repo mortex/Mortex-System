@@ -38,11 +38,18 @@
         var rows = {}, cols = {};
         $(function() {
 
+            {# Iterate over matrix controls to init matrix state #}
             $("#cc_ctrls input").each(function(i, e) {
                 rows[$(e).data("cc")] = e.checked;
             });
             $("#size_ctrls input").each(function(i, e) {
                 cols[$(e).data("size")] = e.checked;
+            });
+
+            {# Force any matrix rows/cols with initial data to be displayed #}
+            $('#matrix input:text[value!=""]').each(function(i, e) {
+                rows[$(e).data("cc")] = true;
+                cols[$(e).data("size")] = true;
             });
 
             m_update();

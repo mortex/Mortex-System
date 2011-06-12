@@ -239,7 +239,10 @@ class ShirtStyleForm(ModelForm):
             )
             new_field.ccName = ccName
             new_field.sizeName = size.ShirtSizeName
+            unspaced_size_name = orderform_extras.unspace(size.ShirtSizeName)
             new_field.widget.attrs = {
-                "class": "mcol_" + orderform_extras.unspace(size.ShirtSizeName)
+                "class": "mcol_" + unspaced_size_name,
+                "data-cc": orderform_extras.unspace(ccName),
+                "data-size": unspaced_size_name,
             }
             self.fields["price__" + ccName + "__" + sizeName] = new_field
