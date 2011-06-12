@@ -602,7 +602,9 @@ def add_style(request):
                 "form": form,
                 "ccNames": ColorCategory.objects.all()
                                         .values_list("ColorCategoryName",
-                                                     flat=True)
+                                                     flat=True),
+                "sizeNames": ShirtSize.objects.all()
+                                      .values_list("ShirtSizeName", flat=True)
             })
         )
 

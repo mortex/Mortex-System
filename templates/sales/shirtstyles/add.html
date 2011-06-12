@@ -2,6 +2,7 @@
 
 {% block body %}
     <form method="post">
+
         {% csrf_token %}
 
         {# Non-matrix fields #}
@@ -15,18 +16,29 @@
 
         {# Matrix #}
         <table>
-            {% for ccName in ccNames %}
+            <thead>
                 <tr>
-                    <th scope="row">{{ ccName }}</th>
-                    {% for field in form %}
-                        {% if field.field.ccName == ccName %}
-                            <td>{{ field.label }}</td>
-                        {% endif %}
+                    <th></th>
+                    {% for sizeName in sizeNames %}
+                        <th>{{ sizeName }}</th>
                     {% endfor %}
                 </tr>
-            {% endfor %}
+            </thead>
+            <tbody>
+                {% for ccName in ccNames %}
+                    <tr>
+                        <th scope="row">{{ ccName }}</th>
+                        {% for field in form %}
+                            {% if field.field.ccName == ccName %}
+                                <td>{{ field.label }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
 
         <input type="submit" value="Submit">
+
     </form>
 {% endblock %}
