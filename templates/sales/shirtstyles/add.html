@@ -30,7 +30,7 @@
                         <th scope="row">{{ ccName }}</th>
                         {% for field in form %}
                             {% if field.field.ccName == ccName %}
-                                <td>{{ field.label }}</td>
+                                <td>{{ field }}</td>
                             {% endif %}
                         {% endfor %}
                     </tr>
