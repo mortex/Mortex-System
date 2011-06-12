@@ -15,7 +15,7 @@
                     <td>{{ item.shirtskulabel }}</td>
                     <td>{{ item.purchaseorder }}</td>
                     <td>{{ item.cutorder }}</td>
-                    <td>{{ item.form.Shipment }}{{ item.form.Shipment.errors }}{{ item.form.ShirtOrderSKU }}{{ item.form.BoxNumber }}{{ item.form.CutOrder }}{{ item.form.ShippedQuantity }}{{ item.form.ShippedQuantity.errors }}<button onClick="removesku('{{ prefix }}')">X</button></td>
+                    <td>{{ item.form.Shipment }}{{ item.form.ShirtOrderSKU }}{{ item.form.BoxNumber }}{{ item.form.CutOrder }}{{ item.form.ShippedQuantity }}{{ item.form.ShippedQuantity.errors }}<button onClick="removesku('{{ prefix }}')">X</button></td>
                 </tr>
                 {% endfor %}
             </tbody></table>

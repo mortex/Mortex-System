@@ -32,7 +32,7 @@
         }
     }
     
-    function quantityupdated(quantityfield){  
+    function quantityupdated(quantityfield, freshload){
         var prefix = $(quantityfield).attr("id").match(/[\d]+/);
 
         var cutorder = $('#id_' + prefix + '-CutOrder').val();
@@ -43,14 +43,19 @@
         var sosspan = $('#sos' + ordersku + 'remaining');
         var sosremainingquantity = sosspan.html();
         
-        var oldvalue = ($(quantityfield).attr('data-oldvalue')) ? $(quantityfield).attr('data-oldvalue') : 0;
+        if(freshload === undefined){
+            var oldvalue = ($(quantityfield).attr('data-oldvalue')) ? $(quantityfield).attr('data-oldvalue') : 0;
+        }
+        else{
+            var oldvalue = 0;
+        }
         var newvalue = $(quantityfield).val();
         var changevalue = newvalue - oldvalue;
 
         var newsosvalue = sosremainingquantity - changevalue;
         var newcovalue = coremainingquantity - changevalue;
 
-        if(newsosvalue < 0 || newcovalue < 0){
+        if(freshload === undefined & (newsosvalue < 0 || newcovalue < 0)){
             alert("You don't have that many shirts!");
             $(quantityfield).val(oldvalue)
         }
@@ -113,6 +118,7 @@
                     $(this).attr('id','cutselected');
                 }
             });
+            refreshremaining()
         });
     }
     
@@ -120,7 +126,13 @@
         var delquantityfield = $('#id_' + prefix + '-ShippedQuantity')
         delquantityfield.val('0');
         quantityupdated(delquantityfield);
-        $('#row' + prefix).remove();
+        $('#row' + prefix).hide();
+    }
+    
+    function refreshremaining(){
+        $('.shippedquantity').each(function(){
+            quantityupdated(this,1);
+        });
     }
 </script>
 <style type="text/css">
