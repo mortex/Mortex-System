@@ -34,12 +34,12 @@
         var rows = {}, cols = {};
         $(function() {
 
-            {% for ccName in ccNames %}
-                rows["{{ ccName|unspace }}"] = false;
-            {% endfor %}
-            {% for sizeName in sizeNames %}
-                cols["{{ sizeName|unspace }}"] = false;
-            {% endfor %}
+            $("#cc_ctrls input").each(function(i, e) {
+                rows[$(e).data("cc")] = e.checked;
+            });
+            $("#size_ctrls input").each(function(i, e) {
+                cols[$(e).data("size")] = e.checked;
+            });
 
             m_update();
 
@@ -86,16 +86,16 @@
         </table>
 
         {# Matrix controls #}
-        <ul class="m_ctrls">
+        <ul class="m_ctrls" id="cc_ctrls">
             <h1>Color Categories</h1>
             {% for ccName in ccNames %}
-                <li><input type="checkbox" onchange="mctl_chg_cc('{{ ccName|unspace }}', this.checked);">{{ ccName }}</li>
+                <li><input type="checkbox" onchange="mctl_chg_cc('{{ ccName|unspace }}', this.checked);" data-cc="{{ ccName|unspace }}">{{ ccName }}</li>
             {% endfor %}
         </ul>
-        <ul class="m_ctrls">
+        <ul class="m_ctrls" id="size_ctrls">
             <h1>Sizes</h1>
             {% for sizeName in sizeNames %}
-                <li><input type="checkbox" onchange="mctl_chg_size('{{ sizeName|unspace }}', this.checked);">{{ sizeName }}</li>
+                <li><input type="checkbox" onchange="mctl_chg_size('{{ sizeName|unspace }}', this.checked);" data-size="{{ sizeName|unspace }}">{{ sizeName }}</li>
             {% endfor %}
         </ul>
 
