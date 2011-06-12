@@ -6,11 +6,11 @@
 
     <style type="text/css">
 
-        ul {
+        .m_ctrls {
             float: left;
         }
 
-        ul h1 {
+        .m_ctrls h1 {
             font-size: 18px;
         }
 
@@ -77,13 +77,13 @@
         </table>
 
         {# Matrix controls #}
-        <ul>
+        <ul class="m_ctrls">
             <h1>Color Categories</h1>
             {% for ccName in ccNames %}
                 <li><input type="checkbox" onchange="mctl_chg_cc('{{ ccName|unspace }}', this.checked);">{{ ccName }}</li>
             {% endfor %}
         </ul>
-        <ul>
+        <ul class="m_ctrls">
             <h1>Sizes</h1>
             {% for sizeName in sizeNames %}
                 <li><input type="checkbox" onchange="mctl_chg_size('{{ sizeName|unspace }}', this.checked);">{{ sizeName }}</li>
