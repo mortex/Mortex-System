@@ -6,24 +6,14 @@
 
     <script type="application/javascript">
 
-        function Row(cc) {
-            this.cc = cc;
-            this.visible = false;
-        }
-        function Col(size) {
-            this.size = size;
-            this.visible = false;
-        }
-
-        var rows = [];
-        var cols = [];
+        var rows = {}, cols = {};
         $(function() {
 
             {% for ccName in ccNames %}
-                rows.push(new Row("{{ ccName|unspace }}"));
+                rows["{{ ccName|unspace }}"] = false;
             {% endfor %}
             {% for sizeName in sizeNames %}
-                cols.push(new Col("{{ sizeName|unspace }}"));
+                cols["{{ sizeName|unspace }}"] = false;
             {% endfor %}
 
             m_update();
@@ -31,23 +21,22 @@
         });
 
         function m_update() {
-            $.each(rows, function(i, row) {
-                $("#mrow_" + row.cc).toggle(row.visible);
-            });
+            for (r in rows)
+                $("#mrow_" + r).toggle(rows[r]);
+            for (c in cols)
+                $(".mcol_" + c).toggle(cols[c]);
         }
 
         {# Enable/disable a color category row in the matrix #}
         function mctl_chg_cc(ccName, enable) {
-            var row = $("#mrow_" + ccName);
-            if (enable)
-                row.show();
-            else
-                row.hide();
+            rows[ccName] = enable;
+            m_update();
         }
 
         {# Enable/disable a shirt size column in the matrix #}
-        function mctl_chg_size(sizeName) {
-        
+        function mctl_chg_size(sizeName, enable) {
+            cols[sizeName] = enable;
+            m_update();
         }
 
     </script>
@@ -81,7 +70,7 @@
         <ul>
             <h1>Sizes</h1>
             {% for sizeName in sizeNames %}
-                <li><input type="checkbox" onchange="mctl_chg_size('{{ sizeName|unspace }}');">{{ sizeName }}</li>
+                <li><input type="checkbox" onchange="mctl_chg_size('{{ sizeName|unspace }}', this.checked);">{{ sizeName }}</li>
             {% endfor %}
         </ul>
 

@@ -7,6 +7,8 @@ from sales.models import *
 
 from itertools import product
 
+from templatetags.templatetags import orderform_extras
+
 class CutSSIForm(forms.ModelForm):
     'allows you to create transactions for new cut orders of a shirt SKU'
     class Meta:
@@ -236,4 +238,8 @@ class ShirtStyleForm(ModelForm):
                 required=False
             )
             new_field.ccName = ccName
+            new_field.sizeName = size.ShirtSizeName
+            new_field.widget.attrs = {
+                "class": "mcol_" + orderform_extras.unspace(size.ShirtSizeName)
+            }
             self.fields["price__" + ccName + "__" + sizeName] = new_field
