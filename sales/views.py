@@ -595,11 +595,19 @@ def addcustomeraddress(request):
 def add_style(request):
     """Add a new shirt style to the database"""
 
-    if request.method == "GET":
+    def render(form):
         return render_to_response(
             "sales/shirtstyles/add.html",
-            RequestContext(request, {"form": ShirtStyleForm()})
+            RequestContext(request, {
+                "form": form,
+                "ccNames": ColorCategory.objects.all()
+                                        .values_list("ColorCategoryName",
+                                                     flat=True)
+            })
         )
+
+    if request.method == "GET":
+        return render(ShirtStyleForm())
 
     if request.method == "POST":
 
@@ -633,7 +641,4 @@ def add_style(request):
             return HttpResponseRedirect("/shirtstyles/")
 
         else:
-            return render_to_response(
-                "sales/shirtstyles/add.html",
-                RequestContext(request, {"form": form})
-            )
+            return render(form)

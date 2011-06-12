@@ -3,9 +3,30 @@
 {% block body %}
     <form method="post">
         {% csrf_token %}
+
+        {# Non-matrix fields #}
         <table>
-            {{ form }}
+            {% for field in form %}
+                {% if not field.field.ccName %}
+                    <tr><td>{{ field.label }}</td><td>{{ field }}</td></tr>
+                {% endif %}
+            {% endfor %}
         </table>
+
+        {# Matrix #}
+        <table>
+            {% for ccName in ccNames %}
+                <tr>
+                    <th scope="row">{{ ccName }}</th>
+                    {% for field in form %}
+                        {% if field.field.ccName == ccName %}
+                            <td>{{ field.label }}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+
         <input type="submit" value="Submit">
     </form>
 {% endblock %}
