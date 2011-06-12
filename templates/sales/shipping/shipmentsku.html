@@ -1,6 +1,8 @@
+{% for shipmentsku in shipmentskus %}
     <tr id='row{{ prefix }}'>
-        <td>{{ shirtskulabel }}</td>
-        <td>{{ purchaseorder }}</td>
-        <td>{{ cutorder }}</td>
-        <td>{{ shipmentsku.Shipment }}{{ shipmentsku.ShirtOrderSKU }}{{ shipmentsku.BoxNumber }}{{ shipmentsku.CutOrder }}{{ shipmentsku.ShippedQuantity }}<button onClick="removesku('{{ prefix }}')">X</button></td>
+        <td>{{ shipmentsku.shirtskulabel }}</td>
+        <td>{{ shipmentsku.purchaseorder }}</td>
+        <td>{{ shipmentsku.cutorder }}</td>
+        <td>{{ shipmentsku.form.Shipment }}{{ shipmentsku.form.ShirtOrderSKU }}{{ shipmentsku.form.BoxNumber }}{{ shipmentsku.form.CutOrder }}{{ shipmentsku.form.ShippedQuantity }}{{ shipmentsku.form.ShippedQuantity.errors }}<button onClick="removesku('{{ prefix }}')">X</button></td>
     </tr>
+{% endfor %}

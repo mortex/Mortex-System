@@ -187,27 +187,59 @@ def addshipment(request, customeraddressid, shipmentid=None):
     if request.method == "GET":
         shipment = ShipmentForm(instance=Shipment(CustomerAddress=CustomerAddress.objects.get(pk=customeraddressid)))
 
-        return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'ordercolors': orderskus, 'customeraddressid':customeraddressid, 'shipment':shipment}))
+        return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'ordercolors': orderskus, 'customeraddressid':customeraddressid, 'shipment':shipment, 'skucount':0, 'boxcount':0}))
     
     else:
         passedvalidation = True
         editshipment = Shipment.objects.get(pk=shipmentid) if shipmentid != None else None
         shipment = ShipmentForm(request.POST, instance=editshipment)
-        
         if not shipment.is_valid():
             passedvalidation = False
+        else:
+            tempshipment = shipment.save(commit=False)
+        
+        shipmentskus = []
+        forms = []
+        skucount = int(request.POST['skucount'])
+        for i in xrange(1, skucount + 1):
+            form = ShipmentSKUForm(request.POST, prefix=i)
+            forms.append(form)
+        
+        boxcount = 0
+        for form in forms:
+            if not form.is_valid():
+                passedvalidation = False
+            cutorder = form.data[str(form.prefix) + "-CutOrder"]
+            shirtorderskuid = form.data[str(form.prefix) + "-ShirtOrderSKU"]
+            boxnum = form.data[str(form.prefix) + "-BoxNumber"]
+            shirtordersku, shirtsku, purchaseorder = shipmentskudetails(shirtorderskuid)
+            shipmentsku = {'form':form,'cutorder':cutorder,'purchaseorder':purchaseorder,'shirtskulabel':shirtsku,'boxnum':boxnum}
+            shipmentskus.append(shipmentsku)
+            boxcount = boxnum
         
         if passedvalidation == False:
-            print shipment
-            return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'ordercolors': orderskus, 'customeraddressid':customeraddressid, 'shipment':shipment}))
+            return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'ordercolors': orderskus, 'customeraddressid':customeraddressid, 'shipment':shipment, 'shipmentskus':shipmentskus, 'skucount':skucount, 'boxcount':boxcount}))
+        
+        else:
+            tempshipment.save()
+            ShipmentSKU.objects.filter(Shipment=savedshipment).delete()
+            for shipmentsku in shipmentskus:
+                shipmentsku.save()
 
     
 def addshipmentsku(request):
-    shirtordersku = ShirtOrderSKU.objects.get(pk=request.GET['shirtorderskuid'])
+    shirtordersku, shirtsku, purchaseorder = shipmentskudetails(request.GET['shirtorderskuid'])
     box = request.GET['box']
     cutorder = request.GET['cutorder']
     prefix = request.GET['prefix']
-    shipmentsku = ShipmentSKUForm(instance=ShipmentSKU(ShirtOrderSKU=shirtordersku, BoxNumber=box, CutOrder=cutorder),prefix=prefix)
+    form = ShipmentSKUForm(instance=ShipmentSKU(ShirtOrderSKU=shirtordersku, BoxNumber=box, CutOrder=cutorder),prefix=prefix)
+    shipmentsku = {'form':form,'cutorder':cutorder,'purchaseorder':purchaseorder,'shirtskulabel':shirtsku,'prefix':prefix}
+    skucount = 0
+    return render_to_response('sales/shipping/shipmentsku.html', {'shipmentskus': [shipmentsku]})
+    
+def shipmentskudetails(shirtorderskuid):
+    shirtordersku = ShirtOrderSKU.objects.get(pk=shirtorderskuid)
     shirtsku = shirtordersku.ShirtPrice.ShirtStyle.ShirtStyleNumber + " " + shirtordersku.Color.ColorName + " " + shirtordersku.ShirtPrice.ShirtSize.ShirtSizeAbbr
     purchaseorder = shirtordersku.ShirtOrder.PONumber
-    return render_to_response('sales/shipping/shipmentsku.html', {'shipmentsku': shipmentsku, 'cutorder':cutorder, 'purchaseorder':purchaseorder, 'shirtskulabel':shirtsku, 'prefix':prefix})
+    return (shirtordersku, shirtsku, purchaseorder)
+    

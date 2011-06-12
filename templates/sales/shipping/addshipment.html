@@ -6,7 +6,7 @@
         addbox();
     });
     
-    var nextprefix = 1;
+    var nextprefix = {{ skucount }} + 1;
     function fillbox(box){
         if($('#cutselected').length & $('#orderselected').length){
             var cutorder = $('#cutselected').attr('data-cutorder');
@@ -26,6 +26,7 @@
                 quantityfield.val(maxquantity);
                 quantityupdated(quantityfield);
                 deselect();
+                $('#skucount').val(nextprefix);
                 ++nextprefix;
             });
         }
@@ -65,7 +66,7 @@
         $('.cut').addClass('unselectable');
     }
     
-    var nextbox = 1;
+    var nextbox = {{ boxcount }} + 1;
     function addbox(){
         var newbox = $('#boxtemplate').clone();
         $(newbox).attr('id','box' + nextbox).attr('data-box',nextbox)
@@ -173,6 +174,7 @@
     
     <ul id='orderlist'></ul>
     <div id='boxes'>
+        {% include "sales/shipping/shipmentbox.html" %}
     </div>
     <ul id='cutlist'></ul>
     <div class='box' id='boxtemplate' data-box='' onClick='fillbox(this)'>
@@ -186,6 +188,7 @@
             </tr>
         </table>
     </div>
+    <input type="hidden" id="skucount" name="skucount" value="{{ skucount }}"/>
     <input type="submit" value="Submit"/>
     </form>
 {% endblock %}
