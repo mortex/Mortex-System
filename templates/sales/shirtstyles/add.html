@@ -2,6 +2,58 @@
 
 {% load orderform_extras %}
 
+{% block extrahead %}
+
+    <script type="application/javascript">
+
+        function Row(cc) {
+            this.cc = cc;
+            this.visible = false;
+        }
+        function Col(size) {
+            this.size = size;
+            this.visible = false;
+        }
+
+        var rows = [];
+        var cols = [];
+        $(function() {
+
+            {% for ccName in ccNames %}
+                rows.push(new Row("{{ ccName|unspace }}"));
+            {% endfor %}
+            {% for sizeName in sizeNames %}
+                cols.push(new Col("{{ sizeName|unspace }}"));
+            {% endfor %}
+
+            m_update();
+
+        });
+
+        function m_update() {
+            $.each(rows, function(i, row) {
+                $("#mrow_" + row.cc).toggle(row.visible);
+            });
+        }
+
+        {# Enable/disable a color category row in the matrix #}
+        function mctl_chg_cc(ccName, enable) {
+            var row = $("#mrow_" + ccName);
+            if (enable)
+                row.show();
+            else
+                row.hide();
+        }
+
+        {# Enable/disable a shirt size column in the matrix #}
+        function mctl_chg_size(sizeName) {
+        
+        }
+
+    </script>
+
+{% endblock %}
+
 {% block body %}
 
     <h1>Add Shirt Style</h1>
@@ -23,13 +75,13 @@
         <ul>
             <h1>Color Categories</h1>
             {% for ccName in ccNames %}
-                <li><input type="checkbox">{{ ccName }}</li>
+                <li><input type="checkbox" onchange="mctl_chg_cc('{{ ccName|unspace }}', this.checked);">{{ ccName }}</li>
             {% endfor %}
         </ul>
         <ul>
             <h1>Sizes</h1>
             {% for sizeName in sizeNames %}
-                <li><input type="checkbox">{{ sizeName }}</li>
+                <li><input type="checkbox" onchange="mctl_chg_size('{{ sizeName|unspace }}');">{{ sizeName }}</li>
             {% endfor %}
         </ul>
 
@@ -45,7 +97,7 @@
             </thead>
             <tbody>
                 {% for ccName in ccNames %}
-                    <tr>
+                    <tr id="mrow_{{ ccName|unspace }}">
                         <th scope="row">{{ ccName }}</th>
                         {% for field in form %}
                             {% if field.field.ccName == ccName %}
