@@ -6,6 +6,10 @@
 
     <style type="text/css">
 
+        .error input {
+            background-color: #F88;
+        }
+
         .m_ctrls {
             float: left;
         }
@@ -80,7 +84,7 @@
         <table>
             {% for field in form %}
                 {% if not field.field.ccName %}
-                    <tr><td>{{ field.label }}</td><td>{{ field }}</td></tr>
+                    <tr{% if field.errors %} class="error"{% endif %}><td>{{ field.label }}</td><td>{{ field }}</td><td>{{ field.errors }}</td></tr>
                 {% endif %}
             {% endfor %}
         </table>
@@ -115,7 +119,7 @@
                         <th scope="row">{{ ccName }}</th>
                         {% for field in form %}
                             {% if field.field.ccName == ccName %}
-                                <td>{{ field }}</td>
+                                <td{% if field.errors %} class="error"{% endif %}>{{ field }}</td>
                             {% endif %}
                         {% endfor %}
                     </tr>
