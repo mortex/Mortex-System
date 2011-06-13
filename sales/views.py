@@ -164,14 +164,12 @@ def orderline(request):
     if "shirtstyleid" in request.GET:
         shirtstyleid = request.GET['shirtstyleid']
         shirtstylevariationid = None
-        print shirtstyleid
     elif "shirtstylevariationid" in request.GET:
         shirtstylevariationid = request.GET['shirtstylevariationid']
         shirtstylevariation = ShirtStyleVariation.objects.get(pk=shirtstylevariationid)
         shirtstyle = shirtstylevariation.ShirtStyle
         shirtstyleid = shirtstyle.pk
-    else:
-        print 'hello world'
+
     dictionary = {"orderlines":[OrderLine(shirtstyleid=shirtstyleid, shirtstylevariationid=shirtstylevariationid, prefix=request.GET['prefix'])]}
     return render_to_response('sales/shirtorders/orderline.html', dictionary)
     
@@ -185,6 +183,8 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
     if shipmentid:
         editshipment = Shipment.objects.get(pk=shipmentid)
         customeraddressid = editshipment.CustomerAddress.pk
+    else:
+        editshipment = None
     orderskus = ShirtOrderSKU.objects.filter(ShirtOrder__CustomerAddress__id = customeraddressid).values("ShirtPrice__ShirtStyle", "ShirtStyleVariation", "Color").distinct()
     for ordersku in orderskus:
         ordersku['parentstyle'] = ShirtStyleVariation.objects.get(pk=ordersku['ShirtStyleVariation']) if ordersku['ShirtStyleVariation'] else ShirtStyle.objects.get(pk=ordersku['ShirtPrice__ShirtStyle'])
@@ -193,6 +193,8 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
         if not editshipment:
             shipment = ShipmentForm(instance=Shipment(CustomerAddress=CustomerAddress.objects.get(pk=customeraddressid)))
             shipmentskus = []
+            i = 1
+            boxcount = 0
         else:
             shipment = ShipmentForm(instance=editshipment)
             shipmentskus = []
@@ -221,20 +223,21 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
             savedshipment = shipment.save()
         
         shipmentskus = []
-        forms = []
         skucount = int(request.POST['skucount'])
+        boxcount = 0
+        forms = []
         for i in xrange(1, skucount + 1):
             postdata = request.POST.copy()
             if passedvalidation:
                 postdata[str(i) + '-Shipment'] = savedshipment.pk
-            form = ShipmentSKUForm(postdata, prefix=i)
-            print form.data[str(i) + '-Shipment']
+            instance = ShipmentSKU.objects.get(pk=postdata[str(i) + '-PK']) if postdata[str(i) + '-PK'] else None
+            form = ShipmentSKUForm(postdata, prefix=i, instance=instance)
+
             forms.append(form)
-        
-        boxcount = 0
-        for form in forms:
+
             if not form.is_valid():
                 passedvalidation = False
+                
             cutorder = form.data[str(form.prefix) + "-CutOrder"]
             shirtorderskuid = form.data[str(form.prefix) + "-ShirtOrderSKU"]
             boxnum = form.data[str(form.prefix) + "-BoxNumber"]
@@ -243,13 +246,17 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
             shipmentskus.append(shipmentsku)
             boxcount = boxnum if boxnum > boxcount else boxcount
         
+        
         if passedvalidation == False:
             transaction.rollback()
             return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'ordercolors': orderskus, 'customeraddressid':customeraddressid, 'shipment':shipment, 'shipmentskus':shipmentskus, 'skucount':skucount, 'boxcount':boxcount}))
         
         else:
             for form in forms:
-                form.save()
+                if form.cleaned_data['delete']==1 and form.cleaned_data['PK']:
+                    ShipmentSKU.objects.get(pk=form.cleaned_data['PK']).delete()
+                else:
+                    form.save()
             transaction.commit()
 
     

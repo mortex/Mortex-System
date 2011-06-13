@@ -120,3 +120,25 @@ class ShipmentSKU(models.Model):
     CutOrder = models.CharField('Cut Order', max_length=20)
     BoxNumber = models.IntegerField('Box #')
     ShippedQuantity = models.IntegerField('Shipped Quantity')
+    def save(self):
+        try:
+            oldvalue = ShipmentSKU.objects.get(pk=self.pk).ShippedQuantity
+        except ShipmentSKU.DoesNotExist:
+            oldvalue = 0
+        super(ShipmentSKU, self).save()
+        changevalue = self.ShippedQuantity - oldvalue
+        inventory = ShirtSKUInventory.objects.get(Color=self.ShirtOrderSKU.Color, 
+                                                  ShirtPrice=self.ShirtOrderSKU.ShirtPrice, 
+                                                  ShirtStyleVariation=self.ShirtOrderSKU.ShirtStyleVariation,
+                                                  CutOrder=self.CutOrder)
+        inventory.Inventory -= changevalue
+        inventory.save()
+    def delete(self):
+        oldvalue = ShipmentSKU.objects.get(pk=self.pk).ShippedQuantity
+        super(ShipmentSKU, self).delete()
+        inventory = ShirtSKUInventory.objects.get(Color=self.ShirtOrderSKU.Color, 
+                                                  ShirtPrice=self.ShirtOrderSKU.ShirtPrice, 
+                                                  ShirtStyleVariation=self.ShirtOrderSKU.ShirtStyleVariation,
+                                                  CutOrder=self.CutOrder)
+        inventory.Inventory += oldvalue
+        inventory.save()

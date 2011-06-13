@@ -11,11 +11,11 @@
                     <th>Quantity</th>
                 </tr>
                 {% for item in sku.list %}
-                <tr id='row{{ prefix }}'>
+                <tr id='row{{ item.form.prefix }}'>
                     <td>{{ item.shirtskulabel }}</td>
                     <td>{{ item.purchaseorder }}</td>
                     <td>{{ item.cutorder }}</td>
-                    <td>{{ item.form.Shipment }}{{ item.form.ShirtOrderSKU }}{{ item.form.BoxNumber }}{{ item.form.CutOrder }}{{ item.form.ShippedQuantity }}{{ item.form.ShippedQuantity.errors }}<button onClick="removesku('{{ prefix }}')">X</button></td>
+                    <td>{{ item.form.PK }}{{ item.form.Shipment }}{{ item.form.ShirtOrderSKU }}{{ item.form.BoxNumber }}{{ item.form.CutOrder }}{{ item.form.ShippedQuantity }}{{ item.form.ShippedQuantity.errors }}{{ item.form.delete }}{{ item.form.errors }}<input type='button' onClick="removesku('{{ item.form.prefix }}')" value='X'/></td>
                 </tr>
                 {% endfor %}
             </tbody></table>

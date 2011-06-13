@@ -112,6 +112,7 @@ class ShipmentSKUForm(forms.ModelForm):
             "CutOrder":forms.HiddenInput(),
             "ShippedQuantity":forms.TextInput(attrs={"class":"shippedquantity"}),
         }
-        def __init__(self, *args, **kwargs):
-            self.cutorderlabel = "test"
-            super(ShipmentSKUForm, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(ShipmentSKUForm, self).__init__(*args, **kwargs)
+        self.fields['PK'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
+        self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
