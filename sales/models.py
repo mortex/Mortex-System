@@ -51,12 +51,6 @@ class ShirtPrice(models.Model):
     def __unicode__(self):
         return str(self.ShirtSize) + ' - ' + str(self.ColorCategory)
 
-class ShirtSKU(models.Model):
-    ShirtPrice = models.ForeignKey(ShirtPrice)
-    Color = models.ForeignKey(Color)
-    def __unicode__(self):
-        return str(self.Color) + ' - ' + str(self.ShirtPrice)
-
 class CustomerAddress(models.Model):
     Customer = models.ForeignKey(Customer)
     Address1 = models.CharField('Address 1', max_length=40)
