@@ -75,7 +75,7 @@ def shippingorderskus(request):
     for size in sizeinventories:
         size['abbr'] = size['ShirtPrice__ShirtSize__ShirtSizeAbbr']
         del size['ShirtPrice__ShirtSize__ShirtSizeAbbr']
-        size['orderedpieces'] = [{'shirtprice':piece.ShirtPrice.id,'shirtordersku':piece.id,'orderquantity':piece.OrderQuantity,'ponumber':piece.ShirtOrder.PONumber} for piece in allorderedpieces if piece.ShirtPrice.id == size['ShirtPrice']]
+        size['orderedpieces'] = [{'shirtprice':piece.ShirtPrice.id,'shirtordersku':piece.id,'orderquantity':piece.OrderQuantity-piece.ShippedQuantity,'ponumber':piece.ShirtOrder.PONumber} for piece in allorderedpieces if piece.ShirtPrice.id == size['ShirtPrice']]
         size['cutpieces'] = [{'shirtprice':piece.ShirtPrice.id,'inventory':piece.Inventory,'cutorder':piece.CutOrder} for piece in cutinventory if piece.ShirtPrice.id == size['ShirtPrice']]
                                                     
     return HttpResponse(json.dumps(list(sizeinventories)))

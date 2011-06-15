@@ -258,6 +258,7 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
                 else:
                     form.save()
             transaction.commit()
+            return HttpResponseRedirect('/shipping/' + str(savedshipment.pk) + '/edit/')
 
     
 def addshipmentsku(request):

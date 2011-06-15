@@ -83,6 +83,7 @@ class ShirtOrderSKU(models.Model):
     Color = models.ForeignKey(Color)
     OrderQuantity = models.IntegerField('Quantity')
     Price = models.FloatField()
+    ShippedQuantity = models.IntegerField('Shipped Quantity', default=0)
     def __unicode__(self):
         return str(self.ShirtPrice.ShirtStyle) + " " + str(self.ShirtPrice)
 
@@ -120,12 +121,16 @@ class ShipmentSKU(models.Model):
     CutOrder = models.CharField('Cut Order', max_length=20)
     BoxNumber = models.IntegerField('Box #')
     ShippedQuantity = models.IntegerField('Shipped Quantity')
+    #overwrite save method to modify inventory/order fields that calculate total shipment amounts
     def save(self):
+        #determine old value and save record
         try:
             oldvalue = ShipmentSKU.objects.get(pk=self.pk).ShippedQuantity
         except ShipmentSKU.DoesNotExist:
             oldvalue = 0
         super(ShipmentSKU, self).save()
+        
+        #update total on-hand inventory
         changevalue = self.ShippedQuantity - oldvalue
         inventory = ShirtSKUInventory.objects.get(Color=self.ShirtOrderSKU.Color, 
                                                   ShirtPrice=self.ShirtOrderSKU.ShirtPrice, 
@@ -133,12 +138,26 @@ class ShipmentSKU(models.Model):
                                                   CutOrder=self.CutOrder)
         inventory.Inventory -= changevalue
         inventory.save()
+        
+        #update amount shipped for ordersku
+        ordersku = ShirtOrderSKU.objects.get(pk=self.ShirtOrderSKU.pk)
+        ordersku.ShippedQuantity += changevalue
+        ordersku.save()
+    #overwrite delete method to modify inventory/order fields that calculate total shipment amounts
     def delete(self):
+        #determine old value and delete record
         oldvalue = ShipmentSKU.objects.get(pk=self.pk).ShippedQuantity
         super(ShipmentSKU, self).delete()
+        
+        #update total on-hand inventory
         inventory = ShirtSKUInventory.objects.get(Color=self.ShirtOrderSKU.Color, 
                                                   ShirtPrice=self.ShirtOrderSKU.ShirtPrice, 
                                                   ShirtStyleVariation=self.ShirtOrderSKU.ShirtStyleVariation,
                                                   CutOrder=self.CutOrder)
         inventory.Inventory += oldvalue
         inventory.save()
+        
+        #update amount shipped for ordersku
+        ordersku = ShirtOrderSKU.objects.get(pk=self.ShirtOrderSKU.pk)
+        ordersku.ShippedQuantity -= oldvalue
+        ordersku.save()
