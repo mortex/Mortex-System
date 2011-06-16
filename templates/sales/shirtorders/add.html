@@ -107,6 +107,9 @@
                         if(colorcounter>colormax){
                             $('#row' + prefix + ' .price.size' + item.fields.ShirtSize).val(item.fields.ShirtPrice);
                         }
+                        else{
+                            $('#row' + prefix + ' .price.size' + item.fields.ShirtSize + ':text[value=""]').val(item.fields.ShirtPrice);
+                        }
                         $('#row' + prefix + ' .quantity.size' + item.fields.ShirtSize).attr('disabled', false);
                         $('#row' + prefix + ' .pricefkey.size' + item.fields.ShirtSize).val(item.pk);
                     });
