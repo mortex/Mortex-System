@@ -141,16 +141,21 @@ def shirtorderadd(request, orderid=None):
         #if all validation passed, save order, then save orderlines
         else:
             shirtorder = order.save()
-            ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).delete()
             for orderline in orderlines:
+                delete = orderline.cleaned_data['delete']
                 for s in xrange(1, orderline.cleaned_data["sizes"]):
-                    if 'quantity'+str(s) in orderline.fields and orderline.cleaned_data['quantity'+str(s)] != None:
+                    instanceid = orderline.cleaned_data['instance'+str(s)]
+                    orderquantity = orderline.cleaned_data['quantity'+str(s)]
+                    if delete == 1 or not orderquantity or orderquantity == 0:
+                        if instanceid:
+                            ShirtOrderSKU.objects.get(pk=instanceid).delete()
+                    else:
                         shirtprice = ShirtPrice.objects.get(pk=orderline.cleaned_data['pricefkey'+str(s)])
                         shirtstylevariation = None if orderline.cleaned_data['shirtstylevariationid']==None else ShirtStyleVariation.objects.get(pk=orderline.cleaned_data['shirtstylevariationid'])
                         color = orderline.cleaned_data['color']
-                        orderquantity = orderline.cleaned_data['quantity'+str(s)]
                         price = orderline.cleaned_data['price'+str(s)]
-                        ShirtOrderSKU( ShirtOrder=shirtorder
+                        ShirtOrderSKU(id = instanceid
+                                     , ShirtOrder=shirtorder
                                      , ShirtPrice=shirtprice
                                      , ShirtStyleVariation=shirtstylevariation
                                      , Color=color

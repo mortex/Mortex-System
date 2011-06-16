@@ -12,13 +12,14 @@
             {{ orderline.shirtstyle.ShirtStyleNumber }} 
         {% endif %}
         {{ orderline.shirtstyle.ShirtStyleDescription }}</h4></td>
-        <td>{{ orderline.color }}{{ orderline.color.errors }}{{ orderline.shirtstylevariationid }}{{ orderline.sizes }}{{ orderline.shirtstyleid }}</td>
-        {% for quantity, price, pricefkey in orderline.fieldlist %}
+        <td>{{ orderline.color }}{{ orderline.color.errors }}{{ orderline.shirtstylevariationid }}{{ orderline.sizes }}{{ orderline.shirtstyleid }}{{ orderline.delete }}</td>
+        {% for quantity, price, pricefkey, skuinstance in orderline.fieldlist %}
             <td>
             {{ quantity.label }}
             {{ price }}<br/>
             {{ quantity }}{{ quantity.errors }}<br/>
             {{ pricefkey }}
+            {{ skuinstance }}
             </td>
         {% endfor %}
     </tr>
