@@ -8,12 +8,31 @@ class Customer(models.Model):
         return self.CustomerName
 
 class ShirtStyle(models.Model):
+
     ShirtStyleNumber = models.CharField('Style Number', max_length=20, unique=True)
     ShirtStyleDescription = models.CharField('Description', max_length=200)
     Customer = models.ForeignKey(Customer, null=True, blank=True)
     KnitStyleName = models.CharField('Knit Style', max_length=10)
+
     def __unicode__(self):
         return self.ShirtStyleNumber + ' ' + self.ShirtStyleDescription 
+
+    def clean(self, *args, **kwargs):
+
+        super(ShirtStyle, self).clean(*args, **kwargs)
+
+        # Ensure that ShirtStyleNumber is unique not only among ShirtStyles,
+        # but among ShirtStyleVariations as well
+        if ShirtStyleVariation.objects.filter(
+            ShirtStyleNumber=self.ShirtStyleNumber
+        ):
+            raise ValidationError(
+                "ShirtStyle must have ShirtStyleNumber distinct from all ShirtStyleVariations"
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()	# Django won't validate models automatically on save
+        super(ShirtStyle, self).save(*args, **kwargs)
 
 class ShirtStyleVariation(models.Model):
 
