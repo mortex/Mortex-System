@@ -16,13 +16,32 @@ class ShirtStyle(models.Model):
         return self.ShirtStyleNumber + ' ' + self.ShirtStyleDescription 
 
 class ShirtStyleVariation(models.Model):
+
     ShirtStyle = models.ForeignKey(ShirtStyle)
-    ShirtStyleNumber = models.CharField('Style Number', max_length=20)
+    ShirtStyleNumber = models.CharField('Style Number',
+                                        max_length=20,
+                                        unique=True)
     Customer = models.ForeignKey(Customer, null=True, blank=True)
     PriceChange = models.DecimalField('Price Change', max_digits=10, decimal_places=2)
     VariationDescription = models.TextField('Variation Description')
+
     def __unicode__(self):
         return self.ShirtStyleNumber + ' ' + self.ShirtStyle.ShirtStyleDescription
+
+    def clean(self, *args, **kwargs):
+
+        super(ShirtStyleVariation, self).clean(*args, **kwargs)
+
+        # Ensure that ShirtStyleNumber is unique not only among
+        # ShirtStyleVariations, but among ShirtStyles as well
+        if ShirtStyle.objects.filter(ShirtStyleNumber=self.ShirtStyleNumber):
+            raise ValidationError(
+                "ShirtStyleVariation must have ShirtStyleNumber distinct from all ShirtStyles"
+            )
+
+    def save(self):
+        self.full_clean()	# Django won't validate models automatically on save
+        super(ShirtStyleVariation, self).save()
 
 class ColorCategory(models.Model):
     ColorCategoryName = models.CharField('Color Category', max_length=20)
