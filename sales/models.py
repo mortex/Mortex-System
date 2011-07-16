@@ -39,9 +39,9 @@ class ShirtStyleVariation(models.Model):
                 "ShirtStyleVariation must have ShirtStyleNumber distinct from all ShirtStyles"
             )
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.full_clean()	# Django won't validate models automatically on save
-        super(ShirtStyleVariation, self).save()
+        super(ShirtStyleVariation, self).save(*args, **kwargs)
 
 class ColorCategory(models.Model):
     ColorCategoryName = models.CharField('Color Category', max_length=20)
