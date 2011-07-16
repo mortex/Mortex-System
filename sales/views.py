@@ -622,7 +622,16 @@ def add_style(request, shirtstyleid=None):
 
     if request.method == "POST":
 
-        form = ShirtStyleForm(request.POST)
+        # Add (Instantiate unbound ModelForm)
+        if not request.POST["pk"]:
+            form = ShirtStyleForm(request.POST)
+
+        # Edit (Bind form to existing model instance)
+        else:
+            form = ShirtStyleForm(
+                request.POST,
+                instance=ShirtStyle.objects.get(pk=request.POST["pk"])
+            )
 
         if form.is_valid():
 
