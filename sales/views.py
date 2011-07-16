@@ -651,6 +651,13 @@ def add_style(request, shirtstyleid=None):
                 # ColorCategory already exists, replace it by reusing its
                 # primary key in the new model instance
                 try:
+                    # We could use `get` instead of `filter` in this query,
+                    # since there should never be more than 1 ShirtPrice with
+                    # this specific combination of attributes. But using
+                    # `filter` instead allows us to more gracefully handle the
+                    # unusual scenario in which the database erroneously
+                    # contains more than 1 matching ShirtPrice record. Ideally,
+                    # this should never happen.
                     price = ShirtPrice.objects.filter(ShirtStyle=new_style,
                                                       ColorCategory=cc,
                                                       ShirtSize=size)[0]
