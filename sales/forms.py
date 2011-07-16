@@ -114,8 +114,10 @@ class ShipmentForm(forms.ModelForm):
 class ShipmentSKUForm(forms.ModelForm):
     class Meta:
         model = ShipmentSKU
+        exclude = {
+            "Shipment"
+        }
         widgets = {
-            "Shipment":forms.HiddenInput(),
             "ShirtOrderSKU":forms.HiddenInput(),
             "BoxNumber":forms.HiddenInput(),
             "CutOrder":forms.HiddenInput(),

@@ -3,6 +3,6 @@
         <td>{{ shipmentsku.shirtskulabel }}</td>
         <td>{{ shipmentsku.purchaseorder }}</td>
         <td>{{ shipmentsku.cutorder }}</td>
-        <td>{{ shipmentsku.form.PK }}{{ shipmentsku.form.Shipment }}{{ shipmentsku.form.ShirtOrderSKU }}{{ shipmentsku.form.BoxNumber }}{{ shipmentsku.form.CutOrder }}{{ shipmentsku.form.ShippedQuantity }}{{ shipmentsku.form.ShippedQuantity.errors }}{{ shipmentsku.form.delete }}<input type='button' onClick="removesku('{{ shipmentsku.prefix }}')" value='X'/></td>
+        <td>{{ shipmentsku.form.PK }}{{ shipmentsku.form.ShirtOrderSKU }}{{ shipmentsku.form.BoxNumber }}{{ shipmentsku.form.CutOrder }}{{ shipmentsku.form.ShippedQuantity }}{{ shipmentsku.form.ShippedQuantity.errors }}{{ shipmentsku.form.delete }}<input type='button' onClick="removesku('{{ shipmentsku.prefix }}')" value='X'/></td>
     </tr>
 {% endfor %}

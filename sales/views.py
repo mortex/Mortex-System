@@ -183,7 +183,6 @@ def orderaddresses(request):
     addresses = CustomerAddress.objects.filter(shirtorder__Complete=False).distinct()
     return render_to_response('sales/shipping/orderaddresses.html', {'addresses': addresses})
     
-@transaction.commit_manually
 def addshipment(request, customeraddressid=None, shipmentid=None):
     if shipmentid:
         editshipment = Shipment.objects.get(pk=shipmentid)
@@ -214,8 +213,6 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
                 shipmentskus.append({'form':form,'cutorder':cutorder,'purchaseorder':purchaseorder,'shirtskulabel':shirtsku,'boxnum':boxnum})
                 i+=1
                 boxcount = boxnum if boxnum > boxcount else boxcount
-
-        transaction.commit()
         return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'ordercolors': orderskus, 'customeraddressid':customeraddressid, 'shipment':shipment, 'shipmentskus':shipmentskus, 'skucount':i-1, 'boxcount':boxcount}))
     
     else:
@@ -224,17 +221,13 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
         shipment = ShipmentForm(request.POST, instance=editshipment)
         if not shipment.is_valid():
             passedvalidation = False
-        else:
-            savedshipment = shipment.save()
         
         shipmentskus = []
         skucount = int(request.POST['skucount'])
         boxcount = 0
         forms = []
         for i in xrange(1, skucount + 1):
-            postdata = request.POST.copy()
-            if passedvalidation:
-                postdata[str(i) + '-Shipment'] = savedshipment.pk
+            postdata = request.POST
             instance = ShipmentSKU.objects.get(pk=postdata[str(i) + '-PK']) if postdata[str(i) + '-PK'] else None
             form = ShipmentSKUForm(postdata, prefix=i, instance=instance)
 
@@ -253,16 +246,17 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
         
         
         if passedvalidation == False:
-            transaction.rollback()
             return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'ordercolors': orderskus, 'customeraddressid':customeraddressid, 'shipment':shipment, 'shipmentskus':shipmentskus, 'skucount':skucount, 'boxcount':boxcount}))
         
         else:
+            savedshipment = shipment.save()
             for form in forms:
                 if form.cleaned_data['delete']==1 and form.cleaned_data['PK']:
                     ShipmentSKU.objects.get(pk=form.cleaned_data['PK']).delete()
                 else:
-                    form.save()
-            transaction.commit()
+                    sku = form.save(commit=False)
+                    sku.Shipment = savedshipment
+                    sku.save()
             return HttpResponseRedirect('/shipping/' + str(savedshipment.pk) + '/edit/')
 
     
