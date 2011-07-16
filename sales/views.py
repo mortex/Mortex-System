@@ -206,6 +206,7 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
             boxcount = 0
             for sku in ShipmentSKU.objects.filter(Shipment=editshipment):
                 form = ShipmentSKUForm(instance=sku, prefix=i)
+                form.fields['ShippedQuantity'].widget.attrs['data-savedvalue'] = sku.ShippedQuantity
                 shirtorderskuid = sku.ShirtOrderSKU.id
                 cutorder = sku.CutOrder
                 boxnum = sku.BoxNumber
@@ -322,3 +323,34 @@ def shipmentsearch(request):
 def viewshipment(request, shipmentid):
     shipment = Shipment.objects.get(pk=shipmentid)
     return render_to_response('sales/shipping/view.html', {'shipment':shipment})
+    
+def editcolors(request):
+    colorcategories = ColorCategory.objects.all()
+    categoryforms = []
+    cc = 0
+    for colorcategory in colorcategories:
+        cc += 1
+        prefix = 'cc'+str(cc)
+        categoryforms.append(ColorCategoryForm(instance=colorcategory, prefix=prefix))
+    
+    colors = Color.objects.all()
+    colorforms = []
+    c = 0
+    for color in colors:
+        c += 1
+        prefix = 'c'+str(c)
+        parentprefix = findparentprefix(categoryforms, color.ColorCategory)
+        colorforms.append(ColorForm(instance=color, initial={'parentprefix':parentprefix}, prefix=prefix))
+    
+    return render_to_response('sales/colors/edit.html', {'categoryforms':categoryforms, 'colorforms':colorforms})
+    
+def findparentinstance(parentforms, lookupprefix):
+    for parentform in parentforms:
+        if parentform.prefix == lookupprefix:
+            return parentform.instance
+    return None
+            
+def findparentprefix(parentforms, lookupinstance):
+    for parentform in parentforms:
+        if parentform.instance == lookupinstance:
+            return parentform.prefix

@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import fields
 
-from sales.models import ShirtOrder, ShirtOrderSKU, CustomerAddress, Color, ShirtSize, ShirtStyle, ShirtStyleVariation, ShirtSKUTransaction, ShirtSize, ShipmentSKU, Shipment
+from sales.models import *
 
 class CutSSIForm(forms.ModelForm):
     'allows you to create transactions for new cut orders of a shirt SKU'
@@ -127,6 +127,8 @@ class ShipmentSKUForm(forms.ModelForm):
         super(ShipmentSKUForm, self).__init__(*args, **kwargs)
         self.fields['PK'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
         self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
+        self.fields['ShippedQuantity'].widget.attrs['data-savedvalue'] = 0
+        self.fields['ShippedQuantity'].widget.attrs['onChange'] = 'quantityupdated(this);'
         
 class SearchForm(forms.Form):
     searchfield = forms.ChoiceField(label='Search By', widget=forms.RadioSelect())
@@ -140,3 +142,17 @@ class ShirtOrderSearchForm(SearchForm):
 
 class ShipmentSearchForm(SearchForm):
     choices = [('address','Address'),('customer','Customer Name'),('tracking','Tracking Number')]
+    
+class ColorCategoryForm(forms.ModelForm):
+    class Meta:
+        model = ColorCategory
+
+class ColorForm(forms.ModelForm):
+    class Meta:
+        model = Color
+        exclude = {
+            'ColorCategory'
+        }
+    def __init__(self, *args, **kwargs):
+        super(ColorForm, self).__init__(*args, **kwargs)
+        self.fields['parentprefix'] = forms.CharField(widget=forms.HiddenInput())

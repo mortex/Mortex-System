@@ -1,0 +1,14 @@
+{% extends "sales/base.html" %}
+
+{% block body %}
+    {% for categoryform in categoryforms %}
+        <fieldset>
+            <legend>Category: {{ categoryform.ColorCategoryName }}</legend>
+            {% for colorform in colorforms %}
+                {% if colorform.parentprefix.value == categoryform.prefix %}
+                    <div>{{ colorform.ColorName }}</div>
+                {% endif %}
+            {% endfor %}
+        </fieldset>
+    {% endfor %}
+{% endblock %}

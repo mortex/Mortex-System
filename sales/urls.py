@@ -26,5 +26,6 @@ urlpatterns = patterns('',
     (r'^shipping/(?P<shipmentid>\d+)/$', 'sales.views.viewshipment'),
     (r'^shipping/shipmentsku/$', 'sales.views.addshipmentsku'),
     (r'^shipping/search/$', 'sales.views.shipmentsearch'),
+    (r'^colors/$', 'sales.views.editcolors'),
     (r'^login/$', 'django.contrib.auth.views.login'),
 )

@@ -42,15 +42,18 @@
         var ordersku = $('#id_' + prefix + '-ShirtOrderSKU').val();
         var sosspan = $('#sos' + ordersku + 'remaining');
         var sosremainingquantity = sosspan.html();
-        
         if(freshload === undefined){
             var oldvalue = ($(quantityfield).attr('data-oldvalue')) ? $(quantityfield).attr('data-oldvalue') : 0;
+            var savedvalue = 0;
         }
         else{
             var oldvalue = 0;
+            var savedvalue = parseInt($(quantityfield).attr('data-savedvalue'));
+            var sosqspan = $('#sos' + ordersku + 'quantity');
+            sosqspan.html(parseInt(sosqspan.html()) + savedvalue);
         }
         var newvalue = $(quantityfield).val();
-        var changevalue = newvalue - oldvalue;
+        var changevalue = newvalue - oldvalue - savedvalue;
 
         var newsosvalue = sosremainingquantity - changevalue;
         var newcovalue = coremainingquantity - changevalue;
