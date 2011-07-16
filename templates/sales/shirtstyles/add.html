@@ -91,7 +91,7 @@
 
 {% block body %}
 
-    <h1>Add Shirt Style</h1>
+    <h1>{% if not form.pk.value %}Add{% else %}Edit{% endif %} Shirt Style</h1>
 
     <form method="post">
 
