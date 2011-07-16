@@ -97,10 +97,17 @@
 
         {% csrf_token %}
 
+        {# Hidden fields #}
+        {% for field in form %}
+            {% if field.field.widget.is_hidden %}
+                {{ field }}
+            {% endif %}
+        {% endfor %}
+
         {# Non-matrix fields #}
         <table>
             {% for field in form %}
-                {% if not field.field.ccName %}
+                {% if not field.field.ccName and not field.field.widget.is_hidden %}
                     <tr{% if field.errors %} class="error"{% endif %}><td>{{ field.label }}</td><td>{{ field }}</td><td>{{ field.errors }}</td></tr>
                 {% endif %}
             {% endfor %}

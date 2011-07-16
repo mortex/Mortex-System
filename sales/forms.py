@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import fields, ModelForm
 from django.forms.fields import DecimalField, IntegerField
-from django.forms.widgets import TextInput
+from django.forms.widgets import HiddenInput, TextInput
 
 from sales.models import *
 
@@ -227,6 +227,12 @@ class ShirtStyleForm(ModelForm):
     def __init__(self, *args, **kwargs):
 
         super(ShirtStyleForm, self).__init__(*args, **kwargs)
+
+        # Include PK as hidden field so we can identify when we're editing an
+        # existing record
+        self.fields["pk"] = IntegerField(initial=self.instance.pk,
+                                         widget=HiddenInput(),
+                                         required=False)
 
         # Get all shirtprices associated with this form's ShirtStyle instance
         shirtprices = ShirtPrice.objects.filter(ShirtStyle=self.instance)
