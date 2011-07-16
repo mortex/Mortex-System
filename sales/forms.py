@@ -258,3 +258,9 @@ class ShirtStyleForm(ModelForm):
                 "data-size": unspaced_size_name,
             }
             self.fields["price__" + ccName + "__" + sizeName] = new_field
+
+class ShirtStyleVariationForm(ModelForm):
+    """Form for adding/changing shirt style variations"""
+
+    class Meta:
+        model = ShirtStyleVariation
