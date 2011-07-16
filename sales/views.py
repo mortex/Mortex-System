@@ -592,7 +592,7 @@ def addcustomeraddress(request):
     addressform = CustomerAddressForm(prefix=prefix)
     return render_to_response('sales/customers/address.html', {'addressform':addressform})
 
-def add_style(request):
+def add_style(request, shirtstyleid=None):
     """Add a new shirt style to the database"""
 
     def render(form):
@@ -609,7 +609,16 @@ def add_style(request):
         )
 
     if request.method == "GET":
-        return render(ShirtStyleForm())
+
+        # Add
+        if shirtstyleid == None:
+            return render(ShirtStyleForm())
+
+        # Edit
+        else:
+            return render(ShirtStyleForm(instance=ShirtStyle.objects.get(
+                pk=shirtstyleid
+            )))
 
     if request.method == "POST":
 
