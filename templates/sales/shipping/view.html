@@ -1,0 +1,17 @@
+<p>
+    {{ shipment.CustomerAddress }}<br/>
+    {{ shipment.TrackingNumber }}
+    <a href="edit/">edit shipment</a>
+</p>
+<ul>
+{% regroup shipment.shipmentsku_set.all by BoxNumber as box_list %}
+    {% for box in box_list %}
+        <li>Box {{ box.grouper }}
+            <ul>
+                {% for sku in box.list %}
+                    <li>{{ sku.ShirtOrderSKU }} - {{ sku.ShippedQuantity }}</li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+</ul>
