@@ -640,17 +640,28 @@ def add_style(request, shirtstyleid=None):
             # Construct a ShirtPrice model instance from a submitted matrix
             # field
             def construct_ShirtPrice(k, v):
+
                 mobj = re.match(r"price__(?P<cc>[^_]+)__(?P<size>.+)", k)
-                return ShirtPrice(
-                    ShirtStyle=new_style,
-                    ColorCategory=ColorCategory.objects.get(
-                        ColorCategoryName=mobj.group("cc")
-                    ),
-                    ShirtSize=ShirtSize.objects.get(
-                        ShirtSizeAbbr=mobj.group("size")
-                    ),
-                    ShirtPrice=v
+                cc = ColorCategory.objects.get(
+                    ColorCategoryName=mobj.group("cc")
                 )
+                size = ShirtSize.objects.get(ShirtSizeAbbr=mobj.group("size"))
+
+                # If a ShirtPrice with this ShirtStyle, ShirtSize, &
+                # ColorCategory already exists, replace it by reusing its
+                # primary key in the new model instance
+                try:
+                    price = ShirtPrice.objects.filter(ShirtStyle=new_style,
+                                                      ColorCategory=cc,
+                                                      ShirtSize=size)[0]
+                except ShirtPrice.DoesNotExist:
+                    price = ShirtPrice(ShirtStyle=new_style,
+                                       ColorCategory=cc,
+                                       ShirtSize=size)
+
+                price.ShirtPrice = v
+
+                return price
 
             # Create needed ShirtPrice instances and persist models to DB
             for price in [construct_ShirtPrice(k, v)
