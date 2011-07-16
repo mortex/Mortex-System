@@ -228,6 +228,9 @@ class ShirtStyleForm(ModelForm):
 
         super(ShirtStyleForm, self).__init__(*args, **kwargs)
 
+        # Get all shirtprices associated with this form's ShirtStyle instance
+        shirtprices = ShirtPrice.objects.filter(ShirtStyle=self.instance)
+
         # Add matrix fields for each size/color category combination
         for (cc, size) in product(ColorCategory.objects.all(), ShirtSize.objects.all()):
             ccName = cc.ColorCategoryName
@@ -237,6 +240,9 @@ class ShirtStyleForm(ModelForm):
                 widget=TextInput(attrs={"size": "4"}),
                 required=False
             )
+            shirtprice = shirtprices.filter(ColorCategory=cc, ShirtSize=size)
+            if shirtprice:
+                new_field.initial = shirtprice[0].ShirtPrice
             new_field.ccName = ccName
             new_field.sizeName = size.ShirtSizeName
             unspaced_size_name = orderform_extras.unspace(size.ShirtSizeName)
