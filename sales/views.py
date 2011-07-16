@@ -1,10 +1,11 @@
 from django.shortcuts import render_to_response
 from django.db.models import Sum
-from sales.models import ShirtSKUTransaction, ShirtPrice, Color, ShirtStyleVariation, ShirtSize, ShirtStyle, ShirtOrder, ShirtOrderSKU, CustomerAddress, ShirtSKUInventory, ShipmentSKU, Shipment
-from sales.forms import ExistingCutSSIForm, NewCutSSIForm, Order, OrderLine, ShipmentSKUForm, ShipmentForm
+from sales.models import *
+from sales.forms import *
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.db import transaction
+from django.db.models import Q
 
 
 def manageinventory(request, shirtstyleid, variationid, colorid):
@@ -80,7 +81,6 @@ def shirtorders(request):
 
 def shirtorderview(request, orderid):
     shirtorder = ShirtOrder.objects.get(pk=orderid)
-    
     return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder})
     
 def shirtorderadd(request, orderid=None):
@@ -282,3 +282,45 @@ def shipmentskudetails(shirtorderskuid):
     purchaseorder = shirtordersku.ShirtOrder.PONumber
     return (shirtordersku, shirtsku, purchaseorder)
     
+def searchcriteria(GET):
+    if 'searchfield' in GET:
+        querystring = GET['querystring']
+        searchfield = GET['searchfield']
+    else:
+        querystring = ''
+        searchfield = ''
+    return (querystring, searchfield)
+    
+def shirtordersearch(request):
+    querystring, searchfield = searchcriteria(request.GET)
+    
+    if searchfield == 'address':
+        query = Q(CustomerAddress__Address1__contains=querystring)
+    elif searchfield == 'customer':
+        query = Q(Customer__CustomerName__contains=querystring)
+    elif searchfield == 'ponumber':
+        query = Q(PONumber__contains=querystring)
+    else:
+        query = Q()
+        
+    shirtorders = ShirtOrder.objects.filter(query)
+    
+    form = ShirtOrderSearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
+    return render_to_response('sales/shirtorders/search.html', {'shirtorders':shirtorders, 'form':form})
+    
+def shipmentsearch(request):
+    querystring, searchfield = searchcriteria(request.GET)
+    
+    if searchfield == 'address':
+        query = Q(CustomerAddress__Address1__contains=querystring)
+    elif searchfield == 'customer':
+        query = Q(CustomerAddress__Customer__CustomerName__contains=querystring)
+    elif searchfield == 'tracking':
+        query = Q(TrackingNumber__contains=querystring)
+    else:
+        query = Q()
+    
+    shipments = Shipment.objects.filter(query)
+    
+    form = ShipmentSearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
+    return render_to_response('sales/shipping/search.html', {'shipments':shipments, 'form':form})

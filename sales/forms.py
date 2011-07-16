@@ -125,3 +125,16 @@ class ShipmentSKUForm(forms.ModelForm):
         super(ShipmentSKUForm, self).__init__(*args, **kwargs)
         self.fields['PK'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
         self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
+        
+class SearchForm(forms.Form):
+    searchfield = forms.ChoiceField(label='Search By', widget=forms.RadioSelect())
+    querystring = forms.CharField(label='Criteria', max_length=200)
+    def __init__(self, *args, **kwargs):
+        super(SearchForm, self).__init__(*args, **kwargs)
+        self.fields['searchfield'].choices = self.choices
+        
+class ShirtOrderSearchForm(SearchForm):
+    choices = [('address','Address'),('customer','Customer Name'),('ponumber','PO Number')]
+
+class ShipmentSearchForm(SearchForm):
+    choices = [('address','Address'),('customer','Customer Name'),('tracking','Tracking Number')]

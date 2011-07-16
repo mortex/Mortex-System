@@ -1,0 +1,24 @@
+{% extends "sales/search.html" %}
+
+{% block results %}
+{% if shipments %}
+  <table>
+    <tr>
+        <th>Shipment ID</th>
+        <th>Tracking Number</th>
+        <th>Customer</th>
+        <th>Ship Address</th>
+    </tr>
+    {% for shipment in shipments %}
+    <tr>
+        <td><a href='/shipping/{{ shipment.pk }}'>{{ shipment.pk }}</a></td>
+        <td>{{ shipment.TrackingNumber }}</td>
+        <td>{{ shipment.Customer }}</td>
+        <td>{{ shipment.CustomerAddress }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p>No shipments found</p>
+{% endif %}
+{% endblock %}

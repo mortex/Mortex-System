@@ -1,0 +1,49 @@
+{% extends "sales/base.html" %}
+
+{% block extrahead %}
+{% endblock %}
+
+{% block body %}
+    <h3>Welcome to MPS, the Mortex Production System!</h3>
+    <fieldset>
+        <legend>List Management</legend>
+        Use these forms to modify some of your basic lists, like colors and styles
+        <ul>
+            <li>Styles
+                <ul>
+                    <li><a href=''>Add New Style</a></li>
+                    <li><a href=''>Edit Existing Style</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul>
+            <li>Colors
+                <ul>
+                    <li><a href=''>Add New Color</a></li>
+                    <li><a href=''>Edit Existing Color</a></li>
+                </ul>
+            </li>
+        </ul>
+    </fieldset>
+    <fieldset>
+        <legend>Customers</legend>
+        <ul>
+            <li><a href=''>Add New Customer</a></li>
+            <li><a href=''>Find Existing Customer</a></li>
+        </ul>
+    </fieldset>
+    <fieldset>
+        <legend>Shirt Orders</legend>
+        <ul>
+            <li><a href='/shirtorders/add/'>Add New Order</a></li>
+            <li><a href='/shirtorders/search/'>Find Existing Order</a></li>
+        </ul>
+    </fieldset>
+    <fieldset>
+        <legend>Shipments</legend>
+        <ul>
+            <li><a href='/shipping/add/'>Add New Shipment</a></li>
+            <li><a href='/shipping/search/'>Find Existing Shipment</a></li>
+        </ul>
+    </fieldset>
+{% endblock %}
