@@ -146,6 +146,9 @@ class ShipmentSearchForm(SearchForm):
 class ColorCategoryForm(forms.ModelForm):
     class Meta:
         model = ColorCategory
+    def __init__(self, *args, **kwargs):
+        super(ColorCategoryForm, self).__init__(*args, **kwargs)
+        self.fields['pk'] = forms.CharField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
 
 class ColorForm(forms.ModelForm):
     class Meta:
@@ -156,3 +159,4 @@ class ColorForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ColorForm, self).__init__(*args, **kwargs)
         self.fields['parentprefix'] = forms.CharField(widget=forms.HiddenInput())
+        self.fields['pk'] = forms.CharField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())

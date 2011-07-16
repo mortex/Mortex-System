@@ -325,24 +325,63 @@ def viewshipment(request, shipmentid):
     return render_to_response('sales/shipping/view.html', {'shipment':shipment})
     
 def editcolors(request):
-    colorcategories = ColorCategory.objects.all()
-    categoryforms = []
-    cc = 0
-    for colorcategory in colorcategories:
-        cc += 1
-        prefix = 'cc'+str(cc)
-        categoryforms.append(ColorCategoryForm(instance=colorcategory, prefix=prefix))
-    
-    colors = Color.objects.all()
-    colorforms = []
-    c = 0
-    for color in colors:
-        c += 1
-        prefix = 'c'+str(c)
-        parentprefix = findparentprefix(categoryforms, color.ColorCategory)
-        colorforms.append(ColorForm(instance=color, initial={'parentprefix':parentprefix}, prefix=prefix))
-    
-    return render_to_response('sales/colors/edit.html', {'categoryforms':categoryforms, 'colorforms':colorforms})
+    if request.method == "GET":
+        colorcategories = ColorCategory.objects.all()
+        categoryforms = []
+        cc = 0
+        for colorcategory in colorcategories:
+            cc += 1
+            prefix = 'cc'+str(cc)
+            categoryforms.append(ColorCategoryForm(instance=colorcategory, prefix=prefix))
+        
+        colors = Color.objects.all()
+        colorforms = []
+        c = 0
+        for color in colors:
+            c += 1
+            prefix = 'c'+str(c)
+            parentprefix = findparentprefix(categoryforms, color.ColorCategory)
+            colorforms.append(ColorForm(instance=color, initial={'parentprefix':parentprefix}, prefix=prefix))
+        
+        return render_to_response('sales/colors/edit.html', RequestContext(request, {'categoryforms':categoryforms, 'colorforms':colorforms, 'categorycount':cc, 'colorcount':c}))
+    else:
+        categorycount = request.POST['categorycount']
+        colorcount = request.POST['colorcount']
+        categoryforms = []
+        colorforms = []
+        passedvalidation = True
+        
+        for cc in xrange(1, int(categorycount) + 1):
+            prefix = 'cc'+str(cc)
+            categoryform = ColorCategoryForm(request.POST, prefix=prefix)
+            if not categoryform.is_valid():
+                passedvalidation = False
+            categoryforms.append(categoryform)
+        
+        for c in xrange(1, int(colorcount) + 1):
+            prefix = 'c'+str(c)
+            colorform = ColorForm(request.POST, prefix=prefix)
+            if not colorform.is_valid():
+                passedvalidation = False
+            colorforms.append(colorform)
+        
+        if passedvalidation == False:
+            return render_to_response('sales/colors/edit.html', RequestContext(request, {'categoryforms':categoryforms}))
+            
+        else:
+            for categoryform in categoryforms:
+                category = categoryform.save(commit=False)
+                category.pk = categoryform.cleaned_data['pk']
+                category.save()
+            
+            for colorform in colorforms:
+                color = colorform.save(commit=False)
+                color.pk = colorform.cleaned_data['pk']
+                color.ColorCategory = findparentinstance(categoryforms, colorform.cleaned_data['parentprefix'])
+                color.save()
+            
+            return HttpResponseRedirect('/colors/')
+            
     
 def findparentinstance(parentforms, lookupprefix):
     for parentform in parentforms:
