@@ -28,4 +28,6 @@ urlpatterns = patterns('',
     (r'^shipping/search/$', 'sales.views.shipmentsearch'),
     (r'^colors/$', 'sales.views.editcolors'),
     (r'^login/$', 'django.contrib.auth.views.login'),
+    (r'^sizes/edit/$', 'sales.views.editsizes'),
+    (r'^sizes/addsize/$', 'sales.views.addsize'),
 )

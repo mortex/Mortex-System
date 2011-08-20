@@ -40,6 +40,8 @@ class ShirtSize(models.Model):
     SortKey = models.IntegerField()
     def __unicode__(self):
         return self.ShirtSizeName
+    class Meta:
+        ordering = ["SortKey"]    
 
 class ShirtPrice(models.Model):
     ShirtStyle = models.ForeignKey(ShirtStyle)

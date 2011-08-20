@@ -160,3 +160,15 @@ class ColorForm(forms.ModelForm):
         super(ColorForm, self).__init__(*args, **kwargs)
         self.fields['parentprefix'] = forms.CharField(widget=forms.HiddenInput())
         self.fields['pk'] = forms.CharField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
+        
+#size management
+class ShirtSizeForm(forms.ModelForm):
+    class Meta:
+        model = ShirtSize
+    def __init__(self, *args, **kwargs):
+        super(ShirtSizeForm, self).__init__(*args, **kwargs)
+        self.fields['SortKey'].widget = forms.HiddenInput()
+        self.fields['SortKey'].widget.attrs = {'class':'sort'}
+        self.fields['pk'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
+        self.fields['ShirtSizeAbbr'].widget.attrs = {'class':'digit'}
+        self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
