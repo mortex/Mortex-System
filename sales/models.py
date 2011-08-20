@@ -56,12 +56,6 @@ class ShirtPrice(models.Model):
     class Meta:
         ordering = ["ShirtSize"]  
 
-class ShirtSKU(models.Model):
-    ShirtPrice = models.ForeignKey(ShirtPrice)
-    Color = models.ForeignKey(Color)
-    def __unicode__(self):
-        return str(self.Color) + ' - ' + str(self.ShirtPrice)
-
 class CustomerAddress(models.Model):
     Customer = models.ForeignKey(Customer)
     Address1 = models.CharField('Address 1', max_length=40)
@@ -88,6 +82,9 @@ class ShirtOrderSKU(models.Model):
     Color = models.ForeignKey(Color)
     OrderQuantity = models.IntegerField('Quantity')
     Price = models.FloatField()
+    ShippedQuantity = models.IntegerField('Shipped Quantity', default=0)
+    def __unicode__(self):
+        return str(self.ShirtPrice.ShirtStyle) + " " + str(self.ShirtPrice)
     class Meta:
         ordering = ["ShirtPrice"]  
 
@@ -98,14 +95,72 @@ class ShirtSKUTransaction(models.Model):
     CutOrder = models.CharField('Cut Order', max_length=20)
     Pieces = models.IntegerField()
     Date = models.DateField(default = datetime.datetime.today())
+    def save(self):
+        super(ShirtSKUTransaction, self).save()
+        try:
+            skuinventory = ShirtSKUInventory.objects.get(Color=self.Color, ShirtPrice=self.ShirtPrice, ShirtStyleVariation=self.ShirtStyleVariation, CutOrder=self.CutOrder)
+            skuinventory.Inventory += self.Pieces
+            skuinventory.save()
+        except ShirtSKUInventory.DoesNotExist:
+            ShirtSKUInventory(Color=self.Color, ShirtPrice=self.ShirtPrice, ShirtStyleVariation=self.ShirtStyleVariation, Inventory=self.Pieces, CutOrder=self.CutOrder).save()
+    
+class ShirtSKUInventory(models.Model):
+    Color = models.ForeignKey(Color)
+    ShirtPrice = models.ForeignKey(ShirtPrice)
+    ShirtStyleVariation = models.ForeignKey(ShirtStyleVariation, null=True, blank=True)
+    CutOrder = models.CharField('Cut Order', max_length=20)
+    Inventory = models.IntegerField()
 
 class Shipment(models.Model):
-    DateShipped = models.DateTimeField('Date Shipped')
+    CustomerAddress = models.ForeignKey(CustomerAddress)
+    DateShipped = models.DateTimeField('Date Shipped', default = datetime.datetime.today())
     TrackingNumber = models.CharField('Tracking Number', max_length=50)
 
 class ShipmentSKU(models.Model):
     Shipment = models.ForeignKey(Shipment)
     ShirtOrderSKU = models.ForeignKey(ShirtOrderSKU)
     CutOrder = models.CharField('Cut Order', max_length=20)
+    BoxNumber = models.IntegerField('Box #')
+    ShippedQuantity = models.IntegerField('Shipped Quantity')
+    #overwrite save method to modify inventory/order fields that calculate total shipment amounts
+    def save(self):
+        #determine old value and save record
+        try:
+            oldvalue = ShipmentSKU.objects.get(pk=self.pk).ShippedQuantity
+        except ShipmentSKU.DoesNotExist:
+            oldvalue = 0
+        super(ShipmentSKU, self).save()
+        
+        #update total on-hand inventory
+        changevalue = self.ShippedQuantity - oldvalue
+        inventory = ShirtSKUInventory.objects.get(Color=self.ShirtOrderSKU.Color, 
+                                                  ShirtPrice=self.ShirtOrderSKU.ShirtPrice, 
+                                                  ShirtStyleVariation=self.ShirtOrderSKU.ShirtStyleVariation,
+                                                  CutOrder=self.CutOrder)
+        inventory.Inventory -= changevalue
+        inventory.save()
+        
+        #update amount shipped for ordersku
+        ordersku = ShirtOrderSKU.objects.get(pk=self.ShirtOrderSKU.pk)
+        ordersku.ShippedQuantity += changevalue
+        ordersku.save()
+    #overwrite delete method to modify inventory/order fields that calculate total shipment amounts
+    def delete(self):
+        #determine old value and delete record
+        oldvalue = ShipmentSKU.objects.get(pk=self.pk).ShippedQuantity
+        super(ShipmentSKU, self).delete()
+        
+        #update total on-hand inventory
+        inventory = ShirtSKUInventory.objects.get(Color=self.ShirtOrderSKU.Color, 
+                                                  ShirtPrice=self.ShirtOrderSKU.ShirtPrice, 
+                                                  ShirtStyleVariation=self.ShirtOrderSKU.ShirtStyleVariation,
+                                                  CutOrder=self.CutOrder)
+        inventory.Inventory += oldvalue
+        inventory.save()
+        
+        #update amount shipped for ordersku
+        ordersku = ShirtOrderSKU.objects.get(pk=self.ShirtOrderSKU.pk)
+        ordersku.ShippedQuantity -= oldvalue
+        ordersku.save()
     class Meta:
         ordering = ["ShirtOrderSKU"]  
