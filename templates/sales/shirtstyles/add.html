@@ -116,18 +116,22 @@
         </table>
 
         {# Matrix controls #}
-        <ul class="m_ctrls" id="cc_ctrls">
-            <h1>Color Categories</h1>
-            {% for ccName in ccNames %}
-                <li><input type="checkbox" onchange="mctl_chg_cc('{{ ccName|unspace }}', this.checked);" data-cc="{{ ccName|unspace }}">{{ ccName }}</li>
-            {% endfor %}
-        </ul>
-        <ul class="m_ctrls" id="size_ctrls">
-            <h1>Sizes</h1>
-            {% for sizeName in sizeNames %}
-                <li><input type="checkbox" onchange="mctl_chg_size('{{ sizeName|unspace }}', this.checked);" data-size="{{ sizeName|unspace }}">{{ sizeName }}</li>
-            {% endfor %}
-        </ul>
+        <fieldset>
+            <legend>Color Categories</legend>
+            <ul class="m_ctrls" id="cc_ctrls">
+                {% for ccName in ccNames %}
+                    <li><input type="checkbox" onchange="mctl_chg_cc('{{ ccName|unspace }}', this.checked);" data-cc="{{ ccName|unspace }}">{{ ccName }}</li>
+                {% endfor %}
+            </ul>
+        </fieldset>
+        <fieldset>
+            <legend>Sizes</legend>
+            <ul class="m_ctrls" id="size_ctrls">
+                {% for sizeName in sizeNames %}
+                    <li><input type="checkbox" onchange="mctl_chg_size('{{ sizeName|unspace }}', this.checked);" data-size="{{ sizeName|unspace }}">{{ sizeName }}</li>
+                {% endfor %}
+            </ul>
+        </fieldset>
 
         {# Matrix #}
         <div id="matrix_wrapper">
