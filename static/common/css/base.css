@@ -71,3 +71,6 @@ fieldset fieldset legend {
     font-style: italic;
 }
 
+.clear {
+    clear: both;
+}
