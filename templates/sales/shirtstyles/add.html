@@ -12,8 +12,13 @@
             background-color: #F88;
         }
 
-        .m_ctrls {
+        .m_ctrl_fieldset {
             float: left;
+        }
+
+        .m_ctrls {
+            list-style: none;
+            padding: 0px;
         }
 
         .m_ctrls h1,
@@ -116,7 +121,7 @@
         </table>
 
         {# Matrix controls #}
-        <fieldset>
+        <fieldset class="m_ctrl_fieldset">
             <legend>Color Categories</legend>
             <ul class="m_ctrls" id="cc_ctrls">
                 {% for ccName in ccNames %}
@@ -124,7 +129,7 @@
                 {% endfor %}
             </ul>
         </fieldset>
-        <fieldset>
+        <fieldset class="m_ctrl_fieldset">
             <legend>Sizes</legend>
             <ul class="m_ctrls" id="size_ctrls">
                 {% for sizeName in sizeNames %}
