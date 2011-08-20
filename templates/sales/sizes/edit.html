@@ -28,7 +28,7 @@
         
         function addsize(){
             var prefix = parseInt($('#sizecount').val()) + 1;
-            $.get('/tsd/sizes/addsize/', {'prefix':prefix}, function(data){
+            $.get('/sizes/addsize/', {'prefix':prefix}, function(data){
                 $('#sizes').append(data);
                 $('#sizecount').val(prefix);
                 makesortable();

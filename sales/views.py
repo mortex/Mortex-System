@@ -226,5 +226,5 @@ def editsizes(request):
         
 def addsize(request):
     prefix = request.GET['prefix']
-    sizeform = SizeForm(prefix=prefix)
+    sizeform = ShirtSizeForm(prefix=prefix)
     return render_to_response('sales/sizes/size.html', {'form':sizeform})

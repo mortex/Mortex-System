@@ -17,4 +17,5 @@ urlpatterns = patterns('',
     (r'^data/styleprices/$', 'sales.data_views.styleprices'),
     (r'^data/shirtstylevariations/$', 'sales.data_views.shirtstylevariations'),
     (r'^sizes/edit/$', 'sales.views.editsizes'),
+    (r'^sizes/addsize/$', 'sales.views.addsize'),
 )
