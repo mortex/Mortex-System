@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 
 <html>
-	<head>
+    <head>
 
-		<script type="application/javascript" src="/static/common/js/jquery-1.5.2.min.js"></script>
-		<script type="application/javascript" src="/static/common/js/jquery-ui-1.8.11.custom.min.js"></script>
+        <meta http-equiv="Content-Script-Type" content="application/javascript">
 
-		<link rel="stylesheet" type="text/css" href="/static/common/css/jquery-ui-1.8.11.custom.css">
+        <script type="application/javascript" src="/static/common/js/jquery-1.5.2.min.js"></script>
+        <script type="application/javascript" src="/static/common/js/jquery-ui-1.8.11.custom.min.js"></script>
 
-		{% block extrahead %}{% endblock %}
+        <link rel="stylesheet" type="text/css" href="/static/common/css/jquery-ui-1.8.11.custom.css">
+        <link rel="stylesheet" type="text/css" href="/static/common/css/base.css">
 
-	</head>
-	<body>
-		{% block body %}{% endblock %}
-	</body>
+        {% block extrahead %}{% endblock %}
+
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+    </body>
 </html>

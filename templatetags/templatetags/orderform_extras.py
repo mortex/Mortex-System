@@ -8,7 +8,7 @@ register = template.Library()
 @register.filter
 def hash(h, key):
     return h[key]
-    
+
 @register.filter
 def attr(obj, attrname):
     return obj.__dict__[attrname]
@@ -20,5 +20,5 @@ def unspace(s):
 
     This allows the string to be used as an HTML element's id or class
     attribute, in which spaces delimit multiple discrete values."""
-    
+
     return re.sub(r" ", r"_", s)
