@@ -97,3 +97,16 @@ class OrderLine(forms.Form):
 
         self.fieldlist = zip(self.quantitylist, self.pricelist, self.pricefkeylist)
         self.fields["sizes"] = forms.IntegerField(widget=forms.HiddenInput(), initial=i-1)
+        
+        
+#size management
+class ShirtSizeForm(forms.ModelForm):
+    class Meta:
+        model = ShirtSize
+    def __init__(self, *args, **kwargs):
+        super(ShirtSizeForm, self).__init__(*args, **kwargs)
+        self.fields['SortKey'].widget = forms.HiddenInput()
+        self.fields['SortKey'].widget.attrs = {'class':'sort'}
+        self.fields['pk'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
+        self.fields['ShirtSizeAbbr'].widget.attrs = {'class':'digit'}
+        self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())

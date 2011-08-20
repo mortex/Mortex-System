@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response
 from django.db.models import Sum
 from sales.models import ShirtSKUTransaction, ShirtPrice, Color, ShirtStyleVariation, ShirtSize, ShirtStyle, ShirtOrder, ShirtOrderSKU
-from sales.forms import ExistingCutSSIForm, NewCutSSIForm, Order, OrderLine
+from sales.forms import ExistingCutSSIForm, NewCutSSIForm, Order, OrderLine, ShirtSizeForm
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 
@@ -185,3 +185,46 @@ def orderline(request):
         print 'hello world'
     dictionary = {"orderlines":[OrderLine(shirtstyleid=shirtstyleid, shirtstylevariationid=shirtstylevariationid, prefix=request.GET['prefix'])]}
     return render_to_response('sales/shirtorders/orderline.html', dictionary)
+    
+#size management
+def editsizes(request):
+    if request.method == 'GET':
+        sizes = ShirtSize.objects.all()
+        sizeforms = []
+        s = 0
+        for size in sizes:
+            s += 1
+            sizeform = ShirtSizeForm(instance=size, prefix=s)
+            sizeforms.append(sizeform)
+        
+        return render_to_response('sales/sizes/edit.html', RequestContext(request, {'forms':sizeforms, 'sizecount':s}))
+        
+    else:
+        sizecount = request.POST['sizecount']
+        sizeforms = []
+        passedvalidation = True
+        
+        for s in xrange(1, int(sizecount)+1):
+            sizeform = ShirtSizeForm(request.POST, prefix=s)
+            sizeforms.append(sizeform)
+            if not sizeform.is_valid():
+                passedvalidation = False
+                
+        if passedvalidation == False:
+            return render_to_response('sales/sizes/edit.html', RequestContext(request, {'forms':sizeforms, 'sizecount':s}))
+            
+        else:
+            for sizeform in sizeforms:
+                size = sizeform.save(commit=False)
+                size.pk = sizeform.cleaned_data['pk']
+                if sizeform.cleaned_data['delete'] == 0:
+                    size.save()
+                elif size.pk:
+                    size.delete()
+        
+        return HttpResponseRedirect('/sizes/edit/')
+        
+def addsize(request):
+    prefix = request.GET['prefix']
+    sizeform = SizeForm(prefix=prefix)
+    return render_to_response('sales/sizes/size.html', {'form':sizeform})

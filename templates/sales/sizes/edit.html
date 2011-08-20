@@ -1,0 +1,63 @@
+{% extends "sales/base.html" %}
+
+{% block extrahead %}{{ block.super }}
+    <script type='application/javascript'>
+        $(function(){
+            makesortable();
+        });
+    
+        function makesortable(){
+            $('#sizes').sortable('destroy')
+		    $('#sizes').sortable({
+		        handle: 'div.move',
+		        opacity: '.5',
+		        placeholder: 'highlighted',
+		        forcePlaceholderSize: true,
+		        items: ".size",
+		        update: function(event, ui){
+		            updatesort();
+		        }
+	        })
+        }
+        
+        function updatesort(){
+            $('.sort').each(function(i){
+                $(this).val(i+1);
+            });
+        }
+        
+        function addsize(){
+            var prefix = parseInt($('#sizecount').val()) + 1;
+            $.get('/tsd/sizes/addsize/', {'prefix':prefix}, function(data){
+                $('#sizes').append(data);
+                $('#sizecount').val(prefix);
+                makesortable();
+                updatesort();
+            });
+        }
+    </script>
+
+    <style type='text/css'>
+
+    </style>
+{% endblock %}
+
+{% block body %}
+    <form method="post" action="">
+    {% csrf_token %}
+        <fieldset>
+            <legend>Sizes <input type='button' onClick='addsize();' value='+'/></legend>
+            <div id='sizes'>
+                {% for form in forms %}
+                    {% include 'sales/sizes/size.html' %}
+                {% endfor %}
+            </div>
+        </fieldset>
+        <input type='hidden' value='{{ sizecount }}' id='sizecount' name='sizecount'/>
+        <input type='submit' value='submit'/>
+    </form>
+{% endblock %}
+
+{% block sidebar %}
+
+{% endblock %}
