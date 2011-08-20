@@ -37,6 +37,7 @@ class Color(models.Model):
 class ShirtSize(models.Model):
     ShirtSizeName = models.CharField('Size Name', max_length=20)
     ShirtSizeAbbr = models.CharField('Size Abbr', max_length=10)
+    SortKey = models.IntegerField()
     def __unicode__(self):
         return self.ShirtSizeName
 
