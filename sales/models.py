@@ -53,6 +53,8 @@ class ShirtPrice(models.Model):
     Active = models.BooleanField()
     def __unicode__(self):
         return str(self.ShirtSize) + ' - ' + str(self.ColorCategory)
+    class Meta:
+        ordering = ["ShirtSize"]  
 
 class CustomerAddress(models.Model):
     Customer = models.ForeignKey(Customer)
@@ -83,6 +85,8 @@ class ShirtOrderSKU(models.Model):
     ShippedQuantity = models.IntegerField('Shipped Quantity', default=0)
     def __unicode__(self):
         return str(self.ShirtPrice.ShirtStyle) + " " + str(self.ShirtPrice)
+    class Meta:
+        ordering = ["ShirtPrice"]  
 
 class ShirtSKUTransaction(models.Model):
     Color = models.ForeignKey(Color)
@@ -158,3 +162,5 @@ class ShipmentSKU(models.Model):
         ordersku = ShirtOrderSKU.objects.get(pk=self.ShirtOrderSKU.pk)
         ordersku.ShippedQuantity -= oldvalue
         ordersku.save()
+    class Meta:
+        ordering = ["ShirtOrderSKU"]  
