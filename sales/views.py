@@ -9,6 +9,16 @@ from django.http import HttpResponseRedirect
 from django.db import transaction
 from django.db.models import Q
 
+def findparentinstance(parentforms, lookupprefix):
+    for parentform in parentforms:
+        if parentform.prefix == lookupprefix:
+            return parentform.instance
+    return None
+            
+def findparentprefix(parentforms, lookupinstance):
+    for parentform in parentforms:
+        if parentform.instance == lookupinstance:
+            return parentform.prefix
 
 def manageinventory(request, shirtstyleid, variationid, colorid):
     if request.method == "GET":
@@ -368,7 +378,7 @@ def editcolors(request):
             colorforms.append(colorform)
         
         if passedvalidation == False:
-            return render_to_response('sales/colors/edit.html', RequestContext(request, {'categoryforms':categoryforms}))
+            return render_to_response('sales/colors/edit.html', RequestContext(request, {'categoryforms':categoryforms, 'colorforms':colorforms, 'categorycount':cc, 'colorcount':c}))
             
         else:
             for categoryform in categoryforms:
@@ -382,19 +392,18 @@ def editcolors(request):
                 color.ColorCategory = findparentinstance(categoryforms, colorform.cleaned_data['parentprefix'])
                 color.save()
             
-            return HttpResponseRedirect('/colors/')
-            
-    
-def findparentinstance(parentforms, lookupprefix):
-    for parentform in parentforms:
-        if parentform.prefix == lookupprefix:
-            return parentform.instance
-    return None
-            
-def findparentprefix(parentforms, lookupinstance):
-    for parentform in parentforms:
-        if parentform.instance == lookupinstance:
-            return parentform.prefix
+            return HttpResponseRedirect('/colors/edit/')
+
+def addcategory(request):
+    prefix = 'cc' + str(request.GET['prefix'])
+    categoryform = ColorCategoryForm(prefix=prefix)
+    return render_to_response('sales/colors/category.html', {'categoryform':categoryform})
+
+def addcolor(request):
+    prefix = 'c' + str(request.GET['prefix'])
+    parentprefix = request.GET['parentprefix']
+    colorform = ColorForm(initial={'parentprefix':parentprefix}, prefix=prefix)
+    return render_to_response('sales/colors/color.html', {'colorform':colorform})
 
 #size management
 def editsizes(request):

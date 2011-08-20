@@ -90,13 +90,13 @@
         $.getJSON('/data/shippingorderskus/', {'shirtstyleid':shirtstyleid, 'variationid':shirtstylevariationid, 'colorid':colorid, 'addressid':customeraddressid}, function(data){
             var sizelist = "";
             $.each(data, function(i, item) {
-                sizelist += "<fieldset><legend>" + item.abbr + "</legend><div id='orderlist'><table><tr><th colspan=3>Orders</th><tr><td>PO#</td><td>Ordered</td><td>Remaining</td></tr>";
+                sizelist += "<fieldset class='inlineblock'><legend>" + item.abbr + "</legend><div id='orderlist' class='left'><table><tr><th colspan=3>Orders</th><tr><td>PO#</td><td>Ordered</td><td>Remaining</td></tr>";
                 $.each(item.orderedpieces, function(i, po) {
                     sizelist += "<tr class='orderselectable' data-shirtprice='" + po.shirtprice + "' data-ordersku='" + po.shirtordersku + "'><td>" + po.ponumber + "</td><td id='sos" + po.shirtordersku + "quantity'>" + po.orderquantity + "</td><td id='sos" + po.shirtordersku + "remaining'>" + po.orderquantity + "</td></tr>";
                 });
                 sizelist += "</table></div>";
              
-                sizelist += "<div id='cutlist'><table><tr><th colspan=3>Inventory</th><tr><tr><td>CO#</td><td>Inventory</td><td>Remaining</td></tr>";
+                sizelist += "<div id='cutlist' class='left'><table><tr><th colspan=3>Inventory</th><tr><tr><td>CO#</td><td>Inventory</td><td>Remaining</td></tr>";
                 $.each(item.cutpieces, function(i, cut){
                     sizelist += "<tr class='cut unselectable' data-shirtprice='" + cut.shirtprice + "' data-cutorder='" + cut.cutorder + "'><td>" + cut.cutorder + "</td><td id='co" + cut.cutorder + "quantity'>" + cut.inventory + "</td><td id='co" + cut.cutorder + "remaining'>" + cut.inventory + "</td></tr>";
                 });
@@ -138,12 +138,6 @@
     }
 </script>
 <style type="text/css">
-    fieldset{
-        display: inline-block;
-    }
-    #orderlist, #cutlist{
-        float:left;
-    }
     #cutlist {
         padding-left: 10px;
         margin-left: -1px;

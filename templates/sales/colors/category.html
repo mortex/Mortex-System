@@ -1,0 +1,11 @@
+<fieldset>
+    <legend>Category: {{ categoryform.ColorCategoryName }} <input type='button' value='+' onClick="addcolor('{{ categoryform.prefix }}');"/></legend>
+    {{ categoryform.pk }}
+    <div id='{{ categoryform.prefix }}colors'>
+    {% for colorform in colorforms %}
+        {% if colorform.parentprefix.value == categoryform.prefix %}
+            {% include 'sales/colors/color.html' %}
+        {% endif %}
+    {% endfor %}
+    </div>
+</fieldset>

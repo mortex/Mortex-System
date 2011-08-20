@@ -14,20 +14,32 @@ urlpatterns = patterns('',
     (r'^shirtorders/add/$', 'sales.views.shirtorderadd'),
     (r'^shirtorders/orderline/$', 'sales.views.orderline'),
     (r'^shirtorders/$', 'sales.views.shirtorders'),
+    
+    #data urls
     (r'^shirtorders/search/$', 'sales.views.shirtordersearch'),
     (r'^data/customeraddresses/$', 'sales.data_views.customeraddresses'),
     (r'^data/shirtstyles/$', 'sales.data_views.shirtstyles'),
     (r'^data/styleprices/$', 'sales.data_views.styleprices'),
     (r'^data/shirtstylevariations/$', 'sales.data_views.shirtstylevariations'),
     (r'^data/shippingorderskus/$', 'sales.data_views.shippingorderskus'),
+    
+    #shipping urls
     (r'^shipping/add/(?P<customeraddressid>\d+)/$', 'sales.views.addshipment'),
     (r'^shipping/add/$', 'sales.views.orderaddresses'),
     (r'^shipping/(?P<shipmentid>\d+)/edit/$', 'sales.views.addshipment'),
     (r'^shipping/(?P<shipmentid>\d+)/$', 'sales.views.viewshipment'),
     (r'^shipping/shipmentsku/$', 'sales.views.addshipmentsku'),
     (r'^shipping/search/$', 'sales.views.shipmentsearch'),
-    (r'^colors/$', 'sales.views.editcolors'),
+    
+    #color urls
+    (r'^colors/edit/$', 'sales.views.editcolors'),
+    (r'^colors/addcategory/$', 'sales.views.addcategory'),
+    (r'^colors/addcolor/$', 'sales.views.addcolor'),
+    
+    #login url
     (r'^login/$', 'django.contrib.auth.views.login'),
+    
+    #size urls
     (r'^sizes/edit/$', 'sales.views.editsizes'),
     (r'^sizes/addsize/$', 'sales.views.addsize'),
 )
