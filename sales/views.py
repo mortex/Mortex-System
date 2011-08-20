@@ -191,7 +191,7 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
         customeraddressid = editshipment.CustomerAddress.pk
     else:
         editshipment = None
-    orderskus = ShirtOrderSKU.objects.filter(ShirtOrder__CustomerAddress__id = customeraddressid).values("ShirtPrice__ShirtStyle", "ShirtStyleVariation", "Color").distinct()
+    orderskus = ShirtOrderSKU.objects.filter(ShirtOrder__CustomerAddress__id = customeraddressid).values("ShirtPrice__ShirtStyle", "ShirtStyleVariation", "Color").order_by("ShirtPrice__ShirtStyle", "ShirtStyleVariation", "Color").distinct()
     for ordersku in orderskus:
         ordersku['parentstyle'] = ShirtStyleVariation.objects.get(pk=ordersku['ShirtStyleVariation']) if ordersku['ShirtStyleVariation'] else ShirtStyle.objects.get(pk=ordersku['ShirtPrice__ShirtStyle'])
         ordersku['Color'] = Color.objects.get(pk=ordersku['Color'])
