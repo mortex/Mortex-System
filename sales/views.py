@@ -7,6 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
+from django.forms import formsets
 from django.db import transaction
 from django.db.models import Q
 
@@ -600,6 +601,9 @@ def add_style(request, shirtstyleid=None):
             "sales/shirtstyles/add.html",
             RequestContext(request, {
                 "form": form,
+                "variation_formset": formsets.formset_factory(
+                    ShirtStyleVariationForm
+                ),
                 "ccNames": ColorCategory.objects.all()
                                         .values_list("ColorCategoryName",
                                                      flat=True),

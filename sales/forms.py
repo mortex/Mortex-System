@@ -264,3 +264,4 @@ class ShirtStyleVariationForm(ModelForm):
 
     class Meta:
         model = ShirtStyleVariation
+        exclude = ("ShirtStyle",)   # Exclude ShirtStyle ModelChoiceField because this form will appear on a page specific to a particular ShirtStyle
