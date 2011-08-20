@@ -90,3 +90,12 @@ fieldset fieldset legend {
     display: inline-block;
     width: 6px;
 }
+
+input[type=text].short {
+    width: 40px;
+    text-align: center;
+}
+
+input[type=text].veryshort {
+    width:20px;
+}
