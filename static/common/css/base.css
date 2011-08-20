@@ -91,6 +91,10 @@ fieldset fieldset legend {
     width: 6px;
 }
 
+.move {
+    cursor: move;
+}
+
 input[type=text].short {
     width: 40px;
     text-align: center;
