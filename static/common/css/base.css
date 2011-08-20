@@ -99,3 +99,16 @@ input[type=text].short {
 input[type=text].veryshort {
     width:20px;
 }
+
+.left {
+    float: left;
+}
+.right {
+    float: right;
+}
+.inlineblock {
+    display: inline-block;
+}
+.relative {
+    position: relative;
+}
