@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import fields
 
-from sales.models import ShirtOrder, ShirtOrderSKU, CustomerAddress, Color, ShirtSize, ShirtStyle, ShirtStyleVariation, ShirtSKUTransaction, ShirtSize
+from sales.models import *
 
 class CutSSIForm(forms.ModelForm):
     'allows you to create transactions for new cut orders of a shirt SKU'
@@ -109,4 +109,22 @@ class ShirtSizeForm(forms.ModelForm):
         self.fields['SortKey'].widget.attrs = {'class':'sort'}
         self.fields['pk'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
         self.fields['ShirtSizeAbbr'].widget.attrs = {'class':'digit'}
+        self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
+        
+#customer management
+class CustomerForm(forms.ModelForm):
+    class Meta:
+        model = Customer
+    def __init__(self, *args, **kwargs):
+        super(CustomerForm, self).__init__(*args, **kwargs)
+        self.fields['pk'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
+        self.fields['addresscount'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
+        
+class CustomerAddressForm(forms.ModelForm):
+    class Meta:
+        model = CustomerAddress
+        exclude = ('Customer',)
+    def __init__(self, *args, **kwargs):
+        super(CustomerAddressForm, self).__init__(*args, **kwargs)
+        self.fields['pk'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
         self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())

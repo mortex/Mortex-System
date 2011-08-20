@@ -1,0 +1,29 @@
+<fieldset class='inlineblock'>
+    <table>
+        <tr>
+            <td>Contact Name</td>
+            <td>{{ addressform.ContactName }}</td>
+        </tr>
+        <tr>
+            <td>Address 1</td>
+            <td>{{ addressform.Address1 }}</td>
+        </tr>
+        <tr>
+            <td>Address 2</td>
+            <td>{{ addressform.Address2 }}</td>
+        </tr>
+        <tr>
+            <td>City</td>
+            <td>{{ addressform.City }}</td>
+        </tr>
+        <tr>
+            <td>State</td>
+            <td>{{ addressform.State }}</td>
+        </tr>
+        <tr>
+            <td>Postal Code</td>
+            <td>{{ addressform.PostalCode }}</td>
+        </tr>
+    </table>
+    {% for field in addressform.hidden_fields %}{{ field }}{% endfor %}
+</fieldset>
