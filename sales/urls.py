@@ -18,4 +18,8 @@ urlpatterns = patterns('',
     (r'^data/shirtstylevariations/$', 'sales.data_views.shirtstylevariations'),
     (r'^sizes/edit/$', 'sales.views.editsizes'),
     (r'^sizes/addsize/$', 'sales.views.addsize'),
+    
+    #customer urls
+    (r'^customers/(?P<customerid>\d+)/edit/$', 'sales.views.editcustomer'),
+    (r'^customers/addaddress/$', 'sales.views.addcustomeraddress'),
 )

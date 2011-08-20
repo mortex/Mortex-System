@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response
 from django.db.models import Sum
-from sales.models import ShirtSKUTransaction, ShirtPrice, Color, ShirtStyleVariation, ShirtSize, ShirtStyle, ShirtOrder, ShirtOrderSKU
-from sales.forms import ExistingCutSSIForm, NewCutSSIForm, Order, OrderLine, ShirtSizeForm
+from sales.models import *
+from sales.forms import *
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 
@@ -228,3 +228,59 @@ def addsize(request):
     prefix = request.GET['prefix']
     sizeform = ShirtSizeForm(prefix=prefix)
     return render_to_response('sales/sizes/size.html', {'form':sizeform})
+
+#customer management
+def editcustomer(request, customerid):
+    if request.method == "GET":
+        if customerid:
+            customer = Customer.objects.get(pk=customerid)
+        else:
+            customer = None
+
+        addresses = CustomerAddress.objects.filter(Customer=customer)
+        addressforms = []
+        a = 0
+        for address in addresses:
+            a += 1
+            prefix = 'a'+str(a)
+            addressforms.append(CustomerAddressForm(instance=address, prefix=prefix))
+            
+        customerform = CustomerForm(instance=customer, initial={'addresscount':a})
+        
+        return render_to_response('sales/customers/edit.html', RequestContext(request, {'form':customerform, 'addressforms':addressforms}))
+    else:
+        addresscount = request.POST['addresscount']
+        addressforms = []
+        passedvalidation = True
+        
+        customerform = CustomerForm(request.POST)
+        if not customerform.is_valid():
+            passedvalidation = False
+        
+        for a in xrange(1, int(addresscount) + 1):
+            prefix = 'a'+str(a)
+            addressform = CustomerAddressForm(request.POST, prefix=prefix)
+            if not addressform.is_valid():
+                passedvalidation = False
+            addressforms.append(addressform)
+        
+        if passedvalidation == False:
+            return render_to_response('sales/customers/edit.html', RequestContext(request, {'form':customerform, 'addressforms':addressforms}))
+            
+        else:
+            customer = customerform.save(commit=False)
+            customer.pk = customerform.cleaned_data['pk']
+            customer.save()
+            
+            for addressform in addressforms:
+                address = addressform.save(commit=False)
+                address.pk = addressform.cleaned_data['pk']
+                address.Customer = customer
+                address.save()
+            
+            return HttpResponseRedirect('/customers/' + str(customer.id) + '/edit/')
+
+def addcustomeraddress(request):
+    prefix = 'a' + str(request.GET['prefix'])
+    addressform = CustomerAddressForm(prefix=prefix)
+    return render_to_response('sales/customers/address.html', {'addressform':addressform})

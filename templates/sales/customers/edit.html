@@ -1,0 +1,41 @@
+{% extends "sales/base.html" %}
+
+{% block extrahead %}{{ block.super }}
+    <script type='application/javascript'>      
+        function addaddress(){
+            var prefix = parseInt($('#id_addresscount').val()) + 1;
+            $.get('/customers/addaddress/', {'prefix':prefix}, function(data){
+                $('#addresses').append(data);
+                $('#id_addresscount').val(prefix);
+            });
+        }
+    </script>
+
+    <style type='text/css'>
+
+    </style>
+{% endblock %}
+
+{% block body %}
+    <form method="post" action="">
+    {% csrf_token %}
+        <fieldset>
+            <legend>Meta</legend>
+            Customer Name: {{ form.CustomerName }}
+            {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+        </fieldset>
+        <fieldset>
+            <legend>Addresses <input type='button' onClick='addaddress();' value='+'/></legend>
+            <div id='addresses'>
+                {% for addressform in addressforms %}
+                    {% include 'sales/customers/address.html' %}
+                {% endfor %}
+            </div>
+        </fieldset>
+        <input type='submit' value='submit'/>
+    </form>
+{% endblock %}
+
+{% block sidebar %}
+
+{% endblock %}
