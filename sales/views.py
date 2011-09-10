@@ -679,5 +679,7 @@ def add_style(request, shirtstyleid=None):
             return render(form)
 
 def empty_variation_form(request):
-    return render_to_response("sales/shirtstyles/variationform.html",
-                              {"form": ShirtStyleVariationForm()})
+    return render_to_response(
+        "sales/shirtstyles/variationform.html",
+        {"form": ShirtStyleVariationForm(prefix="form-" + request.GET["prefix"])}
+    )

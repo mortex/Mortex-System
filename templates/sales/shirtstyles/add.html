@@ -80,10 +80,16 @@
         $(function() {
             
             {# Click handler for "Add variation" button #}
-            $("#add-variation").click(function(e) {
+            $("#add-variation").click(function() {
                 $.ajax("/shirtstyles/variationform", {
+                    data: {
+                        prefix: $("#id_form-TOTAL_FORMS").val()
+                    },
                     success: function(data) {
                         $(".variation_form").last().after(data);
+                        $("#id_form-TOTAL_FORMS").val(function(i, v) {
+                            return parseInt(v) + 1;
+                        });
                     }
                 });
             });
@@ -211,6 +217,8 @@
         <fieldset id="variations">
 
             <legend>Variations</legend>
+
+            {{ variation_formset.management_form }}
 
             {% for form in variation_formset %}
                 {% include "sales/shirtstyles/variationform.html" %}
