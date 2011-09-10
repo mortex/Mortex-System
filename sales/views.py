@@ -602,7 +602,7 @@ def add_style(request, shirtstyleid=None):
             RequestContext(request, {
                 "form": form,
                 "variation_formset": formsets.formset_factory(
-                    ShirtStyleVariationForm
+                    ShirtStyleVariationForm,
                 ),
                 "ccNames": ColorCategory.objects.all()
                                         .values_list("ColorCategoryName",

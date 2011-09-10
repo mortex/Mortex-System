@@ -39,6 +39,39 @@
             width: 50px;
         }
 
+        #variations {
+            float: left;
+            position: static;
+        }
+
+        .variation_form {
+            float: left;
+            margin: 5px;
+            border: 1px solid #CCC;
+            background: #F8F8F8;
+        }
+
+        .variation_form dt,
+        .variation_form dd {
+            float: left;
+        }
+
+        .variation_form dt {
+            clear: left;
+            width: 100px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .variation_form dd {
+            margin-left: 10px;
+        }
+
+        .variation_field {
+            margin: 5px;
+            overflow: hidden;
+        }
+
     </style>
 
     <script type="application/javascript">
@@ -166,9 +199,18 @@
         </div>
 
         {# Variations #}
-        <fieldset>
+        <fieldset id="variations">
             <legend>Variations</legend>
-            {{ variation_formset }}
+            {% for form in variation_formset %}
+                <dl class="variation_form">
+                    {% for field in form %}
+                    <div class="variation_field">
+                        <dt>{{ field.label }}</dt>
+                        <dd>{{ field }}</dd>
+                    </div>
+                    {% endfor %}
+                </dl>
+            {% endfor %}
         </fieldset>
 
         <input type="submit" value="Submit">
