@@ -78,6 +78,15 @@
 
         var rows = {}, cols = {};
         $(function() {
+            
+            {# Click handler for "Add variation" button #}
+            $("#add-variation").click(function(e) {
+                $.ajax("/shirtstyles/variationform", {
+                    success: function(data) {
+                        $(".variation_form").last().after(data);
+                    }
+                });
+            });
 
             {# Force any matrix rows/cols with initial data to be displayed #}
             $('#matrix input:text[value!=""]').each(function(i, e) {
@@ -200,17 +209,15 @@
 
         {# Variations #}
         <fieldset id="variations">
+
             <legend>Variations</legend>
+
             {% for form in variation_formset %}
-                <dl class="variation_form">
-                    {% for field in form %}
-                    <div class="variation_field">
-                        <dt>{{ field.label }}</dt>
-                        <dd>{{ field }}</dd>
-                    </div>
-                    {% endfor %}
-                </dl>
+                {% include "sales/shirtstyles/variationform.html" %}
             {% endfor %}
+
+            <button id="add-variation" type="button">Add variation</button>
+
         </fieldset>
 
         <input type="submit" value="Submit">

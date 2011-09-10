@@ -677,3 +677,7 @@ def add_style(request, shirtstyleid=None):
 
         else:
             return render(form)
+
+def empty_variation_form(request):
+    return render_to_response("sales/shirtstyles/variationform.html",
+                              {"form": ShirtStyleVariationForm()})

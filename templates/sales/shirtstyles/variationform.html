@@ -1,0 +1,8 @@
+<dl class="variation_form">
+    {% for field in form %}
+        <div class="variation_field">
+            <dt>{{ field.label }}</dt>
+            <dd>{{ field }}</dd>
+        </div>
+    {% endfor %}
+</dl>
