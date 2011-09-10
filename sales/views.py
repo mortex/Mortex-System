@@ -641,9 +641,11 @@ def add_style(request, shirtstyleid=None):
 
             new_style = form.save()
 
-            # Construct a ShirtPrice model instance from a submitted matrix
-            # field
             def construct_ShirtPrice(k, v):
+                """
+                Construct a ShirtPrice model instance from a submitted matrix
+                field
+                """
 
                 mobj = re.match(r"price__(?P<cc>[^_]+)__(?P<size>.+)", k)
                 cc = ColorCategory.objects.get(
