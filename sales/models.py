@@ -42,7 +42,7 @@ class ShirtStyleVariation(models.Model):
                                         unique=True)
     Customer = models.ForeignKey(Customer, null=True, blank=True)
     PriceChange = models.DecimalField('Price Change', max_digits=10, decimal_places=2)
-    VariationDescription = models.TextField('Variation Description')
+    VariationDescription = models.TextField('Variation Description', blank=True)
 
     def __unicode__(self):
         return self.ShirtStyleNumber + ' ' + self.ShirtStyle.ShirtStyleDescription

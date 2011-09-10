@@ -634,7 +634,12 @@ def add_style(request, shirtstyleid=None):
 
         # Add (Instantiate unbound ModelForm)
         if not request.POST["pk"]:
+
             form = ShirtStyleForm(request.POST)
+
+            variation_formset = formsets.formset_factory(
+                ShirtStyleVariationForm
+            )(request.POST)
 
         # Edit (Bind form to existing model instance)
         else:
@@ -645,43 +650,53 @@ def add_style(request, shirtstyleid=None):
 
         if form.is_valid():
 
-            new_style = form.save()
+            new_style = form.save(commit=False)
 
-            def construct_ShirtPrice(k, v):
-                """
-                Construct a ShirtPrice model instance from a submitted matrix
-                field
-                """
+            if variation_formset.is_valid():
 
-                mobj = re.match(r"price__(?P<cc>[^_]+)__(?P<size>.+)", k)
-                cc = ColorCategory.objects.get(
-                    ColorCategoryName=mobj.group("cc")
-                )
-                size = ShirtSize.objects.get(ShirtSizeAbbr=mobj.group("size"))
+                new_style.save()
 
-                # If a ShirtPrice with this ShirtStyle, ShirtSize, &
-                # ColorCategory already exists, replace it by reusing its
-                # primary key in the new model instance
-                try:
-                    price = ShirtPrice.objects.get(ShirtStyle=new_style,
-                                                   ColorCategory=cc,
-                                                   ShirtSize=size)
-                except ShirtPrice.DoesNotExist:
-                    price = ShirtPrice(ShirtStyle=new_style,
-                                       ColorCategory=cc,
-                                       ShirtSize=size)
+                def construct_ShirtPrice(k, v):
+                    """
+                    Construct a ShirtPrice model instance from a submitted matrix
+                    field
+                    """
 
-                price.ShirtPrice = v
+                    mobj = re.match(r"price__(?P<cc>[^_]+)__(?P<size>.+)", k)
+                    cc = ColorCategory.objects.get(
+                        ColorCategoryName=mobj.group("cc")
+                    )
+                    size = ShirtSize.objects.get(ShirtSizeAbbr=mobj.group("size"))
 
-                return price
+                    # If a ShirtPrice with this ShirtStyle, ShirtSize, &
+                    # ColorCategory already exists, replace it by reusing its
+                    # primary key in the new model instance
+                    try:
+                        price = ShirtPrice.objects.get(ShirtStyle=new_style,
+                                                       ColorCategory=cc,
+                                                       ShirtSize=size)
+                    except ShirtPrice.DoesNotExist:
+                        price = ShirtPrice(ShirtStyle=new_style,
+                                           ColorCategory=cc,
+                                           ShirtSize=size)
 
-            # Create needed ShirtPrice instances and persist models to DB
-            for price in [construct_ShirtPrice(k, v)
-                            for k, v in form.cleaned_data.items()
-                            if k.startswith("price__") and v != None]:
-                price.save()
+                    price.ShirtPrice = v
 
-            return HttpResponseRedirect("/shirtstyles/")
+                    return price
+
+                # Create needed ShirtPrice instances and persist models to DB
+                for price in [construct_ShirtPrice(k, v)
+                                for k, v in form.cleaned_data.items()
+                                if k.startswith("price__") and v != None]:
+                    price.save()
+
+                # Persist ShirtStyleVariations
+                for variation_fm in variation_formset:
+                    v = variation_fm.save(commit=False)
+                    v.ShirtStyle = new_style
+                    v.save()
+
+                return HttpResponseRedirect("/shirtstyles/")
 
         else:
             return render(form)
