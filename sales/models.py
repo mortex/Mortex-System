@@ -72,6 +72,7 @@ class ShirtOrder(models.Model):
     CustomerAddress = models.ForeignKey(CustomerAddress)
     PONumber = models.CharField('PO#', max_length=20)
     Complete = models.BooleanField()
+    DueDate = models.DateField('Due Date')
     def __unicode__(self):
         return self.PONumber
 

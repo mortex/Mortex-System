@@ -16,7 +16,7 @@
         {% for quantity, price, pricefkey, skuinstance in orderline.fieldlist %}
             <td>
             {{ quantity.label }}
-            {{ price }}<br/>
+            ${{ price }}<br/>
             {{ quantity }}{{ quantity.errors }}<br/>
             {{ pricefkey }}
             {{ skuinstance }}

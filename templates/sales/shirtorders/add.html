@@ -117,14 +117,27 @@
             }
         }
     </script>
+    
+    <style type='text/css'>
+        .price{
+            background-color: transparent !important;
+            width: 40px;
+        }
+        #styletree{
+            background-color: transparent;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
     <form method="post" action="">
     {% csrf_token %}
-        <table>
-            {{ shirtorder }}
-        </table>
+        <fieldset>
+            <table>
+                {{ shirtorder }}
+            </table>
+        </fieldset>
+        <fieldset>
         <div id="styletree" style="float:left;">
             <ul>
                 <li id="unique"><a href="">Unique to this Customer</a></li>
@@ -142,6 +155,7 @@
             {% include "sales/shirtorders/orderline.html" %}
         </table>
         <input type="hidden" id="rows" name="rows" value="{{ orderlines|length }}"/>
+        </fieldset>
         <div class="clear"></div>
         <input type="submit" value="Submit"/>
     </form>

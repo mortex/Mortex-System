@@ -22,10 +22,11 @@ class CutSSIForm(forms.ModelForm):
             self.shirtsize = ShirtSize.objects.get(shirtprice__id=kwargs.pop("shirtprice"))
             self.cutorder = kwargs.pop("cutorder")
         super(CutSSIForm, self).__init__(*args, **kwargs)
+        self.fields['Pieces'].widget.attrs = {'class':'short'}
 
 class NewCutSSIForm(CutSSIForm):
     FormType = forms.CharField(initial='new', widget=forms.HiddenInput())
-    CutOrder = forms.CharField(required=False)
+    CutOrder = forms.CharField(required=False, widget=forms.TextInput(attrs={'class':'short', 'placeholder':'new'}))
 
 class ExistingCutSSIForm(CutSSIForm):
     'allows you to create transactions for existing cut orders of a shirt SKU'
@@ -44,6 +45,7 @@ class ExistingCutSSIForm(CutSSIForm):
         super(ExistingCutSSIForm, self).__init__(*args, **kwargs)
 
 class Order(forms.ModelForm):
+    CustomerAddress = forms.ModelChoiceField(queryset=CustomerAddress.objects.all(), label='Address')
     class Meta:
         model = ShirtOrder
         exclude = ("Complete")
@@ -91,7 +93,7 @@ class OrderLine(forms.Form):
                 skuprice = None
                 skuinstance = None
             
-            self.fields[quantityid] = forms.IntegerField(label=size.ShirtSizeAbbr, initial=skuquantity, min_value=0, required=False, widget=forms.TextInput(attrs={"disabled":None, "size":"6","class":"quantity size"+str(size.pk)}))
+            self.fields[quantityid] = forms.IntegerField(label=size.ShirtSizeAbbr, initial=skuquantity, min_value=0, required=False, widget=forms.TextInput(attrs={"disabled":None, "class":"short quantity size"+str(size.pk)}))
             self.quantitylist.append(self[quantityid])
             self.fields[priceid] = forms.DecimalField(label=None, initial=skuprice, min_value=0, max_digits=8, decimal_places=2, required=False, widget=forms.TextInput(attrs={"size":"6","class":"price size"+str(size.pk)}))
             self.fields[instanceid] = forms.IntegerField(required=False, initial=skuinstance, widget=forms.HiddenInput())
@@ -110,6 +112,9 @@ class OrderLine(forms.Form):
 class ShipmentForm(forms.ModelForm):
     class Meta:
         model = Shipment
+        widgets = {
+            'CustomerAddress': forms.HiddenInput(),
+        }
         
 class ShipmentSKUForm(forms.ModelForm):
     class Meta:
@@ -142,6 +147,9 @@ class ShirtOrderSearchForm(SearchForm):
 
 class ShipmentSearchForm(SearchForm):
     choices = [('address','Address'),('customer','Customer Name'),('tracking','Tracking Number')]
+    
+class InventorySearchForm(SearchForm):
+    choices = [('stylenumber','Style Number')]
     
 class ColorCategoryForm(forms.ModelForm):
     class Meta:

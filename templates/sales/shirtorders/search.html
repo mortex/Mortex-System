@@ -8,6 +8,7 @@
         <th>PO Number</th>
         <th>Customer</th>
         <th>Ship Address</th>
+        <th>Due Date</th>
     </tr>
     {% for shirtorder in shirtorders %}
     <tr>
@@ -15,6 +16,7 @@
         <td>{{ shirtorder.PONumber }}</td>
         <td>{{ shirtorder.Customer }}</td>
         <td>{{ shirtorder.CustomerAddress }}</td>
+        <td>{{ shirtorder.DueDate }}</td>
     </tr>
     {% endfor %}
   </table>

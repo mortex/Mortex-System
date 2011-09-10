@@ -183,14 +183,33 @@
 {% block body %}
 <form method="post" action="">
 {% csrf_token %}
-{{ shipment.as_p }}
+<fieldset>
+    <table>
+        <tr>
+            <th>Customer:</th>
+            <td>{{ customeraddress.Customer }}</td>
+        <tr>
+        <tr>
+            <th>Address:</th>
+            <td>{{ customeraddress }}</td>
+        </tr>
+        {{ shipment }}
+    </table>
+</fieldset>
 {% regroup ordercolors by parentstyle as parentstyles %}
     <ul>
     {% for parentstyle in parentstyles %}
         <li>{{ parentstyle.grouper }}
             <ul>
                 {% for color in parentstyle.list %}
-                    <li><a href="#" onClick="choosecolor({{ color.ShirtPrice__ShirtStyle }},{{ color.ShirtStyleVariation|default:'null' }},{{ color.Color.id }})">{{ color.Color }}</a></li>
+                    <li>
+                        {% if color.fillableshirts == 0 %}
+                            {{ color.Color }}
+                        {% else %}
+                            <a href="#" onClick="choosecolor({{ color.ShirtPrice__ShirtStyle }},{{ color.ShirtStyleVariation|default:'null' }},{{ color.Color.id }})">{{ color.Color }}</a>
+                        {% endif %}
+                         - ({{ color.fillableshirts }}/{{ color.totalshirts }})
+                    </li>
                 {% endfor %}
             </ul>
         </li>

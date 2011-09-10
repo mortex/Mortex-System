@@ -1,0 +1,65 @@
+{% extends "sales/search.html" %}
+{% block extrahead %}
+    <script type="application/javascript">
+        function viewinventory(shirtstyleid, shirtstylevariationid){
+            var colorid = $('#' + shirtstyleid + '-' + shirtstylevariationid).val();
+            window.location.href = "/inventory/" + shirtstyleid + "/" + shirtstylevariationid + "/" + colorid;
+        }
+    </script>
+{% endblock %}
+
+{% block results %}
+{% if shirtstyles or shirtstylevariations %}
+  <table>
+    {% if shirtstyles %}
+        <tr>
+            <th colspan=2><h3>Shirt Styles</h3></td>
+        </tr>
+        <tr>
+            <th>Style Number</th>
+            <th>Description</th>
+            <th>Color</th>
+        </tr>
+        {% for shirtstyle in shirtstyles %}
+        <tr>
+            <td>{{ shirtstyle.ShirtStyleNumber }}</td>
+            <td>{{ shirtstyle.ShirtStyleDescription }}</td>
+            <td>
+                <select id='{{ shirtstyle.id }}-0'>
+                    {% for color in shirtstyle.colors %}
+                        <option value={{ color.id }}>{{ color }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td><input type='button' value='Go' onClick="viewinventory('{{ shirtstyle.id }}', '0')"/></td>
+        </tr>
+        {% endfor %}
+    {% endif %}
+        {% if shirtstylevariations %}
+        <tr>
+            <th colspan=2><h3>Shirt Style Variations</h3></td>
+        </tr>
+        <tr>
+            <th>Style Number</th>
+            <th>Description</th>
+        </tr>
+        {% for shirtstylevariation in shirtstylevariations %}
+        <tr>
+            <td>{{ shirtstylevariation.ShirtStyleNumber }}</td>
+            <td>{{ shirtstylevariation.ShirtStyle.ShirtStyleDescription }}</td>
+            <td>
+                <select id='{{ shirtstylevariation.ShirtStyle.id }}-{{ shirtstylevariation.id }}'>
+                    {% for color in shirtstylevariation.colors %}
+                        <option value={{ color.id }}>{{ color }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td><input type='button' value='Go' onClick="viewinventory('{{ shirtstylevariation.ShirtStyle.id }}', '{{ shirtstylevariation.id }}')"/></td>
+        </tr>
+        {% endfor %}
+    {% endif %}
+  </table>
+{% else %}
+  <p>No styles found</p>
+{% endif %}
+{% endblock %}
