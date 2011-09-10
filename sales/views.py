@@ -596,14 +596,15 @@ def addcustomeraddress(request):
 def add_style(request, shirtstyleid=None):
     """Add a new shirt style to the database"""
 
-    def render(form):
+    def render(form, initial_variations=[]):
         return render_to_response(
             "sales/shirtstyles/add.html",
             RequestContext(request, {
                 "form": form,
                 "variation_formset": formsets.formset_factory(
                     ShirtStyleVariationForm,
-                ),
+                    extra=0
+                )(initial=initial_variations),
                 "ccNames": ColorCategory.objects.all()
                                         .values_list("ColorCategoryName",
                                                      flat=True),
@@ -620,9 +621,14 @@ def add_style(request, shirtstyleid=None):
 
         # Edit
         else:
-            return render(ShirtStyleForm(instance=ShirtStyle.objects.get(
-                pk=shirtstyleid
-            )))
+            return render(
+                ShirtStyleForm(
+                    instance=ShirtStyle.objects.get(pk=shirtstyleid)
+                ),
+                initial_variations=[ssv.__dict__ for ssv in ShirtStyleVariation.objects.filter(
+                    ShirtStyle__pk=shirtstyleid
+                )]
+            )
 
     if request.method == "POST":
 
