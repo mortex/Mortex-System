@@ -1,13 +1,15 @@
 from django.conf.urls.defaults import *
 from sales.models import ShirtPrice, ShirtStyle
 from django.views.generic.simple import direct_to_template
+from django.contrib.auth.decorators import login_required
 
 info_dict = {
     'queryset': ShirtStyle.objects.all(),
 }
 
 urlpatterns = patterns('',
-    (r'^$', direct_to_template, {'template': 'sales/index.html'}),
+    (r'^$', login_required(direct_to_template), {'template': 'sales/index.html'}),
+    (r'^login/$', 'django.contrib.auth.views.login'),
     
     #inventory urls
     (r'^inventory/(?P<shirtstyleid>\d+)/(?P<variationid>\d+)/(?P<colorid>\d+)$', 'sales.views.manageinventory'),

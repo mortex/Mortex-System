@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect
 from django.forms import formsets
 from django.db import transaction
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 
 def findparentinstance(parentforms, lookupprefix):
     for parentform in parentforms:
@@ -22,6 +23,7 @@ def findparentprefix(parentforms, lookupinstance):
         if parentform.instance == lookupinstance:
             return parentform.prefix
 
+@login_required
 def manageinventory(request, shirtstyleid, variationid, colorid):
     if variationid != '0':
         shirtstyle = ShirtStyleVariation.objects.get(pk=variationid)
@@ -95,11 +97,12 @@ def manageinventory_get(request, shirtstyleid, variationid, colorid, shirtstyle,
 
 
 # Shirt Orders
-
+@login_required
 def shirtorders(request):
     shirtorders = ShirtOrder.objects.all()
     return render_to_response('sales/shirtorders/list.html', {"shirtorders":shirtorders})
 
+@login_required
 def shirtorderview(request, orderid):
     shirtorder = ShirtOrder.objects.get(pk=orderid)
     #shirtorderskus = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).order_by('ShirtPrice').order_by('ShirtStyleVariation').order_by('Color').order_by('ShirtPrice__ShirtStyle')
@@ -131,7 +134,8 @@ def shirtorderview(request, orderid):
     orderbreakdown = flattendict(orderbreakdowndict)
     
     return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder, 'orderbreakdown':orderbreakdown})
-    
+
+@login_required
 def shirtorderadd(request, orderid=None):
     if request.method == 'GET': 
         orderlines=[]   
@@ -222,7 +226,8 @@ def shirtorderadd(request, orderid=None):
                             existingsku.save()
 
             return HttpResponseRedirect('/shirtorders/' + str(shirtorder.id))
-    
+
+@login_required
 def orderline(request):
     if "shirtstyleid" in request.GET:
         shirtstyleid = request.GET['shirtstyleid']
@@ -236,7 +241,7 @@ def orderline(request):
     dictionary = {"orderlines":[OrderLine(shirtstyleid=shirtstyleid, shirtstylevariationid=shirtstylevariationid, prefix=request.GET['prefix'])]}
     return render_to_response('sales/shirtorders/orderline.html', dictionary)
     
-    
+@login_required
 def purchaseorders(request):
     purchaseorders = ShirtOrder.objects.all().order_by('DueDate')
     for po in purchaseorders:
@@ -254,7 +259,8 @@ def purchaseorders(request):
             po.fillableshirts += min(skuinventory, sku.OrderQuantity - sku.ShippedQuantity)
 
     return render_to_response('sales/shipping/purchaseorders.html', {'purchaseorders': purchaseorders})
-    
+
+@login_required
 def addshipment(request, customeraddressid=None, shipmentid=None):
     if shipmentid:
         editshipment = Shipment.objects.get(pk=shipmentid)
@@ -351,7 +357,7 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
                     sku.save()
             return HttpResponseRedirect('/shipping/' + str(savedshipment.pk) + '/edit/')
 
-    
+@login_required
 def addshipmentsku(request):
     shirtordersku, shirtsku, purchaseorder = shipmentskudetails(request.GET['shirtorderskuid'])
     box = request.GET['box']
@@ -377,6 +383,7 @@ def searchcriteria(GET):
         searchfield = ''
     return (querystring, searchfield)
     
+@login_required
 def shirtordersearch(request):
     querystring, searchfield = searchcriteria(request.GET)
     
@@ -394,6 +401,7 @@ def shirtordersearch(request):
     form = ShirtOrderSearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
     return render_to_response('sales/shirtorders/search.html', {'shirtorders':shirtorders, 'form':form})
     
+@login_required
 def shipmentsearch(request):
     querystring, searchfield = searchcriteria(request.GET)
     
@@ -411,6 +419,7 @@ def shipmentsearch(request):
     form = ShipmentSearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
     return render_to_response('sales/shipping/search.html', {'shipments':shipments, 'form':form})
     
+@login_required
 def inventorysearch(request):
     querystring, searchfield = searchcriteria(request.GET)
     
@@ -429,11 +438,13 @@ def inventorysearch(request):
     form = InventorySearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
     return render_to_response('sales/inventory/search.html', {'shirtstyles':shirtstyles, 'shirtstylevariations':shirtstylevariations, 'form':form})
     
+@login_required
 def viewshipment(request, shipmentid):
     shipment = Shipment.objects.get(pk=shipmentid)
     
     return render_to_response('sales/shipping/view.html', {'shipment':shipment})
     
+@login_required
 def editcolors(request):
     if request.method == "GET":
         colorcategories = ColorCategory.objects.all()
@@ -492,11 +503,13 @@ def editcolors(request):
             
             return HttpResponseRedirect('/colors/edit/')
 
+@login_required
 def addcategory(request):
     prefix = 'cc' + str(request.GET['prefix'])
     categoryform = ColorCategoryForm(prefix=prefix)
     return render_to_response('sales/colors/category.html', {'categoryform':categoryform})
 
+@login_required
 def addcolor(request):
     prefix = 'c' + str(request.GET['prefix'])
     parentprefix = request.GET['parentprefix']
@@ -504,6 +517,7 @@ def addcolor(request):
     return render_to_response('sales/colors/color.html', {'colorform':colorform})
 
 #size management
+@login_required
 def editsizes(request):
     if request.method == 'GET':
         sizes = ShirtSize.objects.all()
@@ -540,13 +554,15 @@ def editsizes(request):
                     size.delete()
         
         return HttpResponseRedirect('/sizes/edit/')
-        
+
+@login_required
 def addsize(request):
     prefix = request.GET['prefix']
     sizeform = ShirtSizeForm(prefix=prefix)
     return render_to_response('sales/sizes/size.html', {'form':sizeform})
 
 #customer management
+@login_required
 def editcustomer(request, customerid=None):
     if request.method == "GET":
         if customerid:
@@ -597,11 +613,13 @@ def editcustomer(request, customerid=None):
             
             return HttpResponseRedirect('/customers/' + str(customer.id) + '/edit/')
 
+@login_required
 def addcustomeraddress(request):
     prefix = 'a' + str(request.GET['prefix'])
     addressform = CustomerAddressForm(prefix=prefix)
     return render_to_response('sales/customers/address.html', {'addressform':addressform})
 
+@login_required
 def customersearch(request):
     querystring, searchfield = searchcriteria(request.GET)
     
@@ -617,6 +635,7 @@ def customersearch(request):
     form = CustomerSearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
     return render_to_response('sales/customers/search.html', {'customers':customers, 'form':form})
 
+@login_required
 def add_style(request, shirtstyleid=None):
     """Add a new shirt style to the database"""
 
@@ -722,6 +741,7 @@ def add_style(request, shirtstyleid=None):
         else:
             return render(form)
 
+@login_required
 def empty_variation_form(request):
     return render_to_response(
         "sales/shirtstyles/variationform.html",

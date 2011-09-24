@@ -105,3 +105,5 @@ try:
     from local.settings import *
 except ImportError:
     pass
+    
+LOGIN_URL = '/login/'
