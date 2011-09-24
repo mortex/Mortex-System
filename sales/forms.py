@@ -2,6 +2,7 @@ from django import forms
 from django.forms import fields, ModelForm
 from django.forms.fields import DecimalField, IntegerField
 from django.forms.widgets import HiddenInput, TextInput
+from django.core import exceptions
 
 from sales.models import *
 
@@ -9,7 +10,38 @@ from itertools import product
 
 from templatetags.templatetags import orderform_extras
 
-class CutSSIForm(forms.ModelForm):
+import types
+
+def auto_error_class(field, error_class="error"):
+    """
+       Monkey-patch a Field instance at runtime in order to automatically add a CSS
+       class to its widget when validation fails and provide any associated error
+       messages via a data attribute
+    """
+
+    inner_clean = field.clean
+
+    def wrap_clean(self, *args, **kwargs):
+       try:
+           return inner_clean(*args, **kwargs)
+       except exceptions.ValidationError as ex:
+           self.widget.attrs["class"] = self.widget.attrs.get(
+               "class", ""
+           ) + " " + error_class
+           self.widget.attrs["title"] = ", ".join(ex.messages)
+           raise ex
+
+    field.clean = types.MethodType(wrap_clean, field, field.__class__)
+
+    return field
+    
+class AutoErrorModelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(AutoErrorModelForm, self).__init__(*args, **kwargs)
+        for f in self.fields:
+            self.fields[f] = auto_error_class(self.fields[f])
+
+class CutSSIForm(AutoErrorModelForm):
     'allows you to create transactions for new cut orders of a shirt SKU'
     class Meta:
         model = ShirtSKUTransaction
@@ -50,7 +82,7 @@ class ExistingCutSSIForm(CutSSIForm):
         self.totalpieces = kwargs.pop("total_pieces", None)
         super(ExistingCutSSIForm, self).__init__(*args, **kwargs)
 
-class Order(forms.ModelForm):
+class Order(AutoErrorModelForm):
     CustomerAddress = forms.ModelChoiceField(queryset=CustomerAddress.objects.all(), label='Address')
     class Meta:
         model = ShirtOrder
@@ -127,15 +159,17 @@ class OrderLine(forms.Form):
         self.fieldlist = zip(self.quantitylist, self.pricelist, self.pricefkeylist, self.instancelist)
         self.fields["sizes"] = forms.IntegerField(widget=forms.HiddenInput(), initial=i-1)
         self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
+        for f in self.fields:
+            self.fields[f] = auto_error_class(self.fields[f])
         
-class ShipmentForm(forms.ModelForm):
+class ShipmentForm(AutoErrorModelForm):
     class Meta:
         model = Shipment
         widgets = {
             'CustomerAddress': forms.HiddenInput(),
         }
         
-class ShipmentSKUForm(forms.ModelForm):
+class ShipmentSKUForm(AutoErrorModelForm):
     class Meta:
         model = ShipmentSKU
         exclude = {
@@ -173,14 +207,14 @@ class InventorySearchForm(SearchForm):
 class CustomerSearchForm(SearchForm):
     choices = [('customername','Customer Name'),('contactname','Contact Name')]
     
-class ColorCategoryForm(forms.ModelForm):
+class ColorCategoryForm(AutoErrorModelForm):
     class Meta:
         model = ColorCategory
     def __init__(self, *args, **kwargs):
         super(ColorCategoryForm, self).__init__(*args, **kwargs)
         self.fields['pk'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
 
-class ColorForm(forms.ModelForm):
+class ColorForm(AutoErrorModelForm):
     class Meta:
         model = Color
         exclude = {
@@ -192,7 +226,7 @@ class ColorForm(forms.ModelForm):
         self.fields['pk'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
         
 #size management
-class ShirtSizeForm(forms.ModelForm):
+class ShirtSizeForm(AutoErrorModelForm):
     class Meta:
         model = ShirtSize
     def __init__(self, *args, **kwargs):
@@ -204,7 +238,7 @@ class ShirtSizeForm(forms.ModelForm):
         self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
         
 #customer management
-class CustomerForm(forms.ModelForm):
+class CustomerForm(AutoErrorModelForm):
     class Meta:
         model = Customer
     def __init__(self, *args, **kwargs):
@@ -212,7 +246,7 @@ class CustomerForm(forms.ModelForm):
         self.fields['pk'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
         self.fields['addresscount'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
         
-class CustomerAddressForm(forms.ModelForm):
+class CustomerAddressForm(AutoErrorModelForm):
     class Meta:
         model = CustomerAddress
         exclude = ('Customer',)
