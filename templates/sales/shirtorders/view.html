@@ -3,21 +3,8 @@
     {{ shirtorder.PONumber }}
     <a href="{{ shirtorder.id }}/edit/">edit order</a>
 </p>
+
+
 <ul>
-    {% regroup shirtorder.shirtordersku_set.all by ShirtPrice.ShirtStyle as style_list %}
-        {% for item in style_list %}
-            <li>{{ item.grouper }}
-            {% regroup item.list by Color as color_list %}
-                <ul>
-                    {% for x in color_list %}
-                        <li>{{ x.grouper }}
-                            <ul>
-                                {% for y in x.list %}
-                                    <li>{{ y.ShirtPrice.ShirtSize }} - {{ y.OrderQuantity }}</li>
-                                {% endfor %}
-                            </ul>
-                        </li>
-                    {% endfor %}
-                </ul></li>
-        {% endfor %}
+    {{ orderbreakdown|unordered_list }}
 </ul>

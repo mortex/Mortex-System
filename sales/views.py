@@ -100,7 +100,35 @@ def shirtorders(request):
 
 def shirtorderview(request, orderid):
     shirtorder = ShirtOrder.objects.get(pk=orderid)
-    return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder})
+    #shirtorderskus = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).order_by('ShirtPrice').order_by('ShirtStyleVariation').order_by('Color').order_by('ShirtPrice__ShirtStyle')
+    
+    shirtorderskus = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder)
+    orderbreakdowndict = {}
+    for sos in shirtorderskus:
+        style = sos.ShirtPrice.ShirtStyle if sos.ShirtStyleVariation is None else sos.ShirtStyleVariation
+        color = sos.Color
+        quantity = str(sos.OrderQuantity) + ' ' + sos.ShirtPrice.ShirtSize.ShirtSizeAbbr
+        if orderbreakdowndict.get(style):
+            colordict = orderbreakdowndict[style]
+            if colordict.get(color):
+                colordict[color].append(quantity)
+            else:
+                colordict[color] = [quantity]
+        else:
+            orderbreakdowndict[style] = {color:[quantity]}
+    
+    def flattendict(a):
+        if type(a) == dict:
+            l = []
+            for k in a.keys():
+                l.extend([k, flattendict(a[k])])
+            return l
+        elif type(a) == list:
+            return a
+    
+    orderbreakdown = flattendict(orderbreakdowndict)
+    
+    return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder, 'orderbreakdown':orderbreakdown})
     
 def shirtorderadd(request, orderid=None):
     if request.method == 'GET': 
