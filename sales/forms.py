@@ -258,3 +258,16 @@ class ShirtStyleForm(ModelForm):
                 "data-size": unspaced_size_name,
             }
             self.fields["price__" + ccName + "__" + sizeName] = new_field
+
+class ShirtStyleVariationForm(ModelForm):
+    """Form for adding/changing shirt style variations"""
+
+    class Meta:
+        model = ShirtStyleVariation
+        exclude = ("ShirtStyle",)   # Exclude ShirtStyle ModelChoiceField because this form will appear on a page specific to a particular ShirtStyle
+
+ShirtStyleVariationFormset = forms.models.modelformset_factory(
+    ShirtStyleVariation,
+    exclude=("ShirtStyle",),
+    extra=0
+)

@@ -7,6 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
+from django.forms import formsets
 from django.db import transaction
 from django.db.models import Q
 
@@ -600,6 +601,13 @@ def add_style(request, shirtstyleid=None):
             "sales/shirtstyles/add.html",
             RequestContext(request, {
                 "form": form,
+                "variation_formset": ShirtStyleVariationFormset(
+                    queryset=ShirtStyleVariation.objects.none()
+                             if shirtstyleid is None
+                             else ShirtStyleVariation.objects.filter(
+                                 ShirtStyle__pk=shirtstyleid
+                             )
+                ),
                 "ccNames": ColorCategory.objects.all()
                                         .values_list("ColorCategoryName",
                                                      flat=True),
@@ -616,9 +624,11 @@ def add_style(request, shirtstyleid=None):
 
         # Edit
         else:
-            return render(ShirtStyleForm(instance=ShirtStyle.objects.get(
-                pk=shirtstyleid
-            )))
+            return render(
+                ShirtStyleForm(
+                    instance=ShirtStyle.objects.get(pk=shirtstyleid)
+                ),
+            )
 
     if request.method == "POST":
 
@@ -633,43 +643,63 @@ def add_style(request, shirtstyleid=None):
                 instance=ShirtStyle.objects.get(pk=request.POST["pk"])
             )
 
+        variation_formset = ShirtStyleVariationFormset(request.POST)
+
         if form.is_valid():
 
-            new_style = form.save()
+            new_style = form.save(commit=False)
 
-            # Construct a ShirtPrice model instance from a submitted matrix
-            # field
-            def construct_ShirtPrice(k, v):
+            if variation_formset.is_valid():
 
-                mobj = re.match(r"price__(?P<cc>[^_]+)__(?P<size>.+)", k)
-                cc = ColorCategory.objects.get(
-                    ColorCategoryName=mobj.group("cc")
-                )
-                size = ShirtSize.objects.get(ShirtSizeAbbr=mobj.group("size"))
+                new_style.save()
 
-                # If a ShirtPrice with this ShirtStyle, ShirtSize, &
-                # ColorCategory already exists, replace it by reusing its
-                # primary key in the new model instance
-                try:
-                    price = ShirtPrice.objects.get(ShirtStyle=new_style,
-                                                   ColorCategory=cc,
-                                                   ShirtSize=size)
-                except ShirtPrice.DoesNotExist:
-                    price = ShirtPrice(ShirtStyle=new_style,
-                                       ColorCategory=cc,
-                                       ShirtSize=size)
+                def construct_ShirtPrice(k, v):
+                    """
+                    Construct a ShirtPrice model instance from a submitted matrix
+                    field
+                    """
 
-                price.ShirtPrice = v
+                    mobj = re.match(r"price__(?P<cc>[^_]+)__(?P<size>.+)", k)
+                    cc = ColorCategory.objects.get(
+                        ColorCategoryName=mobj.group("cc")
+                    )
+                    size = ShirtSize.objects.get(ShirtSizeAbbr=mobj.group("size"))
 
-                return price
+                    # If a ShirtPrice with this ShirtStyle, ShirtSize, &
+                    # ColorCategory already exists, replace it by reusing its
+                    # primary key in the new model instance
+                    try:
+                        price = ShirtPrice.objects.get(ShirtStyle=new_style,
+                                                       ColorCategory=cc,
+                                                       ShirtSize=size)
+                    except ShirtPrice.DoesNotExist:
+                        price = ShirtPrice(ShirtStyle=new_style,
+                                           ColorCategory=cc,
+                                           ShirtSize=size)
 
-            # Create needed ShirtPrice instances and persist models to DB
-            for price in [construct_ShirtPrice(k, v)
-                            for k, v in form.cleaned_data.items()
-                            if k.startswith("price__") and v != None]:
-                price.save()
+                    price.ShirtPrice = v
 
-            return HttpResponseRedirect("/shirtstyles/")
+                    return price
+
+                # Create needed ShirtPrice instances and persist models to DB
+                for price in [construct_ShirtPrice(k, v)
+                                for k, v in form.cleaned_data.items()
+                                if k.startswith("price__") and v != None]:
+                    price.save()
+
+                # Persist ShirtStyleVariations
+                for variation_fm in variation_formset:
+                    v = variation_fm.save(commit=False)
+                    v.ShirtStyle = new_style
+                    v.save()
+
+                return HttpResponseRedirect("/shirtstyles/")
 
         else:
             return render(form)
+
+def empty_variation_form(request):
+    return render_to_response(
+        "sales/shirtstyles/variationform.html",
+        {"form": ShirtStyleVariationFormset().empty_form}
+    )

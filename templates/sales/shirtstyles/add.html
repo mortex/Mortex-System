@@ -39,12 +39,66 @@
             width: 50px;
         }
 
+        #variations {
+            float: left;
+            position: static;
+        }
+
+        .variation_form {
+            float: left;
+            margin: 5px;
+            border: 1px solid #CCC;
+            background: #F8F8F8;
+        }
+
+        .variation_form dt,
+        .variation_form dd {
+            float: left;
+        }
+
+        .variation_form dt {
+            clear: left;
+            width: 100px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .variation_form dd {
+            margin-left: 10px;
+        }
+
+        .variation_field {
+            margin: 5px;
+            overflow: hidden;
+        }
+
     </style>
 
     <script type="application/javascript">
 
         var rows = {}, cols = {};
         $(function() {
+            
+            {# Click handler for "Add variation" button #}
+            $("#add-variation").click(function() {
+                $.ajax("/shirtstyles/variationform", {
+                    success: function(data) {
+
+                        {# Inject form markup after existing variation forms, #}
+                        {# or after management form if no variations forms #}
+                        {# exist yet #}
+                        var existing_fms = $(".variation_form");
+                        var old_prefix = $("#id_form-TOTAL_FORMS").val();
+                        if (existing_fms.length === 0)
+                            existing_fms = $("#variations > input[type=hidden]");
+                        existing_fms.last().after(data.replace(/__prefix__/g, old_prefix));
+
+                        {# Update management form #}
+                        $("#id_form-TOTAL_FORMS").val(parseInt(old_prefix) + 1);
+
+                    }
+                });
+            });
 
             {# Force any matrix rows/cols with initial data to be displayed #}
             $('#matrix input:text[value!=""]').each(function(i, e) {
@@ -164,6 +218,21 @@
                 </tbody>
             </table>
         </div>
+
+        {# Variations #}
+        <fieldset id="variations">
+
+            <legend>Variations</legend>
+
+            {{ variation_formset.management_form }}
+
+            {% for form in variation_formset %}
+                {% include "sales/shirtstyles/variationform.html" %}
+            {% endfor %}
+
+            <button id="add-variation" type="button">Add variation</button>
+
+        </fieldset>
 
         <input type="submit" value="Submit">
 
