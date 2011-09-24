@@ -1,0 +1,23 @@
+{% regroup shipmentskus by boxnum as skulist %}
+{% for sku in skulist %}
+    <fieldset class="box" id="box{{ sku.grouper }}" data-box="{{ sku.grouper }}" onclick="fillbox(this)">
+        <legend>Box <span class="boxnumber">{{ sku.grouper }}</legend>
+        <table>
+            <tbody>
+                <tr>
+                    <th>SKU</th>
+                    <th>PO</th>
+                    <th>CO</th>
+                    <th>Quantity</th>
+                </tr>
+                {% for item in sku.list %}
+                <tr id='row{{ item.form.prefix }}'>
+                    <td>{{ item.shirtskulabel }}</td>
+                    <td>{{ item.purchaseorder }}</td>
+                    <td>{{ item.cutorder }}</td>
+                    <td>{{ item.form.PK }}{{ item.form.Shipment }}{{ item.form.ShirtOrderSKU }}{{ item.form.BoxNumber }}{{ item.form.CutOrder }}{{ item.form.ShippedQuantity }}{{ item.form.ShippedQuantity.errors }}{{ item.form.delete }}<input type='button' onClick="removesku('{{ item.form.prefix }}')" value='X'/></td>
+                </tr>
+                {% endfor %}
+            </tbody></table>
+    </fieldset>
+{% endfor %}

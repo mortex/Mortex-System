@@ -1,0 +1,26 @@
+{% extends "sales/search.html" %}
+
+{% block results %}
+{% if shirtorders %}
+  <table>
+    <tr>
+        <th>Order ID</th>
+        <th>PO Number</th>
+        <th>Customer</th>
+        <th>Ship Address</th>
+        <th>Due Date</th>
+    </tr>
+    {% for shirtorder in shirtorders %}
+    <tr>
+        <td><a href='/shirtorders/{{ shirtorder.pk }}'>{{ shirtorder.pk }}</a></td>
+        <td>{{ shirtorder.PONumber }}</td>
+        <td>{{ shirtorder.Customer }}</td>
+        <td>{{ shirtorder.CustomerAddress }}</td>
+        <td>{{ shirtorder.DueDate }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p>No orders found</p>
+{% endif %}
+{% endblock %}

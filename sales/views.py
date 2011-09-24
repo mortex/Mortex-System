@@ -4,11 +4,29 @@ from sales.models import *
 from sales.forms import *
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
+from django.db import transaction
+from django.db.models import Q
 
+def findparentinstance(parentforms, lookupprefix):
+    for parentform in parentforms:
+        if parentform.prefix == lookupprefix:
+            return parentform.instance
+    return None
+            
+def findparentprefix(parentforms, lookupinstance):
+    for parentform in parentforms:
+        if parentform.instance == lookupinstance:
+            return parentform.prefix
 
 def manageinventory(request, shirtstyleid, variationid, colorid):
+    if variationid != '0':
+        shirtstyle = ShirtStyleVariation.objects.get(pk=variationid)
+    else:
+        shirtstyle = ShirtStyle.objects.get(pk=shirtstyleid)
+    color = Color.objects.get(pk=colorid)
+
     if request.method == "GET":
-        return manageinventory_get(request, shirtstyleid, variationid, colorid)
+        return manageinventory_get(request, shirtstyleid, variationid, colorid, shirtstyle, color)
 
     else:
         transactions = []
@@ -21,12 +39,12 @@ def manageinventory(request, shirtstyleid, variationid, colorid):
                 transactions.append(NewCutSSIForm(request.POST, prefix=i, shirtprice=shirtprice, cutorder=cutorder))
             else:
                 print variationid
-                total_pieces = ShirtSKUTransaction.objects.filter(CutOrder=cutorder, 
+                total_pieces = ShirtSKUInventory.objects.get(CutOrder=cutorder, 
                                                                 ShirtPrice=ShirtPrice.objects.get(pk=shirtprice), 
                                                                 Color=Color.objects.get(pk=colorid), 
                                                                 ShirtStyleVariation=(ShirtStyleVariation.objects.get(pk=variationid) if variationid!=str(0) else None
-                                                                )).aggregate(total_pieces=Sum('Pieces'))
-                transactions.append(ExistingCutSSIForm(request.POST, prefix=i, shirtprice=shirtprice, cutorder=cutorder, total_pieces=total_pieces['total_pieces']))
+                                                                ))
+                transactions.append(ExistingCutSSIForm(request.POST, prefix=i, shirtprice=shirtprice, cutorder=cutorder, total_pieces=total_pieces.Inventory))
             if not transactions[-1].is_valid():
                 passedvalidation = False
 
@@ -34,53 +52,42 @@ def manageinventory(request, shirtstyleid, variationid, colorid):
             for transaction in transactions:
                 if transaction.cleaned_data["Pieces"]:
                     transaction.save()
-            return manageinventory_get(request, shirtstyleid, variationid, colorid)
+            return HttpResponseRedirect('/inventory/' + shirtstyleid + '/' + variationid + '/' + colorid)
         
         else:
             transactions.sort(key=lambda i: str(i.shirtsize), reverse=True)
-            return render_to_response('sales/inventory/manage.html',RequestContext(request, {'transactionlist': transactions,'totalforms':request.POST["totalforms"]}))
+            return render_to_response('sales/inventory/manage.html',RequestContext(request, {'transactionlist': transactions,'totalforms':request.POST["totalforms"], 'shirtstyle':shirtstyle, 'color':color}))
 
 
-def manageinventory_get(request, shirtstyleid, variationid, colorid):
-    transactions = ShirtSKUTransaction.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid).filter(Color__id=colorid)
-    if variationid != '0':
-        transactions = transactions.filter(ShirtStyleVariation__id=variationid)
-        variation = ShirtStyleVariation.objects.get(pk=variationid)
-    else: 
-        variation = None
-    
-    annotatedtransactions = transactions.values('CutOrder','ShirtPrice','Color','ShirtStyleVariation').annotate(total_pieces=Sum('Pieces'))
-    
-    transactionlist = []
+def manageinventory_get(request, shirtstyleid, variationid, colorid, shirtstyle, color):
+    shirtstylevariation = ShirtStyleVariation.objects.get(id=variationid) if variationid!="0" else None
+    inventories = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, Color__id=colorid, ShirtStyleVariation=shirtstylevariation)
+    inventorylist = []
     prefix = 1
-    for transaction in annotatedtransactions:
-        cutorder = transaction['CutOrder']
-        shirtprice = ShirtPrice.objects.get(pk=transaction['ShirtPrice'])
-        color = Color.objects.get(pk=transaction['Color'])
-        if transaction['ShirtStyleVariation']:
-            shirtstylevariation = ShirtStyleVariation.objects.get(pk=transaction['ShirtStyleVariation'])
-        else:
-            shirtstylevariation = None
-        transactionlist.append(ExistingCutSSIForm(instance=ShirtSKUTransaction(CutOrder=cutorder, 
-                                                                                ShirtPrice=shirtprice, 
-                                                                                Color=color, 
-                                                                                ShirtStyleVariation=shirtstylevariation),total_pieces=transaction['total_pieces'],prefix=prefix))
+    for inventory in inventories:
+        inventorylist.append(ExistingCutSSIForm(instance=ShirtSKUTransaction(CutOrder=inventory.CutOrder, 
+                                                                             ShirtPrice=inventory.ShirtPrice, 
+                                                                             Color=inventory.Color, 
+                                                                             ShirtStyleVariation=shirtstylevariation),
+                                                total_pieces=inventory.Inventory, prefix=prefix))
         prefix += 1
                                                                                 
     sizes = ShirtSize.objects.filter(shirtprice__ShirtStyle__id=shirtstyleid).filter(shirtprice__ColorCategory__color__id=colorid).distinct()
-
+    sizetotals = []
     for size in sizes:
-        transactionlist.append(NewCutSSIForm(instance=ShirtSKUTransaction(ShirtPrice=ShirtPrice.objects
+        inventories = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, Color__id=colorid, ShirtStyleVariation=shirtstylevariation, ShirtPrice__ShirtSize=size).aggregate(totalinventory=Sum('Inventory'))
+        sizetotals.append({'sizeid':size.id, 'totalinventory':inventories['totalinventory']})
+        inventorylist.append(NewCutSSIForm(instance=ShirtSKUTransaction(ShirtPrice=ShirtPrice.objects
                                                                             .filter(ShirtStyle__id=shirtstyleid)
                                                                             .filter(ColorCategory__color__id=colorid)
                                                                             .get(ShirtSize__id=size.id),
                                                                         Color=Color.objects.get(pk=colorid),
-                                                                        ShirtStyleVariation=variation), prefix=prefix))
+                                                                        ShirtStyleVariation=shirtstylevariation), prefix=prefix))
         prefix += 1
 
-    transactionlist.sort(key=lambda i: str(i.shirtsize), reverse=True)
+    inventorylist.sort(key=lambda i: str(i.shirtsize), reverse=True)
 
-    return render_to_response('sales/inventory/manage.html',RequestContext(request, {'transactionlist': transactionlist,'totalforms':prefix}))
+    return render_to_response('sales/inventory/manage.html',RequestContext(request, {'transactionlist': inventorylist,'totalforms':prefix, 'shirtstyle':shirtstyle, 'color':color, 'sizetotals':sizetotals}))
 
 
 # Shirt Orders
@@ -91,8 +98,35 @@ def shirtorders(request):
 
 def shirtorderview(request, orderid):
     shirtorder = ShirtOrder.objects.get(pk=orderid)
+    #shirtorderskus = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).order_by('ShirtPrice').order_by('ShirtStyleVariation').order_by('Color').order_by('ShirtPrice__ShirtStyle')
     
-    return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder})
+    shirtorderskus = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder)
+    orderbreakdowndict = {}
+    for sos in shirtorderskus:
+        style = sos.ShirtPrice.ShirtStyle if sos.ShirtStyleVariation is None else sos.ShirtStyleVariation
+        color = sos.Color
+        quantity = str(sos.OrderQuantity) + ' ' + sos.ShirtPrice.ShirtSize.ShirtSizeAbbr
+        if orderbreakdowndict.get(style):
+            colordict = orderbreakdowndict[style]
+            if colordict.get(color):
+                colordict[color].append(quantity)
+            else:
+                colordict[color] = [quantity]
+        else:
+            orderbreakdowndict[style] = {color:[quantity]}
+    
+    def flattendict(a):
+        if type(a) == dict:
+            l = []
+            for k in a.keys():
+                l.extend([k, flattendict(a[k])])
+            return l
+        elif type(a) == list:
+            return a
+    
+    orderbreakdown = flattendict(orderbreakdowndict)
+    
+    return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder, 'orderbreakdown':orderbreakdown})
     
 def shirtorderadd(request, orderid=None):
     if request.method == 'GET': 
@@ -152,16 +186,21 @@ def shirtorderadd(request, orderid=None):
         #if all validation passed, save order, then save orderlines
         else:
             shirtorder = order.save()
-            ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).delete()
             for orderline in orderlines:
-                for s in xrange(1, orderline.cleaned_data["sizes"]):
-                    if 'quantity'+str(s) in orderline.fields and orderline.cleaned_data['quantity'+str(s)] != None:
+                delete = orderline.cleaned_data['delete']
+                for s in xrange(1, orderline.cleaned_data["sizes"]+1):
+                    instanceid = orderline.cleaned_data['instance'+str(s)]
+                    orderquantity = orderline.cleaned_data['quantity'+str(s)]
+                    if delete == 1 or not orderquantity or orderquantity == 0:
+                        if instanceid:
+                            ShirtOrderSKU.objects.get(pk=instanceid).delete()
+                    else:
                         shirtprice = ShirtPrice.objects.get(pk=orderline.cleaned_data['pricefkey'+str(s)])
                         shirtstylevariation = None if orderline.cleaned_data['shirtstylevariationid']==None else ShirtStyleVariation.objects.get(pk=orderline.cleaned_data['shirtstylevariationid'])
                         color = orderline.cleaned_data['color']
-                        orderquantity = orderline.cleaned_data['quantity'+str(s)]
                         price = orderline.cleaned_data['price'+str(s)]
-                        ShirtOrderSKU( ShirtOrder=shirtorder
+                        ShirtOrderSKU(id = instanceid
+                                     , ShirtOrder=shirtorder
                                      , ShirtPrice=shirtprice
                                      , ShirtStyleVariation=shirtstylevariation
                                      , Color=color
@@ -175,17 +214,282 @@ def orderline(request):
     if "shirtstyleid" in request.GET:
         shirtstyleid = request.GET['shirtstyleid']
         shirtstylevariationid = None
-        print shirtstyleid
     elif "shirtstylevariationid" in request.GET:
         shirtstylevariationid = request.GET['shirtstylevariationid']
         shirtstylevariation = ShirtStyleVariation.objects.get(pk=shirtstylevariationid)
         shirtstyle = shirtstylevariation.ShirtStyle
         shirtstyleid = shirtstyle.pk
-    else:
-        print 'hello world'
+
     dictionary = {"orderlines":[OrderLine(shirtstyleid=shirtstyleid, shirtstylevariationid=shirtstylevariationid, prefix=request.GET['prefix'])]}
     return render_to_response('sales/shirtorders/orderline.html', dictionary)
     
+    
+def purchaseorders(request):
+    purchaseorders = ShirtOrder.objects.all().order_by('DueDate')
+    for po in purchaseorders:
+        po.totalshirts = 0
+        po.fillableshirts = 0
+        skus = ShirtOrderSKU.objects.filter(ShirtOrder=po)
+        for sku in skus:
+            skuinventories = ShirtSKUInventory.objects.filter(ShirtPrice=sku.ShirtPrice,ShirtStyleVariation=sku.ShirtStyleVariation,Color=sku.Color)
+            if skuinventories:
+                skuinventory = skuinventories[0].Inventory
+            else:
+                skuinventory = 0
+            
+            po.totalshirts += sku.OrderQuantity - sku.ShippedQuantity
+            po.fillableshirts += min(skuinventory, sku.OrderQuantity - sku.ShippedQuantity)
+
+    return render_to_response('sales/shipping/purchaseorders.html', {'purchaseorders': purchaseorders})
+    
+def addshipment(request, customeraddressid=None, shipmentid=None):
+    if shipmentid:
+        editshipment = Shipment.objects.get(pk=shipmentid)
+        customeraddressid = editshipment.CustomerAddress.pk
+    else:
+        editshipment = None
+    customeraddress = CustomerAddress.objects.get(pk=customeraddressid)
+    ordercolors = ShirtOrderSKU.objects.filter(ShirtOrder__CustomerAddress__id = customeraddressid).values("ShirtPrice__ShirtStyle", "ShirtStyleVariation", "Color").order_by("ShirtPrice__ShirtStyle", "ShirtStyleVariation", "Color").distinct()
+    for ordercolor in ordercolors:
+        #total shirts to be shipped
+        ordercolor['totalshirts'] = 0
+        ordercolor['fillableshirts'] = 0
+        skus = ShirtOrderSKU.objects.filter(
+            ShirtOrder__CustomerAddress__id = customeraddressid,
+            ShirtPrice__ShirtStyle = ordercolor['ShirtPrice__ShirtStyle'],
+            ShirtStyleVariation = ordercolor['ShirtStyleVariation'],
+            Color = ordercolor['Color'])
+        for sku in skus:
+            skuinventories = ShirtSKUInventory.objects.filter(ShirtPrice=sku.ShirtPrice,ShirtStyleVariation=sku.ShirtStyleVariation,Color=sku.Color)
+            if skuinventories:
+                skuinventory = skuinventories[0].Inventory
+            else:
+                skuinventory = 0
+            
+            ordercolor['totalshirts'] += sku.OrderQuantity - sku.ShippedQuantity
+            ordercolor['fillableshirts'] += min(skuinventory, sku.OrderQuantity - sku.ShippedQuantity)
+                                                        
+        ordercolor['parentstyle'] = ShirtStyleVariation.objects.get(pk=ordercolor['ShirtStyleVariation']) if ordercolor['ShirtStyleVariation'] else ShirtStyle.objects.get(pk=ordercolor['ShirtPrice__ShirtStyle'])
+        ordercolor['Color'] = Color.objects.get(pk=ordercolor['Color'])
+    if request.method == "GET":
+        if not editshipment:
+            shipment = ShipmentForm(instance=Shipment(CustomerAddress=CustomerAddress.objects.get(pk=customeraddressid)))
+            shipmentskus = []
+            i = 1
+            boxcount = 0
+        else:
+            shipment = ShipmentForm(instance=editshipment)
+            shipmentskus = []
+            i = 1
+            boxcount = 0
+            for sku in ShipmentSKU.objects.filter(Shipment=editshipment):
+                form = ShipmentSKUForm(instance=sku, prefix=i)
+                form.fields['ShippedQuantity'].widget.attrs['data-savedvalue'] = sku.ShippedQuantity
+                shirtorderskuid = sku.ShirtOrderSKU.id
+                cutorder = sku.CutOrder
+                boxnum = sku.BoxNumber
+                shirtordersku, shirtsku, purchaseorder = shipmentskudetails(shirtorderskuid)
+                shipmentskus.append({'form':form,'cutorder':cutorder,'purchaseorder':purchaseorder,'shirtskulabel':shirtsku,'boxnum':boxnum})
+                i+=1
+                boxcount = boxnum if boxnum > boxcount else boxcount
+        return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'ordercolors': ordercolors, 'customeraddressid':customeraddressid, 'shipment':shipment, 'shipmentskus':shipmentskus, 'skucount':i-1, 'boxcount':boxcount, 'customeraddress':customeraddress}))
+    
+    else:
+        passedvalidation = True
+        editshipment = Shipment.objects.get(pk=shipmentid) if shipmentid != None else None
+        shipment = ShipmentForm(request.POST, instance=editshipment)
+        if not shipment.is_valid():
+            passedvalidation = False
+        
+        shipmentskus = []
+        skucount = int(request.POST['skucount'])
+        boxcount = 0
+        forms = []
+        for i in xrange(1, skucount + 1):
+            postdata = request.POST
+            instance = ShipmentSKU.objects.get(pk=postdata[str(i) + '-PK']) if postdata[str(i) + '-PK'] else None
+            form = ShipmentSKUForm(postdata, prefix=i, instance=instance)
+
+            forms.append(form)
+
+            if not form.is_valid():
+                passedvalidation = False
+                
+            cutorder = form.data[str(form.prefix) + "-CutOrder"]
+            shirtorderskuid = form.data[str(form.prefix) + "-ShirtOrderSKU"]
+            boxnum = form.data[str(form.prefix) + "-BoxNumber"]
+            shirtordersku, shirtsku, purchaseorder = shipmentskudetails(shirtorderskuid)
+            shipmentsku = {'form':form,'cutorder':cutorder,'purchaseorder':purchaseorder,'shirtskulabel':shirtsku,'boxnum':boxnum}
+            shipmentskus.append(shipmentsku)
+            boxcount = boxnum if boxnum > boxcount else boxcount
+        
+        
+        if passedvalidation == False:
+            return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'ordercolors': ordercolors, 'customeraddressid':customeraddressid, 'shipment':shipment, 'shipmentskus':shipmentskus, 'skucount':skucount, 'boxcount':boxcount, 'customeraddress':customeraddress}))
+        
+        else:
+            savedshipment = shipment.save()
+            for form in forms:
+                if form.cleaned_data['delete']==1 and form.cleaned_data['PK']:
+                    ShipmentSKU.objects.get(pk=form.cleaned_data['PK']).delete()
+                else:
+                    sku = form.save(commit=False)
+                    sku.Shipment = savedshipment
+                    sku.save()
+            return HttpResponseRedirect('/shipping/' + str(savedshipment.pk) + '/edit/')
+
+    
+def addshipmentsku(request):
+    shirtordersku, shirtsku, purchaseorder = shipmentskudetails(request.GET['shirtorderskuid'])
+    box = request.GET['box']
+    cutorder = request.GET['cutorder']
+    prefix = request.GET['prefix']
+    form = ShipmentSKUForm(instance=ShipmentSKU(ShirtOrderSKU=shirtordersku, BoxNumber=box, CutOrder=cutorder),prefix=prefix)
+    shipmentsku = {'form':form,'cutorder':cutorder,'purchaseorder':purchaseorder,'shirtskulabel':shirtsku,'prefix':prefix}
+    skucount = 0
+    return render_to_response('sales/shipping/shipmentsku.html', {'shipmentskus': [shipmentsku]})
+    
+def shipmentskudetails(shirtorderskuid):
+    shirtordersku = ShirtOrderSKU.objects.get(pk=shirtorderskuid)
+    shirtsku = shirtordersku.ShirtPrice.ShirtStyle.ShirtStyleNumber + " " + shirtordersku.Color.ColorName + " " + shirtordersku.ShirtPrice.ShirtSize.ShirtSizeAbbr
+    purchaseorder = shirtordersku.ShirtOrder.PONumber
+    return (shirtordersku, shirtsku, purchaseorder)
+    
+def searchcriteria(GET):
+    if 'searchfield' in GET:
+        querystring = GET['querystring']
+        searchfield = GET['searchfield']
+    else:
+        querystring = ''
+        searchfield = ''
+    return (querystring, searchfield)
+    
+def shirtordersearch(request):
+    querystring, searchfield = searchcriteria(request.GET)
+    
+    if searchfield == 'address':
+        query = Q(CustomerAddress__Address1__contains=querystring)
+    elif searchfield == 'customer':
+        query = Q(Customer__CustomerName__contains=querystring)
+    elif searchfield == 'ponumber':
+        query = Q(PONumber__contains=querystring)
+    else:
+        query = Q()
+        
+    shirtorders = ShirtOrder.objects.filter(query)
+    
+    form = ShirtOrderSearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
+    return render_to_response('sales/shirtorders/search.html', {'shirtorders':shirtorders, 'form':form})
+    
+def shipmentsearch(request):
+    querystring, searchfield = searchcriteria(request.GET)
+    
+    if searchfield == 'address':
+        query = Q(CustomerAddress__Address1__contains=querystring)
+    elif searchfield == 'customer':
+        query = Q(CustomerAddress__Customer__CustomerName__contains=querystring)
+    elif searchfield == 'tracking':
+        query = Q(TrackingNumber__contains=querystring)
+    else:
+        query = Q()
+    
+    shipments = Shipment.objects.filter(query)
+    
+    form = ShipmentSearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
+    return render_to_response('sales/shipping/search.html', {'shipments':shipments, 'form':form})
+    
+def inventorysearch(request):
+    querystring, searchfield = searchcriteria(request.GET)
+    
+    if searchfield == 'stylenumber':
+        query = Q(ShirtStyleNumber__contains=querystring)
+    else:
+        query = Q()
+        
+    shirtstyles = ShirtStyle.objects.filter(query).order_by('ShirtStyleNumber')
+    for shirtstyle in shirtstyles:
+        shirtstyle.colors = Color.objects.filter(ColorCategory__shirtprice__ShirtStyle=shirtstyle).distinct()
+    shirtstylevariations = ShirtStyleVariation.objects.filter(query).order_by('ShirtStyleNumber')
+    for shirtstylevariation in shirtstylevariations:
+        shirtstylevariation.colors = Color.objects.filter(ColorCategory__shirtprice__ShirtStyle=shirtstylevariation.ShirtStyle).distinct()
+    
+    form = InventorySearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
+    return render_to_response('sales/inventory/search.html', {'shirtstyles':shirtstyles, 'shirtstylevariations':shirtstylevariations, 'form':form})
+    
+def viewshipment(request, shipmentid):
+    shipment = Shipment.objects.get(pk=shipmentid)
+    
+    return render_to_response('sales/shipping/view.html', {'shipment':shipment})
+    
+def editcolors(request):
+    if request.method == "GET":
+        colorcategories = ColorCategory.objects.all()
+        categoryforms = []
+        cc = 0
+        for colorcategory in colorcategories:
+            cc += 1
+            prefix = 'cc'+str(cc)
+            categoryforms.append(ColorCategoryForm(instance=colorcategory, prefix=prefix))
+        
+        colors = Color.objects.all()
+        colorforms = []
+        c = 0
+        for color in colors:
+            c += 1
+            prefix = 'c'+str(c)
+            parentprefix = findparentprefix(categoryforms, color.ColorCategory)
+            colorforms.append(ColorForm(instance=color, initial={'parentprefix':parentprefix}, prefix=prefix))
+        
+        return render_to_response('sales/colors/edit.html', RequestContext(request, {'categoryforms':categoryforms, 'colorforms':colorforms, 'categorycount':cc, 'colorcount':c}))
+    else:
+        categorycount = request.POST['categorycount']
+        colorcount = request.POST['colorcount']
+        categoryforms = []
+        colorforms = []
+        passedvalidation = True
+        
+        for cc in xrange(1, int(categorycount) + 1):
+            prefix = 'cc'+str(cc)
+            categoryform = ColorCategoryForm(request.POST, prefix=prefix)
+            if not categoryform.is_valid():
+                passedvalidation = False
+            categoryforms.append(categoryform)
+        
+        for c in xrange(1, int(colorcount) + 1):
+            prefix = 'c'+str(c)
+            colorform = ColorForm(request.POST, prefix=prefix)
+            if not colorform.is_valid():
+                passedvalidation = False
+            colorforms.append(colorform)
+        
+        if passedvalidation == False:
+            return render_to_response('sales/colors/edit.html', RequestContext(request, {'categoryforms':categoryforms, 'colorforms':colorforms, 'categorycount':cc, 'colorcount':c}))
+            
+        else:
+            for categoryform in categoryforms:
+                category = categoryform.save(commit=False)
+                category.pk = categoryform.cleaned_data['pk']
+                category.save()
+            
+            for colorform in colorforms:
+                color = colorform.save(commit=False)
+                color.pk = colorform.cleaned_data['pk']
+                color.ColorCategory = findparentinstance(categoryforms, colorform.cleaned_data['parentprefix'])
+                color.save()
+            
+            return HttpResponseRedirect('/colors/edit/')
+
+def addcategory(request):
+    prefix = 'cc' + str(request.GET['prefix'])
+    categoryform = ColorCategoryForm(prefix=prefix)
+    return render_to_response('sales/colors/category.html', {'categoryform':categoryform})
+
+def addcolor(request):
+    prefix = 'c' + str(request.GET['prefix'])
+    parentprefix = request.GET['parentprefix']
+    colorform = ColorForm(initial={'parentprefix':parentprefix}, prefix=prefix)
+    return render_to_response('sales/colors/color.html', {'colorform':colorform})
+
 #size management
 def editsizes(request):
     if request.method == 'GET':

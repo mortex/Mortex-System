@@ -72,6 +72,7 @@ class ShirtOrder(models.Model):
     CustomerAddress = models.ForeignKey(CustomerAddress)
     PONumber = models.CharField('PO#', max_length=20)
     Complete = models.BooleanField()
+    DueDate = models.DateField('Due Date')
     def __unicode__(self):
         return self.PONumber
 
@@ -84,7 +85,7 @@ class ShirtOrderSKU(models.Model):
     Price = models.FloatField()
     ShippedQuantity = models.IntegerField('Shipped Quantity', default=0)
     def __unicode__(self):
-        return str(self.ShirtPrice.ShirtStyle) + " " + str(self.ShirtPrice)
+        return str(self.ShirtPrice.ShirtStyle.ShirtStyleNumber) + " " + str(self.Color) + " " + str(self.ShirtPrice.ShirtSize.ShirtSizeAbbr)
     class Meta:
         ordering = ["ShirtPrice"]  
 

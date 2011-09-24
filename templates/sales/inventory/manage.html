@@ -1,17 +1,49 @@
+{% extends "sales/base.html" %}
+
+{% block body %}
+<fieldset>
+    <table>
+        <tr>
+            <th>Shirt Style:</th>
+            <td>{{ shirtstyle.ShirtStyleNumber }} {{ shirtstyle.ShirtStyleDescription }}{{ shirtstyle.ShirtStyle.ShirtStyleDescription }}</td>
+        </tr>
+        <tr>
+            <th>Color:</th>
+            <td>{{ color }}</td>
+        </tr>
+    </table>
+</fieldset>
 <form action="" method="post">
 {% csrf_token %}
 {% regroup transactionlist by shirtsize as shirtsizes %}
-    <ul>
     {% for ss in shirtsizes %}
-    <li>{{ ss.grouper }}
-    <ul>
-        {% for i in ss.list %}
-        <li>{{ i.cutorder }}{{ i.CutOrder }}{{ i.CutOrder.errors }} - {{ i.totalpieces }} - {{ i.Pieces }}{{ i.Pieces.errors }}{{ i.Color }}{{ i.Color.errors }}{{ i.ShirtPrice }}{{ i.ShirtPrice.errors }}{{ i.ShirtStyleVariation }}{{ i.ShirtStyleVariation.errors }}{{ i.FormType }}</li>
-        {% endfor %}
-    </ul>
-    </li>
+    <fieldset class='inlineblock'>
+        <legend>
+            {{ ss.grouper.ShirtSizeAbbr }} - 
+            {% for sizetotal in sizetotals %}
+                {% if ss.grouper.id == sizetotal.sizeid %}
+                    {{ sizetotal.totalinventory }} pieces
+                {% endif %}
+            {% endfor %}
+        </legend>
+        <table style='text-align:center'>
+            <tr>
+                <th>Cut<br/>Order</th>
+                <th>Current<br>Inventory</th>
+                <th>Add<br/>Inventory</th>
+            </tr>
+            {% for i in ss.list %}
+            <tr>
+                <td>{{ i.cutorder }}{{ i.CutOrder }}{{ i.CutOrder.errors }}</td>
+                <td>{{ i.totalpieces }}</td>
+                <td>{{ i.Pieces }}{{ i.Pieces.errors }}{{ i.Color }}{{ i.Color.errors }}{{ i.ShirtPrice }}{{ i.ShirtPrice.errors }}{{ i.ShirtStyleVariation }}{{ i.ShirtStyleVariation.errors }}{{ i.FormType }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </fieldset>
     {% endfor %}
-    </ul>
+    <div class='clear'></div>
     <input name="totalforms" type="hidden" value="{{ totalforms }}"/>
     <input type="submit" value="submit"/>
 </form>
+{% endblock %}

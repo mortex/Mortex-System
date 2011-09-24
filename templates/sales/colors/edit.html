@@ -1,0 +1,40 @@
+{% extends "sales/base.html" %}
+
+{% block extrahead %}{{ block.super }}
+    <script type='text/javascript'>
+        function addcategory(){
+            var prefix = parseInt($('#categorycount').val()) + 1;
+            $.get('/colors/addcategory/', {'prefix':prefix}, function(data){
+                $('#categories').append(data);
+                $('#categorycount').val(prefix);
+            });
+        }
+        
+        function addcolor(parentprefix){
+            var prefix = parseInt($('#colorcount').val()) + 1;
+            $.get('/colors/addcolor/', {'prefix':prefix, 'parentprefix':parentprefix}, function(data){
+                $('#' + parentprefix + 'colors').append(data);
+                $('#colorcount').val(prefix);
+            });
+        }
+    </script>
+
+    <style type='text/css'>
+
+    </style>
+{% endblock %}
+
+{% block body %}
+    <form method='post' action=''>
+    {% csrf_token %}
+    <input type='button' value='add category' onClick='addcategory();'/>
+    <div id='categories'>
+    {% for categoryform in categoryforms %}
+        {% include 'sales/colors/category.html' %}
+    {% endfor %}
+    </div>
+    <input type='hidden' id='categorycount' name='categorycount' value='{{ categorycount }}'/>
+    <input type='hidden' id='colorcount' name='colorcount' value='{{ colorcount }}'/>
+    <input type='submit' value='submit'/>
+    </form>
+{% endblock %}
