@@ -85,7 +85,7 @@ class ShirtOrderSKU(models.Model):
     Price = models.FloatField()
     ShippedQuantity = models.IntegerField('Shipped Quantity', default=0)
     def __unicode__(self):
-        return str(self.ShirtPrice.ShirtStyle) + " " + str(self.ShirtPrice)
+        return str(self.ShirtPrice.ShirtStyle.ShirtStyleNumber) + " " + str(self.Color) + " " + str(self.ShirtPrice.ShirtSize.ShirtSizeAbbr)
     class Meta:
         ordering = ["ShirtPrice"]  
 

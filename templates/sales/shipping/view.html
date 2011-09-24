@@ -1,17 +1,49 @@
-<p>
-    {{ shipment.CustomerAddress }}<br/>
-    {{ shipment.TrackingNumber }}
-    <a href="edit/">edit shipment</a>
-</p>
-<ul>
+{% extends "sales/base.html" %}
+
+{% block body %}
+
+<a href="edit/">edit shipment</a>
+<fieldset>
+    <table>
+        <tr>
+            <td>Customer:</td>
+            <td>{{ shipment.CustomerAddress.Customer }}</td>
+        </tr>
+        <tr>
+            <td>Address:</td>
+            <td>{{ shipment.CustomerAddress }}</td>
+        </tr>
+        <tr>
+            <td>Tracking Number:</td>
+            <td>{{ shipment.TrackingNumber }}</td>
+        </tr>
+    </table>
+</fieldset>
+
+<h3>Totals</h3>
+
+
+<h3>Boxes</h3>
 {% regroup shipment.shipmentsku_set.all by BoxNumber as box_list %}
     {% for box in box_list %}
-        <li>Box {{ box.grouper }}
-            <ul>
+        <fieldset class='inlineblock'>
+            <legend>Box {{ box.grouper }}</legend>
+            <table>
+                <tr>
+                    <th>SKU</th>
+                    <th>PO</th>
+                    <th>CO</th>
+                    <th>Quantity</th>
+                </tr>
                 {% for sku in box.list %}
-                    <li>{{ sku.ShirtOrderSKU }} - {{ sku.ShippedQuantity }}</li>
+                <tr>
+                    <td>{{ sku.ShirtOrderSKU }}</td>
+                    <td>{{ sku.ShirtOrderSKU.ShirtOrder.PONumber }}</td>
+                    <td>{{ sku.CutOrder }}</td>
+                    <td>{{ sku.ShippedQuantity }}</td>
+                </tr>
                 {% endfor %}
-            </ul>
-        </li>
+            </table>
+        </fieldset>
     {% endfor %}
-</ul>
+{% endblock %}

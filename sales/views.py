@@ -392,6 +392,7 @@ def inventorysearch(request):
     
 def viewshipment(request, shipmentid):
     shipment = Shipment.objects.get(pk=shipmentid)
+    
     return render_to_response('sales/shipping/view.html', {'shipment':shipment})
     
 def editcolors(request):
