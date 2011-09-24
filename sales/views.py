@@ -634,10 +634,7 @@ def add_style(request, shirtstyleid=None):
 
         # Add (Instantiate unbound ModelForm)
         if not request.POST["pk"]:
-
             form = ShirtStyleForm(request.POST)
-
-            variation_formset = ShirtStyleVariationFormset(request.POST)
 
         # Edit (Bind form to existing model instance)
         else:
@@ -645,6 +642,8 @@ def add_style(request, shirtstyleid=None):
                 request.POST,
                 instance=ShirtStyle.objects.get(pk=request.POST["pk"])
             )
+
+        variation_formset = ShirtStyleVariationFormset(request.POST)
 
         if form.is_valid():
 
