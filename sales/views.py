@@ -65,7 +65,7 @@ def manageinventory(request, shirtstyleid, variationid, colorid):
 
 def manageinventory_get(request, shirtstyleid, variationid, colorid, shirtstyle, color):
     shirtstylevariation = ShirtStyleVariation.objects.get(id=variationid) if variationid!="0" else None
-    inventories = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, Color__id=colorid, ShirtStyleVariation=shirtstylevariation)
+    inventories = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, Color__id=colorid, ShirtStyleVariation=shirtstylevariation, Inventory__gt=0)
     inventorylist = []
     prefix = 1
     for inventory in inventories:
