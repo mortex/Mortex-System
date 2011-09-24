@@ -203,14 +203,23 @@ def shirtorderadd(request, orderid=None):
                         shirtstylevariation = None if orderline.cleaned_data['shirtstylevariationid']==None else ShirtStyleVariation.objects.get(pk=orderline.cleaned_data['shirtstylevariationid'])
                         color = orderline.cleaned_data['color']
                         price = orderline.cleaned_data['price'+str(s)]
-                        ShirtOrderSKU(id = instanceid
-                                     , ShirtOrder=shirtorder
-                                     , ShirtPrice=shirtprice
-                                     , ShirtStyleVariation=shirtstylevariation
-                                     , Color=color
-                                     , OrderQuantity=orderquantity
-                                     , Price=price
-                                     ).save()
+                        if instanceid is None:
+                            ShirtOrderSKU(ShirtOrder=shirtorder
+                                         , ShirtPrice=shirtprice
+                                         , ShirtStyleVariation=shirtstylevariation
+                                         , Color=color
+                                         , OrderQuantity=orderquantity
+                                         , Price=price
+                                         ).save()
+                        else:
+                            existingsku = ShirtOrderSKU.objects.get(pk=instanceid)
+                            existingsku.ShirtOrder=shirtorder
+                            existingsku.ShirtPrice=shirtprice
+                            existingsku.ShirtStyleVariation=shirtstylevariation
+                            existingsku.Color=color
+                            existingsku.OrderQuantity=orderquantity
+                            existingsku.Price=price
+                            existingsku.save()
 
             return HttpResponseRedirect('/shirtorders/' + str(shirtorder.id))
     

@@ -138,7 +138,7 @@ class ShirtOrderSKU(models.Model):
             Color=self.Color,
             ShirtPrice__ShirtSize=self.ShirtPrice.ShirtSize,
             ShirtOrder=self.ShirtOrder
-        ).count() > 0:
+        ).exclude(pk=self.pk).count() > 0:
             raise ValidationError(
                 "Each shirt order SKU must have a unique combination of style, style variation, color, size, and order"
             )
