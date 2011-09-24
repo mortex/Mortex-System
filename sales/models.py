@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 import datetime
 
@@ -88,6 +89,25 @@ class ShirtOrderSKU(models.Model):
         return str(self.ShirtPrice.ShirtStyle.ShirtStyleNumber) + " " + str(self.Color) + " " + str(self.ShirtPrice.ShirtSize.ShirtSizeAbbr)
     class Meta:
         ordering = ["ShirtPrice"]  
+
+    def clean(self, *args, **kwargs):
+
+        super(ShirtOrderSKU, self).clean(*args, **kwargs)
+
+        if ShirtOrderSKU.objects.filter(
+            ShirtPrice__ShirtStyle=self.ShirtPrice.ShirtStyle,
+            ShirtStyleVariation=self.ShirtStyleVariation,
+            Color=self.Color,
+            ShirtPrice__ShirtSize=self.ShirtPrice.ShirtSize,
+            ShirtOrder=self.ShirtOrder
+        ).count() > 0:
+            raise ValidationError(
+                "Each shirt order SKU must have a unique combination of style, style variation, color, size, and order"
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()	# Django won't validate models automatically on save
+        super(ShirtOrderSKU, self).save(*args, **kwargs)
 
 class ShirtSKUTransaction(models.Model):
     Color = models.ForeignKey(Color)
