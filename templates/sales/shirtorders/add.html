@@ -6,8 +6,8 @@
             border:none !important;
         }
     </style>
-    <script type="application/javascript" src="/static/common/js/jquery.jstree.js"></script>
-    <script type="application/javascript">
+    <script type="text/javascript" src="/static/common/js/jquery.jstree.js"></script>
+    <script type="text/javascript">
         $(function createtree() {
             $('#styletree').jstree({ 
                 "plugins" : [ "themes", "html_data", "ui", "crrm" ],
@@ -94,16 +94,24 @@
         
         var colorcounter = 0;
         var colormax = {{ orderlines|length }};
-        function selectcolor(colorid, shirtstyleid, prefix){
+        function selectcolor(field, shirtstyleid, prefix, colorstyleclass){
+            colorid = $(field).val();
             ++colorcounter;
-            if(colorid != ''){
+            var count = $('.' + colorstyleclass + '[value=' + colorid + ']').length
+            if(count > 1){
+                alert('you already have an order line with this style and color!');
+                $(field).val($(field).data('oldvalue'));
+            }
+            else{
+                $(field).attr('data-oldvalue', $(field).val())
+            }
+            if(colorid != '' && count < 2){
                 $.get('/data/styleprices', {"colorid": colorid, "shirtstyleid": shirtstyleid}, function(data){
                     $('#row' + prefix + " input.quantity[type=text]").attr('disabled', true);
                     if(colorcounter>colormax){
                         $('#row' + prefix + ' .price, #row' + prefix + ' .pricefkey').val('');
                     }
                     $.each(data, function(i, item) {
-                        //alert('price' + row + '-' + item.fields.ShirtSize);
                         if(colorcounter>colormax){
                             $('#row' + prefix + ' .price.size' + item.fields.ShirtSize).val(item.fields.ShirtPrice);
                         }

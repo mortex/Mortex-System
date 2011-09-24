@@ -1,6 +1,6 @@
 {% extends "sales/search.html" %}
 {% block extrahead %}
-    <script type="application/javascript">
+    <script type="text/javascript">
         function viewinventory(shirtstyleid, shirtstylevariationid){
             var colorid = $('#' + shirtstyleid + '-' + shirtstylevariationid).val();
             window.location.href = "/inventory/" + shirtstyleid + "/" + shirtstylevariationid + "/" + colorid;

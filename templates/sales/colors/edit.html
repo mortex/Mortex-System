@@ -1,7 +1,7 @@
 {% extends "sales/base.html" %}
 
 {% block extrahead %}{{ block.super }}
-    <script type='application/javascript'>
+    <script type='text/javascript'>
         function addcategory(){
             var prefix = parseInt($('#categorycount').val()) + 1;
             $.get('/colors/addcategory/', {'prefix':prefix}, function(data){

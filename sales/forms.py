@@ -72,7 +72,16 @@ class OrderLine(forms.Form):
         self.fields["shirtstylevariationid"] = forms.IntegerField(widget=forms.HiddenInput(), required=False, initial=shirtstylevariationid)
 
         self.fields["shirtstyleid"] = forms.IntegerField(widget=forms.HiddenInput(), initial=shirtstyleid)
-        self.fields["color"] = forms.ModelChoiceField(queryset=Color.objects.distinct().filter(ColorCategory__shirtprice__ShirtStyle__id=shirtstyleid), initial=self.color, widget=forms.Select(attrs={"class":"colorselector","onChange":"selectcolor(this.value, " + str(shirtstyleid) + ", " + str(self.prefix) + ")", "tabindex":"1"}))
+        
+        if shirtstylevariationid:
+            colorstyleclass = 'ssv' + str(shirtstylevariationid)
+        else:
+            colorstyleclass = 'ss' + str(self.shirtstyle.id)
+        if self.color:
+            colorid = self.color.id
+        else:
+            colorid = ''
+        self.fields["color"] = forms.ModelChoiceField(queryset=Color.objects.distinct().filter(ColorCategory__shirtprice__ShirtStyle__id=shirtstyleid), initial=self.color, widget=forms.Select(attrs={"class":"colorselector " + colorstyleclass,"onChange":"selectcolor(this, " + str(shirtstyleid) + ", " + str(self.prefix) + ", '" + colorstyleclass + "')", "tabindex":"1", "data-oldvalue":colorid}))
         shirtsizes = ShirtSize.objects.filter(shirtprice__ShirtStyle__exact=shirtstyleid).distinct()
         i = 1
 
@@ -99,7 +108,7 @@ class OrderLine(forms.Form):
             
             self.fields[quantityid] = forms.IntegerField(label=size.ShirtSizeAbbr, initial=skuquantity, min_value=0, required=False, widget=forms.TextInput(attrs={"disabled":None, "class":"short quantity size"+str(size.pk), "tabindex":"1"}))
             self.quantitylist.append(self[quantityid])
-            self.fields[priceid] = forms.DecimalField(label=None, initial=skuprice, min_value=0, max_digits=8, decimal_places=2, required=False, widget=forms.TextInput(attrs={"size":"6","class":"price size"+str(size.pk)}))
+            self.fields[priceid] = forms.DecimalField(label=None, required=False, initial=skuprice, min_value=0, max_digits=8, decimal_places=2, widget=forms.TextInput(attrs={"size":"6","class":"price size"+str(size.pk)}))
             self.fields[instanceid] = forms.IntegerField(required=False, initial=skuinstance, widget=forms.HiddenInput())
             
             #add fields to lists
