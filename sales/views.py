@@ -628,9 +628,6 @@ def add_style(request, shirtstyleid=None):
                 ShirtStyleForm(
                     instance=ShirtStyle.objects.get(pk=shirtstyleid)
                 ),
-                initial_variations=[ssv.__dict__ for ssv in ShirtStyleVariation.objects.filter(
-                    ShirtStyle__pk=shirtstyleid
-                )]
             )
 
     if request.method == "POST":
