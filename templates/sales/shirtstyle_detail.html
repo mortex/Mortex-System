@@ -1,0 +1,11 @@
+{% extends "sales/base.html" %}
+
+{% block body %}
+    <h1>Shirt Style #{{ object.ShirtStyleNumber }}</h1>
+    <ul>
+        <li>Description: {{ object.ShirtStyleDescription }}</li>
+        <li>Customer: {{ object.Customer }}</li>
+        <li>Knit style name: {{ object.KnitStyleName }}</li>
+    </ul>
+    <a href="../edit/{{ object.id }}">Edit this style</a>
+{% endblock %}

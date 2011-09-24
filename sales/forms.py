@@ -1,7 +1,13 @@
 from django import forms
-from django.forms import fields
+from django.forms import fields, ModelForm
+from django.forms.fields import DecimalField, IntegerField
+from django.forms.widgets import HiddenInput, TextInput
 
 from sales.models import *
+
+from itertools import product
+
+from templatetags.templatetags import orderform_extras
 
 class CutSSIForm(forms.ModelForm):
     'allows you to create transactions for new cut orders of a shirt SKU'
@@ -211,3 +217,57 @@ class CustomerAddressForm(forms.ModelForm):
         super(CustomerAddressForm, self).__init__(*args, **kwargs)
         self.fields['pk'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
         self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
+
+class ShirtStyleForm(ModelForm):
+    """Form for adding/changing shirt styles"""
+
+    class Meta:
+        model = ShirtStyle
+
+    def __init__(self, *args, **kwargs):
+
+        super(ShirtStyleForm, self).__init__(*args, **kwargs)
+
+        # Include PK as hidden field so we can identify when we're editing an
+        # existing record
+        self.fields["pk"] = IntegerField(initial=self.instance.pk,
+                                         widget=HiddenInput(),
+                                         required=False)
+
+        # Get all shirtprices associated with this form's ShirtStyle instance
+        shirtprices = ShirtPrice.objects.filter(ShirtStyle=self.instance)
+
+        # Add matrix fields for each size/color category combination
+        for (cc, size) in product(ColorCategory.objects.all(), ShirtSize.objects.all()):
+            ccName = cc.ColorCategoryName
+            sizeName = size.ShirtSizeAbbr
+            new_field = DecimalField(
+                label=ccName + " " + sizeName,
+                widget=TextInput(attrs={"size": "4"}),
+                required=False
+            )
+            shirtprice = shirtprices.filter(ColorCategory=cc, ShirtSize=size)
+            if shirtprice:
+                new_field.initial = shirtprice[0].ShirtPrice
+            new_field.ccName = ccName
+            new_field.sizeName = size.ShirtSizeName
+            unspaced_size_name = orderform_extras.unspace(size.ShirtSizeName)
+            new_field.widget.attrs = {
+                "class": "mcol_" + unspaced_size_name,
+                "data-cc": orderform_extras.unspace(ccName),
+                "data-size": unspaced_size_name,
+            }
+            self.fields["price__" + ccName + "__" + sizeName] = new_field
+
+class ShirtStyleVariationForm(ModelForm):
+    """Form for adding/changing shirt style variations"""
+
+    class Meta:
+        model = ShirtStyleVariation
+        exclude = ("ShirtStyle",)   # Exclude ShirtStyle ModelChoiceField because this form will appear on a page specific to a particular ShirtStyle
+
+ShirtStyleVariationFormset = forms.models.modelformset_factory(
+    ShirtStyleVariation,
+    exclude=("ShirtStyle",),
+    extra=0
+)
