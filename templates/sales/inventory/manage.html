@@ -34,9 +34,9 @@
             </tr>
             {% for i in ss.list %}
             <tr>
-                <td>{{ i.cutorder }}{{ i.CutOrder }}{{ i.CutOrder.errors }}</td>
+                <td>{{ i.cutorder }}{{ i.CutOrder }}</td>
                 <td>{{ i.totalpieces }}</td>
-                <td>{{ i.Pieces }}{{ i.Pieces.errors }}{{ i.Color }}{{ i.Color.errors }}{{ i.ShirtPrice }}{{ i.ShirtPrice.errors }}{{ i.ShirtStyleVariation }}{{ i.ShirtStyleVariation.errors }}{{ i.FormType }}</td>
+                <td>{{ i.Pieces }}{{ i.Color }}{{ i.ShirtPrice }}{{ i.ShirtStyleVariation }}{{ i.FormType }}</td>
             </tr>
             {% endfor %}
         </table>

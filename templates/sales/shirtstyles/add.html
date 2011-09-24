@@ -169,7 +169,7 @@
         <table>
             {% for field in form %}
                 {% if not field.field.ccName and not field.field.widget.is_hidden %}
-                    <tr{% if field.errors %} class="error"{% endif %}><td>{{ field.label }}</td><td>{{ field }}</td><td>{{ field.errors }}</td></tr>
+                    <tr><td>{{ field.label }}</td><td>{{ field }}</td></tr>
                 {% endif %}
             {% endfor %}
         </table>
@@ -210,7 +210,7 @@
                             <th scope="row">{{ ccName }}</th>
                             {% for field in form %}
                                 {% if field.field.ccName == ccName %}
-                                    <td{% if field.errors %} class="error"{% endif %}>{{ field }}</td>
+                                    <td>{{ field }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
