@@ -596,15 +596,18 @@ def addcustomeraddress(request):
 def add_style(request, shirtstyleid=None):
     """Add a new shirt style to the database"""
 
-    def render(form, initial_variations=[]):
+    def render(form):
         return render_to_response(
             "sales/shirtstyles/add.html",
             RequestContext(request, {
                 "form": form,
-                "variation_formset": formsets.formset_factory(
-                    ShirtStyleVariationForm,
-                    extra=0
-                )(initial=initial_variations),
+                "variation_formset": ShirtStyleVariationFormset(
+                    queryset=ShirtStyleVariation.objects.none()
+                             if shirtstyleid is None
+                             else ShirtStyleVariation.objects.filter(
+                                 ShirtStyle__pk=shirtstyleid
+                             )
+                ),
                 "ccNames": ColorCategory.objects.all()
                                         .values_list("ColorCategoryName",
                                                      flat=True),
@@ -637,9 +640,7 @@ def add_style(request, shirtstyleid=None):
 
             form = ShirtStyleForm(request.POST)
 
-            variation_formset = formsets.formset_factory(
-                ShirtStyleVariationForm
-            )(request.POST)
+            variation_formset = ShirtStyleVariationFormset(request.POST)
 
         # Edit (Bind form to existing model instance)
         else:
@@ -704,5 +705,5 @@ def add_style(request, shirtstyleid=None):
 def empty_variation_form(request):
     return render_to_response(
         "sales/shirtstyles/variationform.html",
-        {"form": ShirtStyleVariationForm(prefix="form-" + request.GET["prefix"])}
+        {"form": ShirtStyleVariationFormset().empty_form}
     )

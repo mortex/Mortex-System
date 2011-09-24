@@ -82,23 +82,19 @@
             {# Click handler for "Add variation" button #}
             $("#add-variation").click(function() {
                 $.ajax("/shirtstyles/variationform", {
-                    data: {
-                        prefix: $("#id_form-TOTAL_FORMS").val()
-                    },
                     success: function(data) {
 
                         {# Inject form markup after existing variation forms, #}
                         {# or after management form if no variations forms #}
                         {# exist yet #}
                         var existing_fms = $(".variation_form");
+                        var old_prefix = $("#id_form-TOTAL_FORMS").val();
                         if (existing_fms.length === 0)
-                            existing_fms = $("#variations>input[type=hidden]");
-                        existing_fms.last().after(data);
+                            existing_fms = $("#variations > input[type=hidden]");
+                        existing_fms.last().after(data.replace(/__prefix__/g, old_prefix));
 
                         {# Update management form #}
-                        $("#id_form-TOTAL_FORMS").val(function(i, v) {
-                            return parseInt(v) + 1;
-                        });
+                        $("#id_form-TOTAL_FORMS").val(parseInt(old_prefix) + 1);
 
                     }
                 });
