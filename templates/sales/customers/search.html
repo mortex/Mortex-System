@@ -1,0 +1,20 @@
+{% extends "sales/search.html" %}
+
+{% block results %}
+{% if customers %}
+  <table>
+    <tr>
+        <th>Customer ID</th>
+        <th>Name</th>
+    </tr>
+    {% for customer in customers %}
+    <tr>
+        <td><a href='/customers/{{ customer.pk }}/edit/'>{{ customer.pk }}</a></td>
+        <td>{{ customer.CustomerName }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p>No customers found</p>
+{% endif %}
+{% endblock %}

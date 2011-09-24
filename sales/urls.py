@@ -62,5 +62,7 @@ urlpatterns = patterns('',
     
     #customer urls
     (r'^customers/(?P<customerid>\d+)/edit/$', 'sales.views.editcustomer'),
+    (r'^customers/add/$', 'sales.views.editcustomer'),
     (r'^customers/addaddress/$', 'sales.views.addcustomeraddress'),
+    (r'^customers/search/$', 'sales.views.customersearch'),
 )

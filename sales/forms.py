@@ -169,6 +169,9 @@ class ShipmentSearchForm(SearchForm):
     
 class InventorySearchForm(SearchForm):
     choices = [('stylenumber','Style Number')]
+
+class CustomerSearchForm(SearchForm):
+    choices = [('customername','Customer Name'),('contactname','Contact Name')]
     
 class ColorCategoryForm(forms.ModelForm):
     class Meta:

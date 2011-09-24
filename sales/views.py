@@ -538,7 +538,7 @@ def addsize(request):
     return render_to_response('sales/sizes/size.html', {'form':sizeform})
 
 #customer management
-def editcustomer(request, customerid):
+def editcustomer(request, customerid=None):
     if request.method == "GET":
         if customerid:
             customer = Customer.objects.get(pk=customerid)
@@ -592,6 +592,21 @@ def addcustomeraddress(request):
     prefix = 'a' + str(request.GET['prefix'])
     addressform = CustomerAddressForm(prefix=prefix)
     return render_to_response('sales/customers/address.html', {'addressform':addressform})
+
+def customersearch(request):
+    querystring, searchfield = searchcriteria(request.GET)
+    
+    if searchfield == 'customername':
+        query = Q(CustomerName__contains=querystring)
+    elif searchfield == 'contactname':
+        query = Q(customeraddress__ContactName__contains=querystring)
+    else:
+        query = Q()
+    
+    customers = Customer.objects.filter(query)
+    
+    form = CustomerSearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
+    return render_to_response('sales/customers/search.html', {'customers':customers, 'form':form})
 
 def add_style(request, shirtstyleid=None):
     """Add a new shirt style to the database"""
