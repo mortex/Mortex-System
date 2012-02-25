@@ -1,6 +1,10 @@
+{% extends "sales/base.html" %}
+
+{% block body %}
 <h1>Shirt Styles</h1>
 <ul>
 {% for ss in object_list %}
 	<li><a href="/shirtstyles/{{ ss.id }}">{{ ss }}</a></li>
 {% endfor %}
 </ul>
+{% endblock %}
