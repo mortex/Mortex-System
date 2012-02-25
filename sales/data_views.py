@@ -1,7 +1,7 @@
 from sales.models import CustomerAddress, ShirtStyle, ShirtPrice, ShirtStyleVariation, ShirtSKUInventory, Color, ShirtOrderSKU
 from django.core import serializers
 from django.http import HttpRequest, HttpResponse
-from django.db.models import Sum
+from django.db.models import Sum, F
 import json
 
 #this function allows us to traverse relationships if necessary
@@ -58,14 +58,15 @@ def shippingorderskus(request):
     addressid = request.GET['addressid']
     sizeinventories = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, 
                                                     Color__id=colorid, 
-                                                    ShirtStyleVariation=(shirtstylevariation
-                                                    )).order_by('ShirtPrice__ShirtSize__SortKey').values('ShirtPrice', 'ShirtPrice__ShirtSize__ShirtSizeAbbr').annotate(total=Sum('Inventory'))
+                                                    ShirtStyleVariation=shirtstylevariation
+                                                    ).order_by('ShirtPrice__ShirtSize__SortKey').values('ShirtPrice', 'ShirtPrice__ShirtSize__ShirtSizeAbbr').annotate(total=Sum('Inventory'))
 
     #gets the active orders for skus of a given style/color
     allorderedpieces = ShirtOrderSKU.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid,
                                                     Color__id=colorid,
                                                     ShirtStyleVariation=shirtstylevariation,
-                                                    ShirtOrder__CustomerAddress__id=addressid)
+                                                    ShirtOrder__CustomerAddress__id=addressid,
+                                                    ShippedQuantity__lt=F('OrderQuantity'))
                                                     
     #gets the inventory broken out by cut order of a given style/color
     cutinventory = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, 

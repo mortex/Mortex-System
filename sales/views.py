@@ -396,10 +396,12 @@ def shirtordersearch(request):
         query = Q(Customer__CustomerName__contains=querystring)
     elif searchfield == 'ponumber':
         query = Q(PONumber__contains=querystring)
+    elif searchfield == 'shirtstylenumber':
+        query = Q(shirtordersku__ShirtPrice__ShirtStyle__ShirtStyleNumber__contains=querystring) | Q(shirtordersku__ShirtStyleVariation__ShirtStyleNumber__contains=querystring)
     else:
         query = Q()
         
-    shirtorders = ShirtOrder.objects.filter(query)
+    shirtorders = ShirtOrder.objects.filter(query).distinct()
     
     form = ShirtOrderSearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
     return render_to_response('sales/shirtorders/search.html', {'shirtorders':shirtorders, 'form':form})

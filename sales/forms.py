@@ -196,7 +196,7 @@ class SearchForm(forms.Form):
         self.fields['searchfield'].choices = self.choices
         
 class ShirtOrderSearchForm(SearchForm):
-    choices = [('address','Address'),('customer','Customer Name'),('ponumber','PO Number')]
+    choices = [('address','Address'),('customer','Customer Name'),('ponumber','PO Number'),('shirtstylenumber','Shirt Style Number')]
 
 class ShipmentSearchForm(SearchForm):
     choices = [('address','Address'),('customer','Customer Name'),('tracking','Tracking Number')]
