@@ -59,7 +59,7 @@ def shippingorderskus(request):
     sizeinventories = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, 
                                                     Color__id=colorid, 
                                                     ShirtStyleVariation=(shirtstylevariation
-                                                    )).values('ShirtPrice', 'ShirtPrice__ShirtSize__ShirtSizeAbbr').annotate(total=Sum('Inventory'))
+                                                    )).order_by('ShirtPrice__ShirtSize__SortKey').values('ShirtPrice', 'ShirtPrice__ShirtSize__ShirtSizeAbbr').annotate(total=Sum('Inventory'))
 
     #gets the active orders for skus of a given style/color
     allorderedpieces = ShirtOrderSKU.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid,
@@ -70,7 +70,8 @@ def shippingorderskus(request):
     #gets the inventory broken out by cut order of a given style/color
     cutinventory = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, 
                                                     Color__id=colorid, 
-                                                    ShirtStyleVariation=shirtstylevariation)
+                                                    ShirtStyleVariation=shirtstylevariation,
+                                                    Inventory__gt=0)
 
     for size in sizeinventories:
         size['abbr'] = size['ShirtPrice__ShirtSize__ShirtSizeAbbr']
