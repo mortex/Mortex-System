@@ -252,9 +252,9 @@ def purchaseorders(request):
         po.fillableshirts = 0
         skus = ShirtOrderSKU.objects.filter(ShirtOrder=po)
         for sku in skus:
-            skuinventories = ShirtSKUInventory.objects.filter(ShirtPrice=sku.ShirtPrice,ShirtStyleVariation=sku.ShirtStyleVariation,Color=sku.Color)
-            if skuinventories:
-                skuinventory = skuinventories[0].Inventory
+            skuinventories = ShirtSKUInventory.objects.filter(ShirtPrice=sku.ShirtPrice,ShirtStyleVariation=sku.ShirtStyleVariation,Color=sku.Color).aggregate(Sum('Inventory'))
+            if skuinventories['Inventory__sum']:
+                skuinventory = skuinventories['Inventory__sum']
             else:
                 skuinventory = 0
             
@@ -282,9 +282,10 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
             ShirtStyleVariation = ordercolor['ShirtStyleVariation'],
             Color = ordercolor['Color'])
         for sku in skus:
-            skuinventories = ShirtSKUInventory.objects.filter(ShirtPrice=sku.ShirtPrice,ShirtStyleVariation=sku.ShirtStyleVariation,Color=sku.Color)
-            if skuinventories:
-                skuinventory = skuinventories[0].Inventory
+            skuinventories = ShirtSKUInventory.objects.filter(ShirtPrice=sku.ShirtPrice,ShirtStyleVariation=sku.ShirtStyleVariation,Color=sku.Color).aggregate(Sum('Inventory'))
+            print
+            if skuinventories['Inventory__sum']:
+                skuinventory = skuinventories['Inventory__sum']
             else:
                 skuinventory = 0
             

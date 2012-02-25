@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Sum
 import datetime
 
 class Customer(models.Model):
@@ -175,6 +176,29 @@ class Shipment(models.Model):
     DateShipped = models.DateTimeField('Date Shipped', default = datetime.datetime.today())
     TrackingNumber = models.CharField('Tracking Number', max_length=50)
 
+def updateshipmentsku(changevalue, color, shirtprice, shirtstylevariation, cutorder, pk, shirtorder):
+    #update total on-hand inventory
+    inventory = ShirtSKUInventory.objects.get(Color=color, 
+                                              ShirtPrice=shirtprice, 
+                                              ShirtStyleVariation=shirtstylevariation,
+                                              CutOrder=cutorder)
+    inventory.Inventory -= changevalue
+    inventory.save()
+    
+    #update amount shipped for ordersku
+    ordersku = ShirtOrderSKU.objects.get(pk=pk)
+    ordersku.ShippedQuantity += changevalue
+    ordersku.save()
+    
+    #check to see if order is complete and mark appropriately
+    summedquantities = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).aggregate(Sum('OrderQuantity'), Sum('ShippedQuantity'))
+    shirtsremaining = summedquantities['OrderQuantity__sum'] - summedquantities['ShippedQuantity__sum']
+    if shirtsremaining > 0:
+        shirtorder.Complete = False
+    else:
+        shirtorder.Complete = True
+    shirtorder.save()
+
 class ShipmentSKU(models.Model):
     Shipment = models.ForeignKey(Shipment)
     ShirtOrderSKU = models.ForeignKey(ShirtOrderSKU)
@@ -190,36 +214,15 @@ class ShipmentSKU(models.Model):
             oldvalue = 0
         super(ShipmentSKU, self).save()
         
-        #update total on-hand inventory
-        changevalue = self.ShippedQuantity - oldvalue
-        inventory = ShirtSKUInventory.objects.get(Color=self.ShirtOrderSKU.Color, 
-                                                  ShirtPrice=self.ShirtOrderSKU.ShirtPrice, 
-                                                  ShirtStyleVariation=self.ShirtOrderSKU.ShirtStyleVariation,
-                                                  CutOrder=self.CutOrder)
-        inventory.Inventory -= changevalue
-        inventory.save()
+        updateshipmentsku(self.ShippedQuantity - oldvalue, self.ShirtOrderSKU.Color, self.ShirtOrderSKU.ShirtPrice, self.ShirtOrderSKU.ShirtStyleVariation, self.CutOrder, self.ShirtOrderSKU.pk, self.ShirtOrderSKU.ShirtOrder)
         
-        #update amount shipped for ordersku
-        ordersku = ShirtOrderSKU.objects.get(pk=self.ShirtOrderSKU.pk)
-        ordersku.ShippedQuantity += changevalue
-        ordersku.save()
     #overwrite delete method to modify inventory/order fields that calculate total shipment amounts
     def delete(self):
         #determine old value and delete record
         oldvalue = ShipmentSKU.objects.get(pk=self.pk).ShippedQuantity
         super(ShipmentSKU, self).delete()
         
-        #update total on-hand inventory
-        inventory = ShirtSKUInventory.objects.get(Color=self.ShirtOrderSKU.Color, 
-                                                  ShirtPrice=self.ShirtOrderSKU.ShirtPrice, 
-                                                  ShirtStyleVariation=self.ShirtOrderSKU.ShirtStyleVariation,
-                                                  CutOrder=self.CutOrder)
-        inventory.Inventory += oldvalue
-        inventory.save()
+        updateshipmentsku(oldvalue * -1, self.ShirtOrderSKU.Color, self.ShirtOrderSKU.ShirtPrice, self.ShirtOrderSKU.ShirtStyleVariation, self.CutOrder, self.ShirtOrderSKU.pk, self.ShirtOrderSKU.ShirtOrder)
         
-        #update amount shipped for ordersku
-        ordersku = ShirtOrderSKU.objects.get(pk=self.ShirtOrderSKU.pk)
-        ordersku.ShippedQuantity -= oldvalue
-        ordersku.save()
     class Meta:
         ordering = ["ShirtOrderSKU"]  
