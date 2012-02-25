@@ -5,16 +5,74 @@
 
         <meta http-equiv="Content-Script-Type" content="text/javascript">
 
-        <script type="text/javascript" src="/static/common/js/jquery-1.5.2.min.js"></script>
+        <script type="text/javascript" src="/static/common/js/jquery-1.7.1.min.js"></script>
         <script type="text/javascript" src="/static/common/js/jquery-ui-1.8.11.custom.min.js"></script>
+        <script type="text/javascript" src="http://twitter.github.com/bootstrap/assets/js/bootstrap-dropdown.js"></script>
 
+        <link rel="stylesheet" type="text/css" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
         <link rel="stylesheet" type="text/css" href="/static/common/css/jquery-ui-1.8.11.custom.css">
-        <link rel="stylesheet" type="text/css" href="/static/common/css/base.css">
 
         {% block extrahead %}{% endblock %}
 
     </head>
     <body>
+
+        <header>
+            <nav class="navbar">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <a class="brand" href="/">Mortex Production System</a>
+                        <ul class="nav">
+
+                            <li class="dropdown">
+                                <a href="" class="dropdown-toggle" data-toggle="dropdown">Customers<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="/customers/add/">Add</a></li>
+                                    <li><a href="/customers/search/">Find</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="dropdown">
+                                <a href="" class="dropdown-toggle" data-toggle="dropdown">Shirt Orders<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="/shirtorders/add/">Add</a></li>
+                                    <li><a href="/shirtorders/search/">Find</a></li>
+                                </ul>
+                            </li>
+
+                            <li><a href="/inventory/search"> Inventory</a></li>
+
+                            <li class="dropdown">
+                                <a href="" class="dropdown-toggle" data-toggle="dropdown">Shipments<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="/shipping/add/">Add</a></li>
+                                    <li><a href="/shipping/search/">Find</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="dropdown">
+                                <a href="" class="dropdown-toggle" data-toggle="dropdown">Shirt Styles<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="/shirtstyles/add">Add</a></li>
+                                    <li><a href="/shirtstyles/">Edit</a></li>
+                                </ul>
+                            </li>
+
+                            <li><a href="/colors/edit"> Colors</a></li>
+
+                            <li><a href="/sizes/edit"> Sizes</a></li>
+
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
         {% block body %}{% endblock %}
+
+        <script type="text/javascript">
+            $(".dropdown-toggle").dropdown();
+        </script>
+
     </body>
 </html>
