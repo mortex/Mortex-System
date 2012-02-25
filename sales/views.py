@@ -1,4 +1,6 @@
+import os
 import re
+import subprocess
 
 from django.db.models import Sum
 from sales.models import *
@@ -11,6 +13,7 @@ from django.forms import formsets
 from django.db import transaction
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
+from django.template.loader import render_to_string
 
 def findparentinstance(parentforms, lookupprefix):
     for parentform in parentforms:
@@ -442,8 +445,50 @@ def inventorysearch(request):
 def viewshipment(request, shipmentid):
     shipment = Shipment.objects.get(pk=shipmentid)
     
-    return render_to_response('sales/shipping/view.html', {'shipment':shipment})
-    
+    return render_to_response(
+        'sales/shipping/view.html',
+        {'shipment':shipment, "display_links": True}
+    )
+
+
+@login_required
+def printshipment(request, shipmentid):
+
+    # Determine whether wkhtmltopdf exists; die if it doesn't
+    found = False
+    pdf_converter_exe_name = "wkhtmltopdf"
+    for path in os.environ["PATH"].split(os.pathsep):
+        exe_path = os.path.join(path, pdf_converter_exe_name)
+        if os.path.exists(exe_path) and os.access(exe_path, os.X_OK):
+            found = True
+    if not found:
+        resp = HttpResponse(
+            "No executable `" + pdf_converter_exe_name + "` found in PATH"
+        )
+        resp.status_code = 500
+        return resp
+
+    # Generate PDF
+    resp = HttpResponse(
+        subprocess.Popen(
+            [pdf_converter_exe_name, "-", "-"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE
+        ).communicate(
+            input=render_to_string(
+                "sales/shipping/view.html",
+                {
+                    "shipment": Shipment.objects.get(pk=shipmentid),
+                    "display_links": False
+                }
+            )
+        )[0],
+        content_type="application/pdf"
+    )
+    resp["Content-Disposition"] = "attachment; filename=shipment.pdf"
+    return resp
+
+
 @login_required
 def editcolors(request):
     if request.method == "GET":

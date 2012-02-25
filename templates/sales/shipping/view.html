@@ -2,7 +2,11 @@
 
 {% block body %}
 
-<a href="edit/">edit shipment</a>
+{% if display_links %}
+    <a href="edit/">edit shipment</a>
+    <a href="print">Print</a>
+{% endif %}
+
 <fieldset>
     <table>
         <tr>
