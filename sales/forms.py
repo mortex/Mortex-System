@@ -81,7 +81,7 @@ class ExistingCutSSIForm(CutSSIForm):
     def __init__(self, *args, **kwargs):
         self.totalpieces = kwargs.pop("total_pieces", None)
         super(ExistingCutSSIForm, self).__init__(*args, **kwargs)
-        self.fields["addorsubtract"] = forms.ChoiceField(initial="add", choices={('add','add'),('subtract','subtract')}, widget=forms.RadioSelect())
+        self.fields["addorsubtract"] = forms.ChoiceField(initial="add", choices=(('add','add'),('subtract','subtract')), widget=forms.RadioSelect())
 
 class Order(AutoErrorModelForm):
     CustomerAddress = forms.ModelChoiceField(queryset=CustomerAddress.objects.all(), label='Address')
