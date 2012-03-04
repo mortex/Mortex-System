@@ -73,3 +73,7 @@ input[type=radio] {
 .search ul {
     list-style-type: none;
 }
+
+.inlineblock {
+    display: inline-block;
+}
