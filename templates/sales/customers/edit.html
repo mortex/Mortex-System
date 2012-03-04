@@ -19,19 +19,18 @@
 {% block body %}
     <form method="post" action="">
     {% csrf_token %}
-        <fieldset>
-            <legend>Meta</legend>
-            Customer Name: {{ form.CustomerName }}
+        <div>
+            <h3>Customer Name</h3> {{ form.CustomerName }}
             {% for field in form.hidden_fields %}{{ field }}{% endfor %}
-        </fieldset>
-        <fieldset>
-            <legend>Addresses <input type='button' onClick='addaddress();' value='+'/></legend>
+        </div>
+        <div>
+            <h3>Addresses <input type='button' onClick='addaddress();' value='+'/></h3>
             <div id='addresses'>
                 {% for addressform in addressforms %}
                     {% include 'sales/customers/address.html' %}
                 {% endfor %}
             </div>
-        </fieldset>
+        </div>
         <input type='submit' value='submit'/>
     </form>
 {% endblock %}
