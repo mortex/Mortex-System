@@ -70,6 +70,33 @@ input[type=radio] {
 }
 
 
+/* Movable form rows */
+
+.handle {
+    position: absolute;
+    width: 6px;
+    height: 100%;
+    top: 0px;
+    background-image: url('/static/common/images/grip.png');
+    display: inline-block;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.handlespacer {
+    display: inline-block;
+    width: 6px;
+}
+
+.move {
+    cursor: move;
+}
+
+.relative {
+    position: relative;
+}
+
+
 /* Misc */
 
 body {
