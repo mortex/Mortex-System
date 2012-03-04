@@ -1,0 +1,23 @@
+/* 
+ * "Error" form field styles copied from bootstrap
+ *
+ * Bootstrap's styles for error fields apply to a containing div, which doesn't
+ * play particularly nicely with Django's automatic form generation. Here we
+ * work around this by applying the styles directly to the fields themselves.
+ */
+
+input.error,
+select.error,
+textfield.error {
+    color: #B94A48;
+    border-color: #B94A48;
+}
+
+input.error:focus,
+select.error:focus,
+textfield.error:focus {
+    border-color: #953B39;
+    -webkit-box-shadow: 0 0 6px #D59392;
+    -moz-box-shadow: 0 0 6px #D59392;
+    box-shadow: 0 0 6px #D59392;
+}
