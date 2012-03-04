@@ -89,7 +89,7 @@ class ShirtPrice(models.Model):
     ShirtSize = models.ForeignKey(ShirtSize)
     FabricRollYield = models.IntegerField('Fabric Roll Yield', null=True, blank=True)
     KnitSize = models.FloatField('Knit Size', null=True, blank=True)
-    ShirtPrice = models.FloatField('Size Price')
+    ShirtPrice = models.DecimalField('Size Price', decimal_places=2, max_digits=10)
     Active = models.BooleanField()
     def __unicode__(self):
         return str(self.ShirtSize) + ' - ' + str(self.ColorCategory)
@@ -122,7 +122,7 @@ class ShirtOrderSKU(models.Model):
     ShirtStyleVariation = models.ForeignKey(ShirtStyleVariation, null=True, blank=True)
     Color = models.ForeignKey(Color)
     OrderQuantity = models.IntegerField('Quantity')
-    Price = models.FloatField()
+    Price = models.DecimalField(decimal_places=2, max_digits=10)
     ShippedQuantity = models.IntegerField('Shipped Quantity', default=0)
     def __unicode__(self):
         return str(self.ShirtPrice.ShirtStyle.ShirtStyleNumber) + " " + str(self.Color) + " " + str(self.ShirtPrice.ShirtSize.ShirtSizeAbbr)
