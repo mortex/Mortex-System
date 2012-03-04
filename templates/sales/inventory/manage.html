@@ -18,7 +18,7 @@
 {% regroup transactionlist by shirtsize as shirtsizes %}
     {% for ss in shirtsizes %}
     <fieldset class='inlineblock well'>
-        <h3 class="bottom15">
+        <h3>
             {{ ss.grouper.ShirtSizeAbbr }} - 
             {% for sizetotal in sizetotals %}
                 {% if ss.grouper.id == sizetotal.sizeid %}
@@ -26,11 +26,12 @@
                 {% endif %}
             {% endfor %}
         </h3>
-        <table style='text-align:center' id='inventory'>
+        <table style='text-align:center' id='inventory' class='table table-condensed table-bordered'>
             <tr>
                 <th>Cut<br/>Order</th>
                 <th>Current<br/>Inventory</th>
                 <th>Inventory<br/>Modification</th>
+                <th></th>
             </tr>
             {% for i in ss.list %}
             <tr>
