@@ -1,3 +1,6 @@
+{% extends "sales/base.html" %}
+
+{% block body %}
 <p>
     {{ shirtorder.CustomerAddress }}<br/>
     {{ shirtorder.PONumber }}
@@ -8,3 +11,4 @@
 <ul>
     {{ orderbreakdown|unordered_list }}
 </ul>
+{% endblock %}

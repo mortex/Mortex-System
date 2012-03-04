@@ -17,15 +17,15 @@
 {% csrf_token %}
 {% regroup transactionlist by shirtsize as shirtsizes %}
     {% for ss in shirtsizes %}
-    <fieldset class='inlineblock'>
-        <legend>
+    <fieldset class='inlineblock well'>
+        <h3 class="15bottom">
             {{ ss.grouper.ShirtSizeAbbr }} - 
             {% for sizetotal in sizetotals %}
                 {% if ss.grouper.id == sizetotal.sizeid %}
                     {{ sizetotal.totalinventory }} pieces
                 {% endif %}
             {% endfor %}
-        </legend>
+        </h3>
         <table style='text-align:center' id='inventory'>
             <tr>
                 <th>Cut<br/>Order</th>
