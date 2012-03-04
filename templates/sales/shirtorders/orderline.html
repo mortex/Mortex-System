@@ -2,10 +2,10 @@
 {% for orderline in orderlines %}
     <tr id='row{{ orderline.prefix }}'>
         <td style='vertical-align:middle;' class='delete'>
-            <div onClick="removestyle('{{ orderline.prefix }}')"><a class='inline-deletelink' href='javascript:void(0)'>Remove</a></div>
+            <div class="valign" onClick="removestyle('{{ orderline.prefix }}')"><a class='inline-deletelink' href='javascript:void(0)'>Remove</a></div>
         </td>
         <td>
-        <h4>
+        <h4 class="valign">
         {% if orderline.shirtstylevariation %}
             {{ orderline.shirtstylevariation.ShirtStyleNumber }}
         {% else %}

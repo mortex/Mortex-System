@@ -60,11 +60,11 @@ class CutSSIForm(AutoErrorModelForm):
             self.shirtsize = ShirtSize.objects.get(shirtprice__id=kwargs.pop("shirtprice"))
             self.cutorder = kwargs.pop("cutorder")
         super(CutSSIForm, self).__init__(*args, **kwargs)
-        self.fields['Pieces'].widget.attrs = {'class':'short'}
+        self.fields['Pieces'].widget.attrs = {'class':'input-mini'}
 
 class NewCutSSIForm(CutSSIForm):
     FormType = forms.CharField(initial='new', widget=forms.HiddenInput())
-    CutOrder = forms.CharField(required=False, widget=forms.TextInput(attrs={'class':'short', 'placeholder':'new'}))
+    CutOrder = forms.CharField(required=False, widget=forms.TextInput(attrs={'class':'input-mini', 'placeholder':'new'}))
 
 class ExistingCutSSIForm(CutSSIForm):
     'allows you to create transactions for existing cut orders of a shirt SKU'
@@ -145,7 +145,7 @@ class OrderLine(forms.Form):
                 skuprice = None
                 skuinstance = None
             
-            self.fields[quantityid] = forms.IntegerField(label=size.ShirtSizeAbbr, initial=skuquantity, min_value=0, required=False, widget=forms.TextInput(attrs={"disabled":None, "class":"short quantity size"+str(size.pk), "tabindex":"1"}))
+            self.fields[quantityid] = forms.IntegerField(label=size.ShirtSizeAbbr, initial=skuquantity, min_value=0, required=False, widget=forms.TextInput(attrs={"disabled":None, "class":"input-mini quantity size"+str(size.pk), "tabindex":"1"}))
             self.quantitylist.append(self[quantityid])
             self.fields[priceid] = forms.DecimalField(label=None, required=False, initial=skuprice, min_value=0, max_digits=8, decimal_places=2, widget=forms.TextInput(attrs={"size":"6","class":"price size"+str(size.pk)}))
             self.fields[instanceid] = forms.IntegerField(required=False, initial=skuinstance, widget=forms.HiddenInput())
