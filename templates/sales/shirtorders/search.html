@@ -2,7 +2,7 @@
 
 {% block results %}
 {% if shirtorders %}
-  <table>
+  <table class="table table-bordered table-striped table-condensed">
     <tr>
         <th>Order ID</th>
         <th>PO Number</th>
@@ -13,10 +13,10 @@
     {% for shirtorder in shirtorders %}
     <tr>
         <td><a href='/shirtorders/{{ shirtorder.pk }}'>{{ shirtorder.pk }}</a></td>
-        <td>{{ shirtorder.PONumber }}</td>
-        <td>{{ shirtorder.Customer }}</td>
-        <td>{{ shirtorder.CustomerAddress }}</td>
-        <td>{{ shirtorder.DueDate }}</td>
+        <td><a href='/shirtorders/{{ shirtorder.pk }}'>{{ shirtorder.PONumber }}</a></td>
+        <td><a href='/shirtorders/{{ shirtorder.pk }}'>{{ shirtorder.Customer }}</a></td>
+        <td><a href='/shirtorders/{{ shirtorder.pk }}'>{{ shirtorder.CustomerAddress }}</a></td>
+        <td><a href='/shirtorders/{{ shirtorder.pk }}'>{{ shirtorder.DueDate }}</a></td>
     </tr>
     {% endfor %}
   </table>

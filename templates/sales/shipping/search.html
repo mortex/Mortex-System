@@ -2,7 +2,7 @@
 
 {% block results %}
 {% if shipments %}
-  <table>
+  <table class="table table-bordered table-striped table-condensed">
     <tr>
         <th>Shipment ID</th>
         <th>Tracking Number</th>
@@ -12,9 +12,9 @@
     {% for shipment in shipments %}
     <tr>
         <td><a href='/shipping/{{ shipment.pk }}'>{{ shipment.pk }}</a></td>
-        <td>{{ shipment.TrackingNumber }}</td>
-        <td>{{ shipment.Customer }}</td>
-        <td>{{ shipment.CustomerAddress }}</td>
+        <td><a href='/shipping/{{ shipment.pk }}'>{{ shipment.TrackingNumber }}</a></td>
+        <td><a href='/shipping/{{ shipment.pk }}'>{{ shipment.CustomerAddress.Customer }}</a></td>
+        <td><a href='/shipping/{{ shipment.pk }}'>{{ shipment.CustomerAddress }}</a></td>
     </tr>
     {% endfor %}
   </table>

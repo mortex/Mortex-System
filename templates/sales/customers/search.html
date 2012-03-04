@@ -2,7 +2,7 @@
 
 {% block results %}
 {% if customers %}
-  <table>
+  <table class="table table-bordered table-striped table-condensed">
     <tr>
         <th>Customer ID</th>
         <th>Name</th>
@@ -10,7 +10,7 @@
     {% for customer in customers %}
     <tr>
         <td><a href='/customers/{{ customer.pk }}/edit/'>{{ customer.pk }}</a></td>
-        <td>{{ customer.CustomerName }}</td>
+        <td><a href='/customers/{{ customer.pk }}/edit/'>{{ customer.CustomerName }}</a></td>
     </tr>
     {% endfor %}
   </table>
