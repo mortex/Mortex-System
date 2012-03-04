@@ -112,3 +112,7 @@ body {
 .inlineblock {
     display: inline-block;
 }
+
+.15bottom {
+    margin-bottom: 15px;
+}
