@@ -31,10 +31,16 @@ textfield.error:focus {
 
 table#inventory ul {
     list-style-type: none;
+    margin-left: 0px;
+    margin-bottom: 0px;
 }
 
 table#inventory ul li {
     display: inline-block;
+}
+
+table#inventory input {
+    margin-bottom: 0px;
 }
 
 input[type=radio] {
