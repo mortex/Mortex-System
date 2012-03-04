@@ -26,17 +26,18 @@
                 {% endif %}
             {% endfor %}
         </legend>
-        <table style='text-align:center'>
+        <table style='text-align:center' id='inventory'>
             <tr>
                 <th>Cut<br/>Order</th>
-                <th>Current<br>Inventory</th>
-                <th>Add<br/>Inventory</th>
+                <th>Current<br/>Inventory</th>
+                <th>Inventory<br/>Modification</th>
             </tr>
             {% for i in ss.list %}
             <tr>
                 <td>{{ i.cutorder }}{{ i.CutOrder }}</td>
                 <td>{{ i.totalpieces }}</td>
                 <td>{{ i.Pieces }}{{ i.Color }}{{ i.ShirtPrice }}{{ i.ShirtStyleVariation }}{{ i.FormType }}</td>
+                <td>{{ i.addorsubtract }}</td>
             </tr>
             {% endfor %}
         </table>

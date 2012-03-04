@@ -47,7 +47,6 @@ def manageinventory(request, shirtstyleid, variationid, colorid):
             if formtype == "new":
                 transactions.append(NewCutSSIForm(request.POST, prefix=i, shirtprice=shirtprice, cutorder=cutorder))
             else:
-                print variationid
                 total_pieces = ShirtSKUInventory.objects.get(CutOrder=cutorder, 
                                                                 ShirtPrice=ShirtPrice.objects.get(pk=shirtprice), 
                                                                 Color=Color.objects.get(pk=colorid), 
@@ -60,7 +59,10 @@ def manageinventory(request, shirtstyleid, variationid, colorid):
         if passedvalidation:
             for transaction in transactions:
                 if transaction.cleaned_data["Pieces"]:
-                    transaction.save()
+                    savetransaction = transaction.save(commit=False)
+                    if transaction.cleaned_data["FormType"] == "existing" and transaction.cleaned_data["addorsubtract"] == "subtract":
+                        savetransaction.Pieces = -savetransaction.Pieces
+                    savetransaction.save()
             return HttpResponseRedirect('/inventory/' + shirtstyleid + '/' + variationid + '/' + colorid)
         
         else:
