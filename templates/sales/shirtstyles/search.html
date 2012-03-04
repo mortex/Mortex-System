@@ -1,0 +1,24 @@
+{% extends "sales/search.html" %}
+
+{% block results %}
+{% if shirtstyles %}
+  <table class="table table-bordered table-striped table-condensed">
+    <tr>
+        <th>Style Number</th>
+        <th>Description</th>
+        <th>Knit Style</th>
+        <th>Customer</th>
+    </tr>
+    {% for shirtstyle in shirtstyles %}
+    <tr>
+        <td><a href='/shirtstyles/edit/{{ shirtstyle.pk }}'>{{ shirtstyle.ShirtStyleNumber }}</a></td>
+        <td><a href='/shirtstyles/edit/{{ shirtstyle.pk }}'>{{ shirtstyle.ShirtStyleDescription }}</a></td>
+        <td><a href='/shirtstyles/edit/{{ shirtstyle.pk }}'>{{ shirtstyle.KnitStyleName }}</a></td>
+        <td><a href='/shirtstyles/edit/{{ shirtstyle.pk }}'>{{ shirtstyle.Customer }}</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+{% else %}
+  <p>No styles found</p>
+{% endif %}
+{% endblock %}

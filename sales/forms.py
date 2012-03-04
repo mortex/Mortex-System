@@ -231,6 +231,9 @@ class InventorySearchForm(SearchForm):
 
 class CustomerSearchForm(SearchForm):
     choices = [('customername','Customer Name'),('contactname','Contact Name')]
+
+class ShirtStyleSearchForm(SearchForm):
+    choices = [('stylenumber','Style Number'),('knitstyle','Knit Style'),('customer','Customer')]
     
 class ColorCategoryForm(AutoErrorModelForm):
     class Meta:

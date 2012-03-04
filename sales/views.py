@@ -445,6 +445,24 @@ def inventorysearch(request):
     
     form = InventorySearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
     return render_to_response('sales/inventory/search.html', {'shirtstyles':shirtstyles, 'shirtstylevariations':shirtstylevariations, 'form':form})
+
+@login_required
+def shirtstylesearch(request):
+    querystring, searchfield = searchcriteria(request.GET)
+    
+    if searchfield == 'stylenumber':
+        query = Q(ShirtStyleNumber__contains=querystring)
+    elif searchfield == 'knitstyle':
+        query = Q(KnitStyleName__contains=querystring)
+    elif searchfield == 'customer':
+        query = Q(Customer__CustomerName__contains=querystring)
+    else:
+        query = Q()
+        
+    shirtstyles = ShirtStyle.objects.filter(query).order_by('ShirtStyleNumber')
+        
+    form = ShirtStyleSearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
+    return render_to_response('sales/shirtstyles/search.html', {'shirtstyles':shirtstyles, 'form':form})
     
 @login_required
 def viewshipment(request, shipmentid):
