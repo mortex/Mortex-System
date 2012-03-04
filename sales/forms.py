@@ -50,8 +50,6 @@ class DeleteableForm(forms.Form):
     def is_valid(self):
         if self.fields.get("delete") and self.data[str(self.prefix) + "-delete"] != "0":
 
-            print "delete: " + self.data[str(self.prefix) + "-delete"]
-
             def swallow_validation_errors(f, *args, **kwargs):
                 try:
                     return f(*args, **kwargs)
