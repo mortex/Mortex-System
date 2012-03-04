@@ -120,7 +120,7 @@ class OrderLine(forms.Form):
             colorid = self.color.id
         else:
             colorid = ''
-        self.fields["color"] = forms.ModelChoiceField(queryset=Color.objects.distinct().filter(ColorCategory__shirtprice__ShirtStyle__id=shirtstyleid), initial=self.color, widget=forms.Select(attrs={"class":"colorselector " + colorstyleclass,"onChange":"selectcolor(this, " + str(shirtstyleid) + ", " + str(self.prefix) + ", '" + colorstyleclass + "')", "tabindex":"1", "data-oldvalue":colorid}))
+        self.fields["color"] = forms.ModelChoiceField(queryset=Color.objects.distinct().filter(ColorCategory__shirtprice__ShirtStyle__id=shirtstyleid), initial=self.color, widget=forms.Select(attrs={"class":"input-medium colorselector " + colorstyleclass,"onChange":"selectcolor(this, " + str(shirtstyleid) + ", " + str(self.prefix) + ", '" + colorstyleclass + "')", "tabindex":"1", "data-oldvalue":colorid}))
         shirtsizes = ShirtSize.objects.filter(shirtprice__ShirtStyle__exact=shirtstyleid).distinct()
         i = 1
 
