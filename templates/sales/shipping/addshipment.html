@@ -90,17 +90,17 @@
         $.getJSON('/data/shippingorderskus/', {'shirtstyleid':shirtstyleid, 'variationid':shirtstylevariationid, 'colorid':colorid, 'addressid':customeraddressid}, function(data){
             var sizelist = "";
             $.each(data, function(i, item) {
-                sizelist += "<fieldset class='inlineblock'><legend>" + item.abbr + "</legend><div id='orderlist' class='left'><table><tr><th colspan=3>Orders</th><tr><td>PO#</td><td>Ordered</td><td>Remaining</td></tr>";
+                sizelist += "<div class='inlineblock'><legend>" + item.abbr + "</legend><div id='orderlist' class='pull-left'><table class='table table-bordered table-condensed'><tr><th colspan=3>Orders</th><tr><td>PO#</td><td>Ordered</td><td>Remaining</td></tr>";
                 $.each(item.orderedpieces, function(i, po) {
                     sizelist += "<tr class='orderselectable' data-shirtprice='" + po.shirtprice + "' data-ordersku='" + po.shirtordersku + "'><td>" + po.ponumber + "</td><td id='sos" + po.shirtordersku + "quantity'>" + po.orderquantity + "</td><td id='sos" + po.shirtordersku + "remaining'>" + po.orderquantity + "</td></tr>";
                 });
                 sizelist += "</table></div>";
              
-                sizelist += "<div id='cutlist' class='left'><table><tr><th colspan=3>Inventory</th><tr><tr><td>CO#</td><td>Inventory</td><td>Remaining</td></tr>";
+                sizelist += "<div id='cutlist' class='pull-left'><table class='table table-bordered table-condensed'><tr><th colspan=3>Inventory</th><tr><tr><td>CO#</td><td>Inventory</td><td>Remaining</td></tr>";
                 $.each(item.cutpieces, function(i, cut){
                     sizelist += "<tr class='cut unselectable' data-shirtprice='" + cut.shirtprice + "' data-cutorder='" + cut.cutorder + "'><td>" + cut.cutorder + "</td><td id='co" + cut.cutorder + "quantity'>" + cut.inventory + "</td><td id='co" + cut.cutorder + "remaining'>" + cut.inventory + "</td></tr>";
                 });
-                sizelist += "</table></div></fieldset><br/>";
+                sizelist += "</table></div></div><br/>";
             });
             $('#sizelist').html(sizelist);
             $('.orderselectable').click(function(){
@@ -141,11 +141,11 @@
     #cutlist {
         padding-left: 10px;
         margin-left: -1px;
-        border-left: 1px solid black;
+        border-left: 1px solid #EEE;
     }
     #orderlist {
         padding-right: 10px;
-        border-right: 1px solid black;
+        border-right: 1px solid #EEE;
     }
     .orderselectable, .cut {
         cursor:pointer;
@@ -156,13 +156,17 @@
     .unselectable {
         color:gray;
     }
-    #boxes, #sizelist {
+    #boxes {
         float:left;
-        width:50%;
+        width:60%;
+    }
+    #sizelist {
+        width:40%;
+        float:left;
     }
     .box {
-        border:1px solid black;
         float:left;
+        margin-right: 20px;
     }
     #boxtemplate {
         display:none;
@@ -170,21 +174,14 @@
     .shippedquantity {
         width:60px;
     }
-    table{
-        border-collapse: collapse;
-    }
-    td, th{
-        padding: 0px 4px;
-        text-align: center;
-    }
 </style>
 {% endblock %}
 
 {% block body %}
 <form method="post" action="">
 {% csrf_token %}
-<fieldset>
-    <table>
+<div>
+    <table class='table table-bordered table-condensed'>
         <tr>
             <th>Customer:</th>
             <td>{{ customeraddress.Customer }}</td>
@@ -195,7 +192,7 @@
         </tr>
         {{ shipment }}
     </table>
-</fieldset>
+</div>
 {% regroup ordercolors by parentstyle as parentstyles %}
     <ul>
     {% for parentstyle in parentstyles %}
@@ -219,9 +216,9 @@
     <div id='boxes'>
         {% include "sales/shipping/shipmentbox.html" %}
     </div>
-    <fieldset class='box' id='boxtemplate' data-box='' onClick='fillbox(this)'>
+    <div class='box' id='boxtemplate' data-box='' onClick='fillbox(this)'>
         <legend>Box <span class='boxnumber'></legend>
-        <table>
+        <table class="table table-bordered table-condensed">
             <tr>
                 <th>SKU</th>
                 <th>PO</th>
@@ -229,7 +226,7 @@
                 <th>Quantity</th>
             </tr>
         </table>
-    </fieldset>
+    </div>
     <input type="hidden" id="skucount" name="skucount" value="{{ skucount }}"/>
     <div class='clear'></div>
     <input type="submit" value="Submit"/>

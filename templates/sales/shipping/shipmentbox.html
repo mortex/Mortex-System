@@ -1,8 +1,8 @@
 {% regroup shipmentskus by boxnum as skulist %}
 {% for sku in skulist %}
-    <fieldset class="box" id="box{{ sku.grouper }}" data-box="{{ sku.grouper }}" onclick="fillbox(this)">
+    <div class="box" id="box{{ sku.grouper }}" data-box="{{ sku.grouper }}" onclick="fillbox(this)">
         <legend>Box <span class="boxnumber">{{ sku.grouper }}</legend>
-        <table>
+        <table class="table table-bordered table-condensed">
             <tbody>
                 <tr>
                     <th>SKU</th>
@@ -19,5 +19,5 @@
                 </tr>
                 {% endfor %}
             </tbody></table>
-    </fieldset>
+    </div>
 {% endfor %}

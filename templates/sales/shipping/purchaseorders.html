@@ -3,7 +3,7 @@
 {% block body %}
 <h3>Purchase Orders by Due Date</h3>
 Select a purchase order to begin a shipment
-<table style='text-align:center;'>
+<table style='text-align:center;' class='table table-bordered table-condensed'>
     <tr>
         <th>PO Number</th>
         <th>Customer</th>
@@ -13,9 +13,9 @@ Select a purchase order to begin a shipment
 {% for po in purchaseorders %}
     <tr>
         <td><a href='{{ po.CustomerAddress.id }}'>{{ po.PONumber }}</a></td>
-        <td>{{ po.Customer }}</td>
-        <td>{{ po.fillableshirts }}/{{ po.totalshirts }}</td>
-        <td>{{ po.DueDate }}</td>
+        <td><a href='{{ po.CustomerAddress.id }}'>{{ po.Customer }}</a></td>
+        <td><a href='{{ po.CustomerAddress.id }}'>{{ po.fillableshirts }}/{{ po.totalshirts }}</a></td>
+        <td><a href='{{ po.CustomerAddress.id }}'>{{ po.DueDate }}</a></td>
     </tr>
 {% endfor %}
 

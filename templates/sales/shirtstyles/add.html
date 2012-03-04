@@ -14,6 +14,7 @@
 
         .m_ctrl_fieldset {
             float: left;
+            margin-right: 20px;
         }
 
         .m_ctrls {
@@ -70,6 +71,16 @@
         .variation_field {
             margin: 5px;
             overflow: hidden;
+        }
+        
+        input[type=submit]{
+            float: left;
+            clear: left;
+            margin-top: 15px;
+        }
+        
+        label{
+            display: inline-block;
         }
 
     </style>
@@ -179,7 +190,7 @@
             <legend>Color Categories</legend>
             <ul class="m_ctrls" id="cc_ctrls">
                 {% for ccName in ccNames %}
-                    <li><input type="checkbox" onchange="mctl_chg_cc('{{ ccName|unspace }}', this.checked);" data-cc="{{ ccName|unspace }}">{{ ccName }}</li>
+                    <li><input id="{{ ccName|unspace }}" type="checkbox" onchange="mctl_chg_cc('{{ ccName|unspace }}', this.checked);" data-cc="{{ ccName|unspace }}"><label for="{{ ccName|unspace }}">{{ ccName }}</label></li>
                 {% endfor %}
             </ul>
         </fieldset>
@@ -187,7 +198,7 @@
             <legend>Sizes</legend>
             <ul class="m_ctrls" id="size_ctrls">
                 {% for sizeName in sizeNames %}
-                    <li><input type="checkbox" onchange="mctl_chg_size('{{ sizeName|unspace }}', this.checked);" data-size="{{ sizeName|unspace }}">{{ sizeName }}</li>
+                    <li><input id="{{ sizeName|unspace }}" type="checkbox" onchange="mctl_chg_size('{{ sizeName|unspace }}', this.checked);" data-size="{{ sizeName|unspace }}"><label for="{{ sizeName|unspace }}">{{ sizeName }}</label></li>
                 {% endfor %}
             </ul>
         </fieldset>
@@ -222,7 +233,7 @@
         {# Variations #}
         <fieldset id="variations">
 
-            <legend>Variations</legend>
+            <legend>Variations <input id="add-variation" type="button" value="+"/></legend>
 
             {{ variation_formset.management_form }}
 
@@ -230,10 +241,7 @@
                 {% include "sales/shirtstyles/variationform.html" %}
             {% endfor %}
 
-            <button id="add-variation" type="button">Add variation</button>
-
         </fieldset>
-
         <input type="submit" value="Submit">
 
     </form>
