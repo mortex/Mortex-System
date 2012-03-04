@@ -21,3 +21,23 @@ textfield.error:focus {
     -moz-box-shadow: 0 0 6px #D59392;
     box-shadow: 0 0 6px #D59392;
 }
+
+
+/*
+ * Table for manage inventory page.
+ *
+ * Lay out radio buttons horizontally
+ */
+
+table#inventory ul {
+    list-style-type: none;
+}
+
+table#inventory ul li {
+    display: inline-block;
+}
+
+table#inventory ul li input[type=radio] {
+    display: inline-block;
+    margin-left: 10px;
+}
