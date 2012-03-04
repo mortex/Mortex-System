@@ -70,6 +70,13 @@ input[type=radio] {
 }
 
 
+/* Misc */
+
+body {
+    margin-left: 30px;
+    margin-right: 30px;
+}
+
 .search ul {
     list-style-type: none;
 }
