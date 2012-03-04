@@ -41,6 +41,30 @@ class AutoErrorModelForm(forms.ModelForm):
         for f in self.fields:
             self.fields[f] = auto_error_class(self.fields[f])
 
+class DeleteableForm(forms.Form):
+    """
+    Extension of Form which swallows validation failures if the form's "delete"
+    field is provided and evaluates to True in a boolean context
+    """
+
+    def is_valid(self):
+        if self.fields.get("delete") and self.data[str(self.prefix) + "-delete"] != "0":
+
+            print "delete: " + self.data[str(self.prefix) + "-delete"]
+
+            def swallow_validation_errors(f, *args, **kwargs):
+                try:
+                    return f(*args, **kwargs)
+                except ValidationError:
+                    pass
+
+            for fld in self.fields.values():
+                old_to_python = fld.to_python
+                fld.to_python = lambda value: swallow_validation_errors(old_to_python, value)
+                fld.validate = lambda value: True
+
+        return super(DeleteableForm, self).is_valid()
+
 class CutSSIForm(AutoErrorModelForm):
     'allows you to create transactions for new cut orders of a shirt SKU'
     class Meta:
@@ -93,7 +117,7 @@ class Order(AutoErrorModelForm):
         for field in self.fields.values():
             field.widget.attrs = {"tabindex":"1"}
 
-class OrderLine(forms.Form):
+class OrderLine(DeleteableForm):
     def __init__(self, *args, **kwargs):
 
         shirtstyleid = kwargs.pop("shirtstyleid")
