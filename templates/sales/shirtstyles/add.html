@@ -113,8 +113,17 @@
 
             {# Force any matrix rows/cols with initial data to be displayed #}
             $('#matrix input:text[value!=""]').each(function(i, e) {
+
+                var ccName = $(e).data("cc");
+                var sizeName = $(e).data("size");
                 rows[$(e).data("cc")] = true;
                 cols[$(e).data("size")] = true;
+
+                {# Disable matrix controls so that existing data cannot be #}
+                {# deleted #}
+                $("#" + ccName).attr("disabled", "disabled");
+                $("#" + sizeName).attr("disabled", "disabled");
+
             });
 
             {# Iterate over matrix controls to init rest of matrix state & #}
