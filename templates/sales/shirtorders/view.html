@@ -1,14 +1,27 @@
 {% extends "sales/base.html" %}
 
 {% block body %}
-<p>
-    {{ shirtorder.CustomerAddress }}<br/>
-    {{ shirtorder.PONumber }}
-    <a href="{{ shirtorder.id }}/edit/">edit order</a>
-</p>
+<a href="{{ shirtorder.id }}/edit/">edit order</a>
+<h3>Customer Info</h3>
+<table class="table table-bordered table-condensed">
+    <tr>
+        <td>Customer</td>
+        <td>{{ shirtorder.CustomerAddress.Customer }}</td>
+    </tr>
+    <tr>
+        <td>Address</td>
+        <td>{{ shirtorder.CustomerAddress }}</td>
+    </tr>
+    <tr>
+        <td>PO Number</td>
+        <td>{{ shirtorder.PONumber }}</td>
+    </tr>
+</table>
 
 
 <ul>
     {{ orderbreakdown|unordered_list }}
 </ul>
+
+{{ orderskus }}
 {% endblock %}

@@ -137,8 +137,9 @@ def shirtorderview(request, orderid):
             return a
     
     orderbreakdown = flattendict(orderbreakdowndict)
+    orderskus = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).order_by('ShirtPrice__ShirtStyle','ShirtStyleVariation','Color','ShirtPrice__ShirtSize__SortKey')
     
-    return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder, 'orderbreakdown':orderbreakdown})
+    return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder, 'orderbreakdown':orderbreakdown, 'orderskus':orderskus})
 
 @login_required
 def shirtorderadd(request, orderid=None):
