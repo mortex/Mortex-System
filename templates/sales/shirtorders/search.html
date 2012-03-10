@@ -9,6 +9,7 @@
         <th>Customer</th>
         <th>Ship Address</th>
         <th>Due Date</th>
+        <th>Shipped Complete</th>
     </tr>
     {% for shirtorder in shirtorders %}
     <tr>
@@ -17,6 +18,7 @@
         <td><a href='/shirtorders/{{ shirtorder.pk }}'>{{ shirtorder.Customer }}</a></td>
         <td><a href='/shirtorders/{{ shirtorder.pk }}'>{{ shirtorder.CustomerAddress }}</a></td>
         <td><a href='/shirtorders/{{ shirtorder.pk }}'>{{ shirtorder.DueDate }}</a></td>
+        <td><a href='/shirtorders/{{ shirtorder.pk }}'>{{ shirtorder.Complete }}</a></td>
     </tr>
     {% endfor %}
   </table>

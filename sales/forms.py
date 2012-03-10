@@ -130,7 +130,6 @@ class Order(AutoErrorModelForm):
     CustomerAddress = forms.ModelChoiceField(queryset=CustomerAddress.objects.all(), label='Address')
     class Meta:
         model = ShirtOrder
-        exclude = ("Complete")
     def __init__(self, *args, **kwargs):
         super(Order, self).__init__(*args, **kwargs)
         for field in self.fields.values():

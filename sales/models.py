@@ -4,7 +4,7 @@ from django.db.models import Sum
 import datetime
 
 class Customer(models.Model):
-    CustomerName = models.CharField('Customer Name', max_length=40)
+    CustomerName = models.CharField('Customer Name', max_length=40, unique=True)
     def __unicode__(self):
         return self.CustomerName
 
@@ -64,19 +64,19 @@ class ShirtStyleVariation(models.Model):
         super(ShirtStyleVariation, self).save(*args, **kwargs)
 
 class ColorCategory(models.Model):
-    ColorCategoryName = models.CharField('Color Category', max_length=20)
+    ColorCategoryName = models.CharField('Color Category', max_length=20, unique=True)
     def __unicode__(self):
         return self.ColorCategoryName
 
 class Color(models.Model):
     ColorCategory = models.ForeignKey(ColorCategory)
-    ColorName = models.CharField('Color Name', max_length=20)
+    ColorName = models.CharField('Color Name', max_length=20, unique=True)
     def __unicode__(self):
         return self.ColorName
 
 class ShirtSize(models.Model):
-    ShirtSizeName = models.CharField('Size Name', max_length=20)
-    ShirtSizeAbbr = models.CharField('Size Abbr', max_length=10)
+    ShirtSizeName = models.CharField('Size Name', max_length=20, unique=True)
+    ShirtSizeAbbr = models.CharField('Size Abbr', max_length=10, unique=True)
     SortKey = models.IntegerField()
     def __unicode__(self):
         return self.ShirtSizeName
@@ -111,8 +111,8 @@ class ShirtOrder(models.Model):
     Customer = models.ForeignKey(Customer)
     CustomerAddress = models.ForeignKey(CustomerAddress)
     PONumber = models.CharField('PO#', max_length=20)
-    Complete = models.BooleanField()
     DueDate = models.DateField('Due Date')
+    Complete = models.BooleanField('Shipped Complete')
     def __unicode__(self):
         return self.PONumber
 
