@@ -22,14 +22,14 @@ def auto_error_class(field, error_class="error"):
     inner_clean = field.clean
 
     def wrap_clean(self, *args, **kwargs):
-       try:
-           return inner_clean(*args, **kwargs)
-       except exceptions.ValidationError as ex:
-           self.widget.attrs["class"] = self.widget.attrs.get(
-               "class", ""
-           ) + " " + error_class
-           self.widget.attrs["title"] = ", ".join(ex.messages)
-           raise ex
+        try:
+            return inner_clean(*args, **kwargs)
+        except exceptions.ValidationError as ex:
+            self.widget.attrs["class"] = self.widget.attrs.get(
+                "class", ""
+            ) + " " + error_class
+            self.widget.attrs["title"] = ", ".join(ex.messages)
+            raise ex
 
     field.clean = types.MethodType(wrap_clean, field, field.__class__)
 
@@ -40,6 +40,27 @@ class AutoErrorModelForm(forms.ModelForm):
         super(AutoErrorModelForm, self).__init__(*args, **kwargs)
         for f in self.fields:
             self.fields[f] = auto_error_class(self.fields[f])
+
+def wrap_clean_dec_maker(error_class="error"):
+    def wrap_clean_dec(clean_mthd):
+        """
+            Decorator to accomplish the same thing as the above wrap_clean (defined
+            inside auto_error_class)
+        """
+
+        def new_clean_mthd(self, *args, **kwargs):
+            try:
+                return clean_mthd(self, *args, **kwargs)
+            except ValidationError as ex:
+                widget_attrs = self.fields[clean_mthd.__name__[6:]].widget.attrs
+                widget_attrs["class"] = widget_attrs.get(
+                    "class", ""
+                ) + " " + error_class
+                widget_attrs["title"] = ", ".join(ex.messages)
+                raise ex
+
+        return new_clean_mthd
+    return wrap_clean_dec
 
 class DeleteableForm(forms.Form):
     """
@@ -234,11 +255,19 @@ class ShirtStyleSearchForm(SearchForm):
     choices = [('stylenumber','Style Number'),('knitstyle','Knit Style'),('customer','Customer')]
     
 class ColorCategoryForm(AutoErrorModelForm):
+
     class Meta:
         model = ColorCategory
+
     def __init__(self, *args, **kwargs):
         super(ColorCategoryForm, self).__init__(*args, **kwargs)
         self.fields['pk'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
+
+    @wrap_clean_dec_maker()
+    def clean_ColorCategoryName(self):
+        '''Ensure that ColorCategoryName does not contain "__"'''
+        if "__" in self.cleaned_data["ColorCategoryName"]:
+            raise ValidationError('Color category name may not contain "__"')
 
 class ColorForm(AutoErrorModelForm):
     class Meta:
@@ -253,8 +282,10 @@ class ColorForm(AutoErrorModelForm):
         
 #size management
 class ShirtSizeForm(AutoErrorModelForm):
+
     class Meta:
         model = ShirtSize
+
     def __init__(self, *args, **kwargs):
         super(ShirtSizeForm, self).__init__(*args, **kwargs)
         self.fields['SortKey'].widget = forms.HiddenInput()
@@ -262,6 +293,12 @@ class ShirtSizeForm(AutoErrorModelForm):
         self.fields['pk'] = forms.IntegerField(required=False, initial=self.instance.pk, widget=forms.HiddenInput())
         self.fields['ShirtSizeAbbr'].widget.attrs = {'class':'digit'}
         self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
+
+    @wrap_clean_dec_maker()
+    def clean_ShirtSizeName(self):
+        '''Ensure that ShirtSizeName does not contain "__"'''
+        if "__" in self.cleaned_data["ShirtSizeName"]:
+            raise ValidationError('Shirt size name may not contain "__"')
         
 #customer management
 class CustomerForm(AutoErrorModelForm):
