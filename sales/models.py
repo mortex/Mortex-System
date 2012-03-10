@@ -225,4 +225,4 @@ class ShipmentSKU(models.Model):
         updateshipmentsku(oldvalue * -1, self.ShirtOrderSKU.Color, self.ShirtOrderSKU.ShirtPrice, self.ShirtOrderSKU.ShirtStyleVariation, self.CutOrder, self.ShirtOrderSKU.pk, self.ShirtOrderSKU.ShirtOrder)
         
     class Meta:
-        ordering = ["ShirtOrderSKU"]  
+        ordering = ["BoxNumber", "ShirtOrderSKU"]  

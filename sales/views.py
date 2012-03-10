@@ -470,7 +470,7 @@ def viewshipment(request, shipmentid):
     
     return render_to_response(
         'sales/shipping/view.html',
-        {'shipment':shipment, "display_links": True}
+        {'shipment':shipment}
     )
 
 
@@ -502,7 +502,7 @@ def printshipment(request, shipmentid):
                 "sales/shipping/view.html",
                 {
                     "shipment": Shipment.objects.get(pk=shipmentid),
-                    "display_links": False
+                    "hide_links": True
                 }
             )
         )[0],

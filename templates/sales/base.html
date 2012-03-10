@@ -23,7 +23,7 @@
 
     </head>
     <body>
-
+        {% if not hide_links %}
         <header>
             <nav class="navbar navbar-fixed-top">
                 <div class="navbar-inner">
@@ -74,6 +74,7 @@
                 </div>
             </nav>
         </header>
+        {% endif %}
 
         {% block body %}{% endblock %}
 

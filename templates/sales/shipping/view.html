@@ -1,14 +1,26 @@
 {% extends "sales/base.html" %}
 
+{% block extrahead %}
+    <style type="text/css">
+        .table td {
+            border-left: 1px solid #DDD;
+        }
+        
+        .boxnumber {
+            font-size: 1.5em;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
 
-{% if display_links %}
+{% if not hide_links %}
     <a href="edit/">edit shipment</a>
     <a href="print">Print</a>
 {% endif %}
-
+<h3>Shipment Info</h3>
 <fieldset>
-    <table>
+    <table class="table table-bordered table-condensed">
         <tr>
             <td>Customer:</td>
             <td>{{ shipment.CustomerAddress.Customer }}</td>
@@ -21,33 +33,33 @@
             <td>Tracking Number:</td>
             <td>{{ shipment.TrackingNumber }}</td>
         </tr>
+        <tr>
+            <td>Date Shipped:</td>
+            <td>{{ shipment.DateShipped|date:"N j, Y" }}</td>
+        </tr>
     </table>
 </fieldset>
 
-<h3>Totals</h3>
-
-
 <h3>Boxes</h3>
 {% regroup shipment.shipmentsku_set.all by BoxNumber as box_list %}
-    {% for box in box_list %}
-        <fieldset class='inlineblock'>
-            <legend>Box {{ box.grouper }}</legend>
-            <table>
-                <tr>
-                    <th>SKU</th>
-                    <th>PO</th>
-                    <th>CO</th>
-                    <th>Quantity</th>
-                </tr>
-                {% for sku in box.list %}
-                <tr>
-                    <td>{{ sku.ShirtOrderSKU }}</td>
-                    <td>{{ sku.ShirtOrderSKU.ShirtOrder.PONumber }}</td>
-                    <td>{{ sku.CutOrder }}</td>
-                    <td>{{ sku.ShippedQuantity }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        </fieldset>
-    {% endfor %}
+    <table class="table table-bordered table-condensed">
+        <tr>
+            <th></th>
+            <th>SKU</th>
+            <th>PO</th>
+            <th>CO</th>
+            <th>Quantity</th>
+        </tr>
+        {% for box in box_list %}
+            {% for sku in box.list %}
+            <tr>
+                {% if forloop.first %}<th class="boxnumber" rowspan="{{ box.list|length }}">Box {{ box.grouper }}</th>{% endif %}
+                <td>{{ sku.ShirtOrderSKU }}</td>
+                <td>{{ sku.ShirtOrderSKU.ShirtOrder.PONumber }}</td>
+                <td>{{ sku.CutOrder }}</td>
+                <td>{{ sku.ShippedQuantity }}</td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+    </table>
 {% endblock %}
