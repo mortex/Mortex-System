@@ -33,3 +33,13 @@ def printtopdf(request, template, context, filename):
     )
     resp["Content-Disposition"] = "attachment; filename=" + filename + ".pdf"
     return resp
+
+def partition(pred, iterable):
+    ts = []
+    fs = []
+    for x in iterable:
+        if pred(x):
+            ts.append(x)
+        else:
+            fs.append(x)
+    return (ts, fs)

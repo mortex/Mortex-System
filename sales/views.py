@@ -14,6 +14,10 @@ from sales.models import *
 from sales.forms import *
 from sales.util import *
 
+from sales.models import *
+from sales.forms import *
+from sales.util import *
+
 def findparentinstance(parentforms, lookupprefix):
     for parentform in parentforms:
         if parentform.prefix == lookupprefix:
@@ -428,12 +432,36 @@ def inventorysearch(request):
     shirtstyles = ShirtStyle.objects.filter(query).order_by('ShirtStyleNumber')
     for shirtstyle in shirtstyles:
         shirtstyle.colors = Color.objects.filter(ColorCategory__shirtprice__ShirtStyle=shirtstyle).distinct()
+        shirtstyle.colors_in_stock, shirtstyle.colors_out_of_stock = partition(
+            lambda c:
+                ShirtSKUInventory.objects
+                                 .filter(Color=c)
+                                 .filter(Inventory__gt=0)
+                                 .filter(ShirtPrice__ShirtStyle=shirtstyle)
+                                 .count() > 0,
+            shirtstyle.colors
+        )
+
     shirtstylevariations = ShirtStyleVariation.objects.filter(query).order_by('ShirtStyleNumber')
     for shirtstylevariation in shirtstylevariations:
         shirtstylevariation.colors = Color.objects.filter(ColorCategory__shirtprice__ShirtStyle=shirtstylevariation.ShirtStyle).distinct()
-    
+        shirtstylevariation.colors_in_stock, shirtstylevariation.colors_out_of_stock = partition(
+            lambda c:
+                ShirtSKUInventory.objects
+                                 .filter(Color=c)
+                                 .filter(Inventory__gt=0)
+                                 .filter(ShirtStyleVariation=shirtstylevariation)
+                                 .count() > 0,
+            shirtstylevariation.colors
+        )
+
     form = InventorySearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
-    return render_to_response('sales/inventory/search.html', {'shirtstyles':shirtstyles, 'shirtstylevariations':shirtstylevariations, 'form':form})
+    return render_to_response(
+        "sales/inventory/search.html",
+        {"shirtstyles": shirtstyles,
+         "shirtstylevariations": shirtstylevariations,
+         "form": form}
+    )
 
 @login_required
 def shirtstylesearch(request):

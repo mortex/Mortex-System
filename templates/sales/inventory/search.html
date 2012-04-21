@@ -27,16 +27,23 @@
             <td>{{ shirtstyle.ShirtStyleDescription }}</td>
             <td>
                 <select id='{{ shirtstyle.id }}-0'>
-                    {% for color in shirtstyle.colors %}
-                        <option value={{ color.id }}>{{ color }}</option>
-                    {% endfor %}
+                    <optgroup label="In Stock">
+                        {% for color in shirtstyle.colors_in_stock %}
+                            <option value="{{ color.id }}">{{ color }}</option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Out of Stock">
+                        {% for color in shirtstyle.colors_out_of_stock %}
+                            <option value="{{ color.id }}">{{ color }}</option>
+                        {% endfor %}
+                    </optgroup>
                 </select>
             </td>
             <td><input type='button' value='Go' onClick="viewinventory('{{ shirtstyle.id }}', '0')"/></td>
         </tr>
         {% endfor %}
     {% endif %}
-        {% if shirtstylevariations %}
+    {% if shirtstylevariations %}
         <tr>
             <th colspan=4><h3>Shirt Style Variations</h3></td>
         </tr>
@@ -52,9 +59,16 @@
             <td>{{ shirtstylevariation.ShirtStyle.ShirtStyleDescription }}</td>
             <td>
                 <select id='{{ shirtstylevariation.ShirtStyle.id }}-{{ shirtstylevariation.id }}'>
-                    {% for color in shirtstylevariation.colors %}
-                        <option value={{ color.id }}>{{ color }}</option>
-                    {% endfor %}
+                    <optgroup label="In Stock">
+                        {% for color in shirtstylevariation.colors_in_stock %}
+                            <option value="{{ color.id }}">{{ color }}</option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Out of Stock">
+                        {% for color in shirtstylevariation.colors_out_of_stock %}
+                            <option value="{{ color.id }}">{{ color }}</option>
+                        {% endfor %}
+                    </optgroup>
                 </select>
             </td>
             <td><input type='button' value='Go' onClick="viewinventory('{{ shirtstylevariation.ShirtStyle.id }}', '{{ shirtstylevariation.id }}')"/></td>
