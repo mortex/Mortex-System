@@ -1,7 +1,9 @@
 {% extends "sales/base.html" %}
 
 {% block body %}
-<a href="{{ shirtorder.id }}/edit/">edit order</a>
+{% if not hide_links %}
+    <a href="edit/">edit order</a> | <a href="print/">save pdf</a>
+{% endif %}
 <h3>Customer Info</h3>
 <table class="table table-bordered table-condensed">
     <tr>
@@ -37,6 +39,14 @@
             <td>${{ ordersku.Extension }}</td>
         </tr>
     {% endfor %}
+    <tr>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th>Total Pieces: {{ totalpieces }}</th>
+        <th></th>
+        <th>Total Price: ${{ totalextension }}</th>
+    </tr>
 </table>
 
 {% endblock %}

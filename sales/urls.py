@@ -26,7 +26,8 @@ urlpatterns = patterns('',
     
     #shirt order urls
     (r'^shirtorders/(?P<orderid>\d+)/edit/$', 'sales.views.shirtorderadd'),
-    (r'^shirtorders/(?P<orderid>\d+)$', 'sales.views.shirtorderview'),
+    (r'^shirtorders/(?P<orderid>\d+)/$', 'sales.views.shirtorderview'),
+    (r'^shirtorders/(?P<orderid>\d+)/print/$', 'sales.views.printshirtorder'),
     (r'^shirtorders/add/$', 'sales.views.shirtorderadd'),
     (r'^shirtorders/orderline/$', 'sales.views.orderline'),
     (r'^shirtorders/$', 'sales.views.shirtorders'),

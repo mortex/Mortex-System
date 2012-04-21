@@ -110,8 +110,26 @@ def shirtorders(request):
 def shirtorderview(request, orderid):
     shirtorder = ShirtOrder.objects.get(pk=orderid)
     orderskus = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).order_by('ShirtPrice__ShirtStyle__ShirtStyleNumber','ShirtStyleVariation__ShirtStyleNumber','Color__ColorName','ShirtPrice__ShirtSize__SortKey').extra(select = {'Extension': 'Price * OrderQuantity'})
+    totalpieces = 0
+    totalextension = 0
+    for ordersku in orderskus:
+        totalpieces += ordersku.OrderQuantity
+        totalextension += ordersku.Extension
     
-    return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder, 'orderskus':orderskus})
+    return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder, 'orderskus':orderskus, 'totalpieces':totalpieces, 'totalextension':totalextension})
+
+@login_required
+def printshirtorder(request, orderid):
+    shirtorder = ShirtOrder.objects.get(pk=orderid)
+    orderskus = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).order_by('ShirtPrice__ShirtStyle__ShirtStyleNumber','ShirtStyleVariation__ShirtStyleNumber','Color__ColorName','ShirtPrice__ShirtSize__SortKey').extra(select = {'Extension': 'Price * OrderQuantity'})
+    totalpieces = 0
+    totalextension = 0
+    for ordersku in orderskus:
+        totalpieces += ordersku.OrderQuantity
+        totalextension += ordersku.Extension
+
+    context = {'shirtorder':shirtorder, 'orderskus':orderskus, 'totalpieces':totalpieces, 'totalextension':totalextension, "hide_links": True}
+    return printtopdf(request, 'sales/shirtorders/view.html', context, "order " + shirtorder.PONumber)
 
 @login_required
 def shirtorderadd(request, orderid=None):
