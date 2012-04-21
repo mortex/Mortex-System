@@ -91,12 +91,15 @@ def manageinventory_get(request, shirtstyleid, variationid, colorid, shirtstyle,
     for size in sizes:
         inventories = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, Color__id=colorid, ShirtStyleVariation=shirtstylevariation, ShirtPrice__ShirtSize=size).aggregate(totalinventory=Sum('Inventory'))
         sizetotals.append({'sizeid':size.id, 'totalinventory':inventories['totalinventory']})
-        inventorylist.append(NewCutSSIForm(instance=ShirtSKUTransaction(ShirtPrice=ShirtPrice.objects
-                                                                            .filter(ShirtStyle__id=shirtstyleid)
-                                                                            .filter(ColorCategory__color__id=colorid)
-                                                                            .get(ShirtSize__id=size.id),
-                                                                        Color=Color.objects.get(pk=colorid),
-                                                                        ShirtStyleVariation=shirtstylevariation), prefix=prefix))
+        try:
+            inventorylist.append(NewCutSSIForm(instance=ShirtSKUTransaction(ShirtPrice=ShirtPrice.objects
+                                                                                .filter(ShirtStyle__id=shirtstyleid)
+                                                                                .filter(ColorCategory__color__id=colorid)
+                                                                                .get(ShirtSize__id=size.id),
+                                                                            Color=Color.objects.get(pk=colorid),
+                                                                            ShirtStyleVariation=shirtstylevariation), prefix=prefix))
+        except ShirtPrice.DoesNotExist:
+            pass
         prefix += 1
 
     inventorylist.sort(key=lambda i: str(i.shirtsize), reverse=True)
