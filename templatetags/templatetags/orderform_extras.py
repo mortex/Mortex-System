@@ -10,6 +10,10 @@ def hash(h, key):
     return h[key]
 
 @register.filter
+def hash_zero(h, key):
+    return h.get(key, 0)
+
+@register.filter
 def attr(obj, attrname):
     return obj.__dict__[attrname]
 

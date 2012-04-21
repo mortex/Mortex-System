@@ -38,8 +38,11 @@
                         {% endfor %}
                     </optgroup>
                 </select>
+                <input type='button'
+                       value='Manage'
+                       onClick="viewinventory('{{ shirtstyle.id }}', '0')"/>
             </td>
-            <td><input type='button' value='Go' onClick="viewinventory('{{ shirtstyle.id }}', '0')"/></td>
+            <td><input type="button" value="Summary" onclick="location.href = '/inventory/summary?type=style&id={{ shirtstyle.id }}';"></td>
         </tr>
         {% endfor %}
     {% endif %}
@@ -70,8 +73,11 @@
                         {% endfor %}
                     </optgroup>
                 </select>
+                <input type='button'
+                       value='Manage'
+                       onClick="viewinventory('{{ shirtstylevariation.ShirtStyle.id }}', '{{ shirtstylevariation.id }}')"/>
             </td>
-            <td><input type='button' value='Go' onClick="viewinventory('{{ shirtstylevariation.ShirtStyle.id }}', '{{ shirtstylevariation.id }}')"/></td>
+            <td><input type="button" value="Summary" onclick="location.href = '/inventory/summary?type=variation&id={{ shirtstylevariation.id }}';"></td>
         </tr>
         {% endfor %}
     {% endif %}

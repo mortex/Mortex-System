@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     #inventory urls
     (r'^inventory/(?P<shirtstyleid>\d+)/(?P<variationid>\d+)/(?P<colorid>\d+)$', 'sales.views.manageinventory'),
     (r'^inventory/search/$', 'sales.views.inventorysearch'),
+    (r'^inventory/summary$', 'sales.views.inventory_summary'),
     
     #shirt order urls
     (r'^shirtorders/(?P<orderid>\d+)/edit/$', 'sales.views.shirtorderadd'),
