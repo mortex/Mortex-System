@@ -15,9 +15,9 @@
 {% block body %}
 
 {% if not hide_links %}
-    <a href="edit/">edit shipment</a> | <a href="print">print</a>
+    <a href="edit/">edit shipment</a> | <a href="print">print packing list</a> | <a href="printboxlabels">print box labels</a>
 {% endif %}
-<h2>Shipment Info</h2>
+<h2>Shipment {{ shipment.pk }}</h2>
 <fieldset>
     <table class="table table-bordered table-condensed">
         <tr>

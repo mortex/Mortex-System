@@ -1,0 +1,27 @@
+{% extends "sales/base.html" %}
+
+{% block body %}
+{% regroup shipment.shipmentsku_set.all by BoxNumber as box_list %}
+        {% for box in box_list %}
+            <div {% if not forloop.last %}style="page-break-after:always;"{% endif %}>
+                <h2>Box {{ box.grouper }}</h2>
+                <strong>Shipment {{ shipment.pk }} to {{ shipment.CustomerAddress.Customer }}</strong>
+                <table class="table table-bordered table-condensed">
+                    <tr>
+                        <th>SKU</th>
+                        <th>PO</th>
+                        <th>CO</th>
+                        <th>Quantity</th>
+                    </tr>
+                    {% for sku in box.list %}
+                    <tr>
+                        <td>{{ sku.ShirtOrderSKU }}</td>
+                        <td>{{ sku.ShirtOrderSKU.ShirtOrder.PONumber }}</td>
+                        <td>{{ sku.CutOrder }}</td>
+                        <td>{{ sku.ShippedQuantity }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endfor %}
+{% endblock %}

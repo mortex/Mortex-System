@@ -1,10 +1,6 @@
-import os
 import re
-import subprocess
 
 from django.db.models import Sum
-from sales.models import *
-from sales.forms import *
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -13,7 +9,10 @@ from django.forms import formsets
 from django.db import transaction
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
-from django.template.loader import render_to_string
+
+from sales.models import *
+from sales.forms import *
+from sales.util import *
 
 def findparentinstance(parentforms, lookupprefix):
     for parentform in parentforms:
@@ -110,36 +109,9 @@ def shirtorders(request):
 @login_required
 def shirtorderview(request, orderid):
     shirtorder = ShirtOrder.objects.get(pk=orderid)
-    #shirtorderskus = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).order_by('ShirtPrice').order_by('ShirtStyleVariation').order_by('Color').order_by('ShirtPrice__ShirtStyle')
+    orderskus = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).order_by('ShirtPrice__ShirtStyle__ShirtStyleNumber','ShirtStyleVariation__ShirtStyleNumber','Color__ColorName','ShirtPrice__ShirtSize__SortKey').extra(select = {'Extension': 'Price * OrderQuantity'})
     
-    shirtorderskus = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder)
-    orderbreakdowndict = {}
-    for sos in shirtorderskus:
-        style = sos.ShirtPrice.ShirtStyle if sos.ShirtStyleVariation is None else sos.ShirtStyleVariation
-        color = sos.Color
-        quantity = str(sos.OrderQuantity) + ' ' + sos.ShirtPrice.ShirtSize.ShirtSizeAbbr
-        if orderbreakdowndict.get(style):
-            colordict = orderbreakdowndict[style]
-            if colordict.get(color):
-                colordict[color].append(quantity)
-            else:
-                colordict[color] = [quantity]
-        else:
-            orderbreakdowndict[style] = {color:[quantity]}
-    
-    def flattendict(a):
-        if type(a) == dict:
-            l = []
-            for k in a.keys():
-                l.extend([k, flattendict(a[k])])
-            return l
-        elif type(a) == list:
-            return a
-    
-    orderbreakdown = flattendict(orderbreakdowndict)
-    orderskus = ShirtOrderSKU.objects.filter(ShirtOrder=shirtorder).order_by('ShirtPrice__ShirtStyle','ShirtStyleVariation','Color','ShirtPrice__ShirtSize__SortKey')
-    
-    return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder, 'orderbreakdown':orderbreakdown, 'orderskus':orderskus})
+    return render_to_response('sales/shirtorders/view.html', {'shirtorder':shirtorder, 'orderskus':orderskus})
 
 @login_required
 def shirtorderadd(request, orderid=None):
@@ -192,7 +164,6 @@ def shirtorderadd(request, orderid=None):
         
         #if any validation failed, send data back to page for revision
         if passedvalidation == False:
-            #print orderlines[0]
             shirtstyles = ShirtStyle.objects.filter(Customer=None)
             my_context = RequestContext(request, {"orderlines": orderlines, "shirtorder": order, "shirtstyles":shirtstyles})
             return render_to_response("sales/shirtorders/add.html", my_context)
@@ -286,7 +257,6 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
             Color = ordercolor['Color'])
         for sku in skus:
             skuinventories = ShirtSKUInventory.objects.filter(ShirtPrice=sku.ShirtPrice,ShirtStyleVariation=sku.ShirtStyleVariation,Color=sku.Color).aggregate(Sum('Inventory'))
-            print
             if skuinventories['Inventory__sum']:
                 skuinventory = skuinventories['Inventory__sum']
             else:
@@ -477,40 +447,14 @@ def viewshipment(request, shipmentid):
 
 @login_required
 def printshipment(request, shipmentid):
-
-    # Determine whether wkhtmltopdf exists; die if it doesn't
-    found = False
-    pdf_converter_exe_name = "wkhtmltopdf"
-    for path in os.environ["PATH"].split(os.pathsep):
-        exe_path = os.path.join(path, pdf_converter_exe_name)
-        if os.path.exists(exe_path) and os.access(exe_path, os.X_OK):
-            found = True
-    if not found:
-        resp = HttpResponse(
-            "No executable `" + pdf_converter_exe_name + "` found in PATH"
-        )
-        resp.status_code = 500
-        return resp
-
-    # Generate PDF
-    resp = HttpResponse(
-        subprocess.Popen(
-            [pdf_converter_exe_name, "-", "-"],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE
-        ).communicate(
-            input=render_to_string(
-                "sales/shipping/view.html",
-                {
-                    "shipment": Shipment.objects.get(pk=shipmentid),
-                    "hide_links": True
-                }
-            )
-        )[0],
-        content_type="application/pdf"
-    )
-    resp["Content-Disposition"] = "attachment; filename=shipment.pdf"
-    return resp
+    context = {"shipment": Shipment.objects.get(pk=shipmentid), "hide_links": True}
+    return printtopdf(request, "sales/shipping/view.html", context, "packing list for shipment " + str(shipmentid))
+    
+@login_required
+def printboxlabels(request, shipmentid):
+    context = {"shipment": Shipment.objects.get(pk=shipmentid), "hide_links": True}
+    #return printtopdf(request, "sales/shipping/boxlabels.html", context, "box labels for shipment " + str(shipmentid))
+    return render_to_response('sales/shipping/boxlabels.html', context)
 
 
 @login_required
@@ -805,7 +749,7 @@ def add_style(request, shirtstyleid=None):
                     v.ShirtStyle = new_style
                     v.save()
 
-                return HttpResponseRedirect("/shirtstyles/")
+                return HttpResponseRedirect("/shirtstyles/search/")
 
         else:
             return render(form)

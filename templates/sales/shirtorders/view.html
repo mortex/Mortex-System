@@ -18,10 +18,25 @@
     </tr>
 </table>
 
+<table class="table table-bordered table-condensed table-striped">
+    <tr>
+        <th>Style</th>
+        <th>Color</th>
+        <th>Size</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Extension</th>
+    </tr>
+    {% for ordersku in orderskus %}
+        <tr>
+            <td>{{ ordersku.ShirtPrice.ShirtStyle.ShirtStyleNumber }}</td>
+            <td>{{ ordersku.Color }}</td>
+            <td>{{ ordersku.ShirtPrice.ShirtSize.ShirtSizeAbbr }}</td>
+            <td>{{ ordersku.OrderQuantity }}</td>
+            <td>${{ ordersku.Price }}</td>
+            <td>${{ ordersku.Extension }}</td>
+        </tr>
+    {% endfor %}
+</table>
 
-<ul>
-    {{ orderbreakdown|unordered_list }}
-</ul>
-
-{{ orderskus }}
 {% endblock %}
