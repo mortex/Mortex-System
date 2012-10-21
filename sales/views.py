@@ -626,7 +626,8 @@ def editsizes(request):
         passedvalidation = True
         
         for s in xrange(1, int(sizecount)+1):
-            sizeform = ShirtSizeForm(request.POST, prefix=s)
+            pk = request.POST[str(s) + "-pk"]
+            sizeform = ShirtSizeForm(request.POST, prefix=s, instance=ShirtSize.objects.get(pk=pk) if pk else None)
             sizeforms.append(sizeform)
             if not sizeform.is_valid():
                 passedvalidation = False
@@ -636,8 +637,6 @@ def editsizes(request):
             
         else:
             for sizeform in sizeforms:
-                size = sizeform.save(commit=False)
-                size.pk = sizeform.cleaned_data['pk']
                 if sizeform.cleaned_data['delete'] == 0:
                     size.save()
                 elif size.pk:
