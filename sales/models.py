@@ -71,6 +71,7 @@ class ColorCategory(models.Model):
 class Color(models.Model):
     ColorCategory = models.ForeignKey(ColorCategory)
     ColorName = models.CharField('Color Name', max_length=20, unique=True)
+    BarcodeData = models.CharField('Barcode Data', max_length=10)
     def __unicode__(self):
         return self.ColorName
 
@@ -78,6 +79,7 @@ class ShirtSize(models.Model):
     ShirtSizeName = models.CharField('Size Name', max_length=20, unique=True)
     ShirtSizeAbbr = models.CharField('Size Abbr', max_length=10, unique=True)
     SortKey = models.IntegerField()
+    BarcodeData = models.CharField('Barcode Data', max_length=10)
     def __unicode__(self):
         return self.ShirtSizeName
     class Meta:
