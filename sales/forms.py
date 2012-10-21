@@ -267,6 +267,7 @@ class ColorCategoryForm(AutoErrorModelForm):
         '''Ensure that ColorCategoryName does not contain "__"'''
         if "__" in self.cleaned_data["ColorCategoryName"]:
             raise ValidationError('Color category name may not contain "__"')
+        return self.cleaned_data["ColorCategoryName"]
 
 class ColorForm(AutoErrorModelForm):
     class Meta:
@@ -298,6 +299,7 @@ class ShirtSizeForm(AutoErrorModelForm):
         '''Ensure that ShirtSizeName does not contain "__"'''
         if "__" in self.cleaned_data["ShirtSizeName"]:
             raise ValidationError('Shirt size name may not contain "__"')
+        return self.cleaned_data["ShirtSizeName"]
         
 #customer management
 class CustomerForm(AutoErrorModelForm):
