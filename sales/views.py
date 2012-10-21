@@ -638,9 +638,9 @@ def editsizes(request):
         else:
             for sizeform in sizeforms:
                 if sizeform.cleaned_data['delete'] == 0:
-                    size.save()
+                    sizeform.save()
                 elif size.pk:
-                    size.delete()
+                    sizeform.delete()
         
         return HttpResponseRedirect('/sizes/edit/')
 
