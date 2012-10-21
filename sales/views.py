@@ -727,7 +727,7 @@ def customersearch(request):
 
 @login_required
 def add_style(request, shirtstyleid=None):
-    """Add a new shirt style to the database"""
+    """Add a new garment style to the database"""
 
     def render(form):
         return render_to_response(

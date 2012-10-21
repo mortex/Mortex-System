@@ -103,6 +103,13 @@ input[type=radio] {
 }
 
 
+/* Site navigation bar */
+
+.navbar-fixed-top .container {
+    width: 970px;
+}
+
+
 /* Misc */
 
 body {

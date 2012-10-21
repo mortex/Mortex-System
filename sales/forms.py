@@ -239,7 +239,7 @@ class SearchForm(forms.Form):
         self.fields['searchfield'].choices = self.choices
         
 class ShirtOrderSearchForm(SearchForm):
-    choices = [('address','Address'),('customer','Customer Name'),('ponumber','PO Number'),('shirtstylenumber','Shirt Style Number')]
+    choices = [('address','Address'),('customer','Customer Name'),('ponumber','PO Number'),('shirtstylenumber','Garment Style Number')]
 
 class ShipmentSearchForm(SearchForm):
     choices = [('address','Address'),('customer','Customer Name'),('tracking','Tracking Number')]
@@ -318,7 +318,7 @@ class CustomerAddressForm(AutoErrorModelForm):
         self.fields['delete'] = forms.IntegerField(initial=0, widget=forms.HiddenInput())
 
 class ShirtStyleForm(ModelForm):
-    """Form for adding/changing shirt styles"""
+    """Form for adding/changing garment styles"""
 
     class Meta:
         model = ShirtStyle
@@ -359,7 +359,7 @@ class ShirtStyleForm(ModelForm):
             self.fields["price__" + ccName + "__" + sizeName] = new_field
 
 class ShirtStyleVariationForm(ModelForm):
-    """Form for adding/changing shirt style variations"""
+    """Form for adding/changing garment style variations"""
 
     class Meta:
         model = ShirtStyleVariation
