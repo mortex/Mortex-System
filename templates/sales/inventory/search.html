@@ -10,8 +10,9 @@
 
 {% block results %}
 {% if shirtstyles or shirtstylevariations %}
-  <table class="table table-bordered table-striped table-condensed">
+  <table class="table table-bordered table-striped table-condensed tablesorter">
     {% if shirtstyles %}
+        <thead>
         <tr>
             <th colspan=4><h3>Garment Styles</h3></td>
         </tr>
@@ -21,6 +22,7 @@
             <th>Color</th>
             <th></th>
         </tr>
+        </thead>
         {% for shirtstyle in shirtstyles %}
         <tr>
             <td>{{ shirtstyle.ShirtStyleNumber }}</td>
@@ -46,7 +48,10 @@
         </tr>
         {% endfor %}
     {% endif %}
+  </table>
+  <table class="table table-bordered table-striped table-condensed tablesorter">
     {% if shirtstylevariations %}
+        <thead>
         <tr>
             <th colspan=4><h3>Garment Style Variations</h3></td>
         </tr>
@@ -56,6 +61,7 @@
             <th>Color</th>
             <th></th>
         </tr>
+        </thead>
         {% for shirtstylevariation in shirtstylevariations %}
         <tr>
             <td>{{ shirtstylevariation.ShirtStyleNumber }}</td>

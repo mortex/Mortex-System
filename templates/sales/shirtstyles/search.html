@@ -2,13 +2,15 @@
 
 {% block results %}
 {% if shirtstyles %}
-  <table class="table table-bordered table-striped table-condensed">
+  <table class="table table-bordered table-striped table-condensed tablesorter">
+    <thead>
     <tr>
         <th>Style Number</th>
         <th>Description</th>
         <th>Knit Style</th>
         <th>Customer</th>
     </tr>
+    </thead>
     {% for shirtstyle in shirtstyles %}
     <tr>
         <td><a href='/shirtstyles/edit/{{ shirtstyle.pk }}'>{{ shirtstyle.ShirtStyleNumber }}</a></td>

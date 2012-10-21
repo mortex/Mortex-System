@@ -1,15 +1,17 @@
 {% extends "sales/base.html" %}
-
 {% block body %}
 <h3>Purchase Orders by Due Date</h3>
 Select a purchase order to begin a shipment
-<table style='text-align:center;' class='table table-bordered table-condensed'>
+<table style='text-align:center;' class='table table-bordered table-condensed tablesorter'>
+<thead>
     <tr>
         <th>PO Number</th>
         <th>Customer</th>
         <th>Have/Ordered</th>
         <th>Due Date</th>
     </tr>
+</thead>
+<tbody>
 {% for po in purchaseorders %}
     <tr>
         <td><a href='{{ po.CustomerAddress.id }}'>{{ po.PONumber }}</a></td>
@@ -18,7 +20,8 @@ Select a purchase order to begin a shipment
         <td><a href='{{ po.CustomerAddress.id }}'>{{ po.DueDate }}</a></td>
     </tr>
 {% endfor %}
-
+</tbody>
+</table>
 
 
 

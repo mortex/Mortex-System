@@ -561,17 +561,21 @@ def editcolors(request):
         categoryforms = []
         colorforms = []
         passedvalidation = True
-        
+        postdata = request.POST
+
         for cc in xrange(1, int(categorycount) + 1):
             prefix = 'cc'+str(cc)
-            categoryform = ColorCategoryForm(request.POST, prefix=prefix)
+            instance = ColorCategory.objects.get(pk=postdata['cc' + str(cc) + '-pk']) if postdata['cc' + str(cc) + '-pk'] else None
+            categoryform = ColorCategoryForm(request.POST, prefix=prefix, instance=instance)
             if not categoryform.is_valid():
                 passedvalidation = False
+                print categoryform.errors
             categoryforms.append(categoryform)
         
         for c in xrange(1, int(colorcount) + 1):
             prefix = 'c'+str(c)
-            colorform = ColorForm(request.POST, prefix=prefix)
+            instance = Color.objects.get(pk=postdata['c' + str(c) + '-pk']) if postdata['c' + str(c) + '-pk'] else None
+            colorform = ColorForm(request.POST, prefix=prefix, instance=instance)
             if not colorform.is_valid():
                 passedvalidation = False
             colorforms.append(colorform)
@@ -581,13 +585,10 @@ def editcolors(request):
             
         else:
             for categoryform in categoryforms:
-                category = categoryform.save(commit=False)
-                category.pk = categoryform.cleaned_data['pk']
-                category.save()
+                categoryform.save()
             
             for colorform in colorforms:
                 color = colorform.save(commit=False)
-                color.pk = colorform.cleaned_data['pk']
                 color.ColorCategory = findparentinstance(categoryforms, colorform.cleaned_data['parentprefix'])
                 color.save()
             

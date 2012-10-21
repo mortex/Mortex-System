@@ -2,13 +2,15 @@
 
 {% block results %}
 {% if shipments %}
-  <table class="table table-bordered table-striped table-condensed">
+  <table class="table table-bordered table-striped table-condensed tablesorter">
+    <thead>
     <tr>
         <th>Shipment ID</th>
         <th>Tracking Number</th>
         <th>Customer</th>
         <th>Ship Address</th>
     </tr>
+    </thead>
     {% for shipment in shipments %}
     <tr>
         <td><a href='/shipping/{{ shipment.pk }}'>{{ shipment.pk }}</a></td>
