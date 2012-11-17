@@ -267,37 +267,27 @@ def purchaseorders(request):
     return render_to_response('sales/shipping/purchaseorders.html', {'purchaseorders': purchaseorders})
 
 @login_required
-def addshipment(request, customeraddressid=None, shipmentid=None):
+def addshipment(request, shirtorderid=None, shipmentid=None):
     if shipmentid:
         editshipment = Shipment.objects.get(pk=shipmentid)
-        customeraddressid = editshipment.CustomerAddress.pk
+        customeraddress = CustomerAddress.objects.get(pk=editshipment.CustomerAddress.pk)
+        selectedshirtorder = None
     else:
         editshipment = None
-    customeraddress = CustomerAddress.objects.get(pk=customeraddressid)
-    ordercolors = ShirtOrderSKU.objects.filter(ShirtOrder__CustomerAddress__id = customeraddressid).values("ShirtPrice__ShirtStyle", "Color").order_by("ShirtPrice__ShirtStyle", "Color").distinct()
-    for ordercolor in ordercolors:
-        #total shirts to be shipped
-        ordercolor['totalshirts'] = 0
-        ordercolor['fillableshirts'] = 0
-        skus = ShirtOrderSKU.objects.filter(
-            ShirtOrder__CustomerAddress__id = customeraddressid,
-            ShirtPrice__ShirtStyle = ordercolor['ShirtPrice__ShirtStyle'],
-            Color = ordercolor['Color'])
-        for sku in skus:
-            skuinventories = ShirtSKUInventory.objects.filter(ShirtPrice=sku.ShirtPrice,Color=sku.Color).aggregate(Sum('Inventory'))
-            if skuinventories['Inventory__sum']:
-                skuinventory = skuinventories['Inventory__sum']
-            else:
-                skuinventory = 0
-            
-            ordercolor['totalshirts'] += sku.OrderQuantity - sku.ShippedQuantity
-            ordercolor['fillableshirts'] += min(skuinventory, sku.OrderQuantity - sku.ShippedQuantity)
-                                                        
-        ordercolor['parentstyle'] = ShirtStyle.objects.get(pk=ordercolor['ShirtPrice__ShirtStyle'])
-        ordercolor['Color'] = Color.objects.get(pk=ordercolor['Color'])
+        selectedshirtorder = ShirtOrder.objects.get(pk=shirtorderid)
+        customeraddress = selectedshirtorder.CustomerAddress
+    
+    shirtorderskus = ShirtOrderSKU.objects.filter(ShirtOrder__CustomerAddress=customeraddress, ShirtOrder__Complete=False).order_by('ShirtOrder__PONumber')
+    for sku in shirtorderskus:
+        skuinventories = ShirtSKUInventory.objects.filter(ShirtPrice=sku.ShirtPrice,Color=sku.Color).aggregate(Sum('Inventory'))
+        if skuinventories['Inventory__sum']:
+            skuinventory = skuinventories['Inventory__sum']
+        else:
+            skuinventory = 0
+        sku.availableshirts = skuinventory
     if request.method == "GET":
         if not editshipment:
-            shipment = ShipmentForm(instance=Shipment(CustomerAddress=CustomerAddress.objects.get(pk=customeraddressid)))
+            shipment = ShipmentForm(instance=Shipment(CustomerAddress=customeraddress))
             shipmentskus = []
             i = 1
             boxcount = 0
@@ -316,7 +306,7 @@ def addshipment(request, customeraddressid=None, shipmentid=None):
                 shipmentskus.append({'form':form,'cutorder':cutorder,'purchaseorder':purchaseorder,'shirtskulabel':shirtsku,'boxnum':boxnum})
                 i+=1
                 boxcount = boxnum if boxnum > boxcount else boxcount
-        return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'ordercolors': ordercolors, 'customeraddressid':customeraddressid, 'shipment':shipment, 'shipmentskus':shipmentskus, 'skucount':i-1, 'boxcount':boxcount, 'customeraddress':customeraddress}))
+        return render_to_response('sales/shipping/addshipment.html', RequestContext(request, {'shirtorderskus': shirtorderskus, 'customeraddressid':customeraddress.pk, 'shipment':shipment, 'shipmentskus':shipmentskus, 'skucount':i-1, 'boxcount':boxcount, 'customeraddress':customeraddress}))
     
     else:
         passedvalidation = True
@@ -593,6 +583,7 @@ def editsizes(request):
             sizeforms.append(sizeform)
             if not sizeform.is_valid():
                 passedvalidation = False
+                print sizeform.errors
                 
         if passedvalidation == False:
             return render_to_response('sales/sizes/edit.html', RequestContext(request, {'forms':sizeforms, 'sizecount':s}))

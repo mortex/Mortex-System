@@ -53,7 +53,7 @@ urlpatterns = patterns('',
     (r'^data/shippingorderskus/$', 'sales.data_views.shippingorderskus'),
     
     #shipping urls
-    (r'^shipping/add/(?P<customeraddressid>\d+)/$', 'sales.views.addshipment'),
+    (r'^shipping/add/(?P<shirtorderid>\d+)/$', 'sales.views.addshipment'),
     (r'^shipping/add/$', 'sales.views.purchaseorders'),
     (r'^shipping/(?P<shipmentid>\d+)/edit/$', 'sales.views.addshipment'),
     (r'^shipping/(?P<shipmentid>\d+)/$', 'sales.views.viewshipment'),

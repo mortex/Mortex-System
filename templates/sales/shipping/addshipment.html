@@ -1,232 +1,67 @@
 {% extends "sales/base.html" %}
 
 {% block extrahead %}
-<script type="text/javascript">
+    <script type="text/javascript">
     $(function(){
-        addbox();
+        $('.sku').hover(
+            function () {
+                var skuid = $(this).data('skuid');
+                $("." + skuid).addClass('selected');
+            }, 
+            function () {
+                var skuid = $(this).data('skuid');
+                $("." + skuid).removeClass('selected');
+            }
+        ).click(
+            function () {
+                alert('add code to retrieve cut order details');
+            }
+        );
     });
+    </script>
     
-    var nextprefix = {{ skucount }} + 1;
-    function fillbox(box){
-        if($('#cutselected').length & $('#orderselected').length){
-            var cutorder = $('#cutselected').attr('data-cutorder');
-            var ordersku = $('#orderselected').attr('data-ordersku');
-            var maxquantity = Math.min($('#co' + cutorder + 'remaining').html(),$('#sos' + ordersku + 'remaining').html());
-            var box = $(box).attr('data-box');
-            $.get('/shipping/shipmentsku/', {'shirtorderskuid':ordersku, 'cutorder':cutorder, 'box':box, 'prefix':nextprefix}, function(data){
-                $('#box' + box + ' table').append(data);
-                if($('#box' + box).hasClass('hasitems') === false){
-                    addbox();
-                    $('#box' + box).addClass('hasitems')
-                }
-                var quantityfield = $('#id_' + nextprefix + '-ShippedQuantity');
-                quantityfield.change(function() {
-                    quantityupdated(this);
-                });
-                quantityfield.val(maxquantity);
-                quantityupdated(quantityfield);
-                deselect();
-                $('#skucount').val(nextprefix);
-                ++nextprefix;
-            });
+    <style type="text/css">
+        .selected {
+            background-color: blue;
+            color: white;
+            cursor: pointer;
         }
-    }
-    
-    function quantityupdated(quantityfield, freshload){
-        var prefix = $(quantityfield).attr("id").match(/[\d]+/);
-
-        var cutorder = $('#id_' + prefix + '-CutOrder').val();
-        var cospan = $('#co' + cutorder + 'remaining');
-        var coremainingquantity = cospan.html();
-        
-        var ordersku = $('#id_' + prefix + '-ShirtOrderSKU').val();
-        var sosspan = $('#sos' + ordersku + 'remaining');
-        var sosremainingquantity = sosspan.html();
-        if(freshload === undefined){
-            var oldvalue = ($(quantityfield).attr('data-oldvalue')) ? $(quantityfield).attr('data-oldvalue') : 0;
-            var savedvalue = 0;
-        }
-        else{
-            var oldvalue = 0;
-            var savedvalue = parseInt($(quantityfield).attr('data-savedvalue'));
-            var sosqspan = $('#sos' + ordersku + 'quantity');
-            sosqspan.html(parseInt(sosqspan.html()) + savedvalue);
-        }
-        var newvalue = $(quantityfield).val();
-        var changevalue = newvalue - oldvalue - savedvalue;
-
-        var newsosvalue = sosremainingquantity - changevalue;
-        var newcovalue = coremainingquantity - changevalue;
-
-        if(freshload === undefined & (newsosvalue < 0 || newcovalue < 0)){
-            alert("You don't have that many shirts!");
-            $(quantityfield).val(oldvalue)
-        }
-        else {
-            $(sosspan).html(newsosvalue);
-            $(cospan).html(newcovalue);
-            $(quantityfield).attr('data-oldvalue',newvalue);
-        }
-    }
-    
-    function deselect(){
-        $('#cutselected, #orderselected').attr('id','');
-        $('.cut').addClass('unselectable');
-    }
-    
-    var nextbox = {{ boxcount }} + 1;
-    function addbox(){
-        var newbox = $('#boxtemplate').clone();
-        $(newbox).attr('id','box' + nextbox).attr('data-box',nextbox)
-        $('#boxes').append(newbox);
-        $('#box' + nextbox + ' .boxnumber').html(nextbox);
-        ++nextbox;
-    }
-
-    function choosecolor(shirtstyleid, colorid){
-        var customeraddressid = {{ customeraddressid }};
-        $.getJSON('/data/shippingorderskus/', {'shirtstyleid':shirtstyleid, 'colorid':colorid, 'addressid':customeraddressid}, function(data){
-            var sizelist = "";
-            $.each(data, function(i, item) {
-                sizelist += "<div class='inlineblock'><legend>" + item.abbr + "</legend><div id='orderlist' class='pull-left'><table class='table table-bordered table-condensed'><tr><th colspan=3>Orders</th><tr><td>PO#</td><td>Ordered</td><td>Remaining</td></tr>";
-                $.each(item.orderedpieces, function(i, po) {
-                    sizelist += "<tr class='orderselectable' data-shirtprice='" + po.shirtprice + "' data-ordersku='" + po.shirtordersku + "'><td>" + po.ponumber + "</td><td id='sos" + po.shirtordersku + "quantity'>" + po.orderquantity + "</td><td id='sos" + po.shirtordersku + "remaining'>" + po.orderquantity + "</td></tr>";
-                });
-                sizelist += "</table></div>";
-             
-                sizelist += "<div id='cutlist' class='pull-left'><table class='table table-bordered table-condensed'><tr><th colspan=3>Inventory</th><tr><tr><td>CO#</td><td>Inventory</td><td>Remaining</td></tr>";
-                $.each(item.cutpieces, function(i, cut){
-                    sizelist += "<tr class='cut unselectable' data-shirtprice='" + cut.shirtprice + "' data-cutorder='" + cut.cutorder + "'><td>" + cut.cutorder + "</td><td id='co" + cut.cutorder + "quantity'>" + cut.inventory + "</td><td id='co" + cut.cutorder + "remaining'>" + cut.inventory + "</td></tr>";
-                });
-                sizelist += "</table></div></div><br/>";
-            });
-            $('#sizelist').html(sizelist);
-            $('.orderselectable').click(function(){
-                $('#orderselected').attr('id','');
-                $(this).attr('id','orderselected');
-                $('.cut').addClass('unselectable');
-                $('#cutselected').attr('id','');
-                $(".cut[data-shirtprice='" + $(this).attr('data-shirtprice') + "']").removeClass('unselectable');
-            });
-            $('.cut').click(function(){
-                if($(this).hasClass('unselectable')){
-                    alert('you must select inventory of the same size!');
-                }
-                else {
-                    $('#cutselected').attr('id','');
-                    $(this).attr('id','cutselected');
-                }
-            });
-            refreshremaining()
-        });
-    }
-    
-    function removesku(prefix){
-        var delquantityfield = $('#id_' + prefix + '-ShippedQuantity')
-        delquantityfield.val('0');
-        quantityupdated(delquantityfield);
-        $('#id_' + prefix + '-delete').val('1');
-        $('#row' + prefix).hide();
-    }
-    
-    function refreshremaining(){
-        $('.shippedquantity').each(function(){
-            quantityupdated(this,1);
-        });
-    }
-</script>
-<style type="text/css">
-    #cutlist {
-        padding-left: 10px;
-        margin-left: -1px;
-        border-left: 1px solid #EEE;
-    }
-    #orderlist {
-        padding-right: 10px;
-        border-right: 1px solid #EEE;
-    }
-    .orderselectable, .cut {
-        cursor:pointer;
-    }
-    #orderselected, #cutselected {
-        background-color:yellow;
-    }
-    .unselectable {
-        color:gray;
-    }
-    #boxes {
-        float:left;
-        width:60%;
-    }
-    #sizelist {
-        width:40%;
-        float:left;
-    }
-    .box {
-        float:left;
-        margin-right: 20px;
-    }
-    #boxtemplate {
-        display:none;
-    }
-    .shippedquantity {
-        width:60px;
-    }
-</style>
+    </style>
 {% endblock %}
 
 {% block body %}
-<form method="post" action="">
-{% csrf_token %}
-<div>
-    <table class='table table-bordered table-condensed'>
-        <tr>
-            <th>Customer:</th>
-            <td>{{ customeraddress.Customer }}</td>
-        <tr>
-        <tr>
-            <th>Address:</th>
-            <td>{{ customeraddress }}</td>
-        </tr>
-        {{ shipment }}
-    </table>
-</div>
-{% regroup ordercolors by parentstyle as parentstyles %}
-    <ul>
-    {% for parentstyle in parentstyles %}
-        <li>{{ parentstyle.grouper }}
-            <ul>
-                {% for color in parentstyle.list %}
-                    <li>
-                        {% if color.fillableshirts == 0 %}
-                            {{ color.Color }}
-                        {% else %}
-                            <a href="#" onClick="choosecolor({{ color.ShirtPrice__ShirtStyle }}, {{ color.Color.id }})">{{ color.Color }}</a>
-                        {% endif %}
-                         - ({{ color.fillableshirts }}/{{ color.totalshirts }})
-                    </li>
-                {% endfor %}
-            </ul>
-        </li>
+    {% regroup shirtorderskus by ShirtOrder.PONumber as purchaseorders %}
+    {% for po in purchaseorders %}
+        <h4>Purchase Order {{ po.grouper }}</h4>
+        {% regroup po.list by ShirtPrice.ShirtStyle as styles %}
+        {% for style in styles %}
+            {% regroup style.list by Color as stylecolors %}
+            {% for stylecolor in stylecolors %}
+                <div style="float:left;margin-left:10px;">
+                <table style="width:auto;" class="table table-bordered table-condensed">
+                    <tr><th colspan="{{ stylecolor.list|length|add:"1" }}">{{ style.grouper }} {{ stylecolor.grouper }}</th></tr>
+                    <tr>
+                        <th></th>
+                        {% for sku in stylecolor.list %}
+                            <th class="sku {{ sku.pk }}" data-skuid="{{ sku.pk }}">{{ sku.ShirtPrice.ShirtSize.ShirtSizeAbbr }}</th>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th>On Order</th>
+                        {% for sku in stylecolor.list %}
+                            <td class="sku {{ sku.pk }}" data-skuid="{{ sku.pk }}">{{ sku.OrderQuantity }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th>Available</th>
+                        {% for sku in stylecolor.list %}
+                            <td class="sku {{ sku.pk }}" data-skuid="{{ sku.pk }}">{{ sku.availableshirts }}</td>
+                        {% endfor %}
+                    </tr>
+                </table></div>
+            {% endfor %}
+        {% endfor %}
+        <div style="clear:both;"></div>
     {% endfor %}
-    </ul>
-    <div id='sizelist'></div>
-    <div id='boxes'>
-        {% include "sales/shipping/shipmentbox.html" %}
-    </div>
-    <div class='box' id='boxtemplate' data-box='' onClick='fillbox(this)'>
-        <legend>Box <span class='boxnumber'></legend>
-        <table class="table table-bordered table-condensed">
-            <tr>
-                <th>SKU</th>
-                <th>PO</th>
-                <th>CO</th>
-                <th>Quantity</th>
-            </tr>
-        </table>
-    </div>
-    <input type="hidden" id="skucount" name="skucount" value="{{ skucount }}"/>
-    <div class='clear'></div>
-    <input type="submit" value="Submit"/>
-    </form>
+
 {% endblock %}

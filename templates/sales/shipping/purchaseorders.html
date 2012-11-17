@@ -14,27 +14,12 @@ Select a purchase order to begin a shipment
 <tbody>
 {% for po in purchaseorders %}
     <tr>
-        <td><a href='{{ po.CustomerAddress.id }}'>{{ po.PONumber }}</a></td>
-        <td><a href='{{ po.CustomerAddress.id }}'>{{ po.Customer }}</a></td>
-        <td><a href='{{ po.CustomerAddress.id }}'>{{ po.fillableshirts }}/{{ po.totalshirts }}</a></td>
-        <td><a href='{{ po.CustomerAddress.id }}'>{{ po.DueDate }}</a></td>
+        <td><a href='{{ po.id }}'>{{ po.PONumber }}</a></td>
+        <td><a href='{{ po.id }}'>{{ po.Customer }}</a></td>
+        <td><a href='{{ po.id }}'>{{ po.fillableshirts }}/{{ po.totalshirts }}</a></td>
+        <td><a href='{{ po.id }}'>{{ po.DueDate }}</a></td>
     </tr>
 {% endfor %}
 </tbody>
 </table>
-
-
-
-{% regroup addresses by Customer as customers %}
-    <ul>
-    {% for customer in customers %}
-        <li>{{ customer.grouper }}
-            <ul>
-                {% for address in customer.list %}
-                    <li><a href="{{ address.id }}">{{ address }}</a></li>
-                {% endfor %}
-            </ul>
-        </li>
-    {% endfor %}
-    </ul>
 {% endblock %}
