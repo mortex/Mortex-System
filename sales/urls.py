@@ -21,7 +21,7 @@ urlpatterns = patterns('',
     (r'^resetpasswordconfirm/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', 'django.contrib.auth.views.password_reset_confirm'),
     
     #inventory urls
-    (r'^inventory/(?P<shirtstyleid>\d+)/(?P<variationid>\d+)/(?P<colorid>\d+)$', 'sales.views.manageinventory'),
+    (r'^inventory/(?P<shirtstyleid>\d+)/(?P<colorid>\d+)$', 'sales.views.manageinventory'),
     (r'^inventory/search/$', 'sales.views.inventorysearch'),
     (r'^inventory/summary$', 'sales.views.inventory_summary'),
     
@@ -46,12 +46,10 @@ urlpatterns = patterns('',
     ),
     (r'^shirtstyles/add/$', 'sales.views.add_style'),
     (r'^shirtstyles/edit/(?P<shirtstyleid>\d+)/$', 'sales.views.add_style'),
-    (r"^shirtstyles/variationform/$", "sales.views.empty_variation_form"),
     (r'^shirtstyles/search/$', 'sales.views.shirtstylesearch'),
     (r'^data/customeraddresses/$', 'sales.data_views.customeraddresses'),
     (r'^data/shirtstyles/$', 'sales.data_views.shirtstyles'),
     (r'^data/styleprices/$', 'sales.data_views.styleprices'),
-    (r'^data/shirtstylevariations/$', 'sales.data_views.shirtstylevariations'),
     (r'^data/shippingorderskus/$', 'sales.data_views.shippingorderskus'),
     
     #shipping urls

@@ -90,8 +90,7 @@ class CutSSIForm(AutoErrorModelForm):
         model = ShirtSKUTransaction
         widgets = {
             "Color": forms.HiddenInput(),
-            "ShirtPrice": forms.HiddenInput(),
-            "ShirtStyleVariation": forms.HiddenInput(),
+            "ShirtPrice": forms.HiddenInput()
         }
         exclude = ("Date",)
     Pieces = forms.IntegerField(required=False, min_value=0)
@@ -116,8 +115,7 @@ class ExistingCutSSIForm(CutSSIForm):
         widgets = {
             "CutOrder":forms.HiddenInput(),
             "Color": forms.HiddenInput(),
-            "ShirtPrice": forms.HiddenInput(),
-            "ShirtStyleVariation": forms.HiddenInput(),
+            "ShirtPrice": forms.HiddenInput()
         }
         exclude = ("Date",)
     FormType = forms.CharField(initial='existing', widget=forms.HiddenInput())
@@ -139,25 +137,17 @@ class OrderLine(DeleteableForm):
     def __init__(self, *args, **kwargs):
 
         shirtstyleid = kwargs.pop("shirtstyleid")
-        shirtstylevariationid = kwargs.pop("shirtstylevariationid", None)
         colorid = kwargs.pop("colorid", None)
         existingskus = kwargs.pop("existingskus", [])
         
         self.color = Color.objects.get(pk=colorid) if colorid else None
-        if shirtstylevariationid != None:
-            self.shirtstylevariation = ShirtStyleVariation.objects.get(pk=shirtstylevariationid)
         self.shirtstyle = ShirtStyle.objects.get(pk=shirtstyleid)
 
         super(OrderLine, self).__init__(*args, **kwargs)
 
-        self.fields["shirtstylevariationid"] = forms.IntegerField(widget=forms.HiddenInput(), required=False, initial=shirtstylevariationid)
-
         self.fields["shirtstyleid"] = forms.IntegerField(widget=forms.HiddenInput(), initial=shirtstyleid)
         
-        if shirtstylevariationid:
-            colorstyleclass = 'ssv' + str(shirtstylevariationid)
-        else:
-            colorstyleclass = 'ss' + str(self.shirtstyle.id)
+        colorstyleclass = 'ss' + str(self.shirtstyle.id)
         if self.color:
             colorid = self.color.id
         else:
@@ -359,16 +349,3 @@ class ShirtStyleForm(ModelForm):
                 "data-size": unspaced_size_name,
             }
             self.fields["price__" + ccName + "__" + sizeName] = new_field
-
-class ShirtStyleVariationForm(ModelForm):
-    """Form for adding/changing garment style variations"""
-
-    class Meta:
-        model = ShirtStyleVariation
-        exclude = ("ShirtStyle",)   # Exclude ShirtStyle ModelChoiceField because this form will appear on a page specific to a particular ShirtStyle
-
-ShirtStyleVariationFormset = forms.models.modelformset_factory(
-    ShirtStyleVariation,
-    exclude=("ShirtStyle",),
-    extra=0
-)

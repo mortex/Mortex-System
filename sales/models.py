@@ -19,49 +19,11 @@ class ShirtStyle(models.Model):
         return self.ShirtStyleNumber + ' ' + self.ShirtStyleDescription 
 
     def clean(self, *args, **kwargs):
-
         super(ShirtStyle, self).clean(*args, **kwargs)
-
-        # Ensure that ShirtStyleNumber is unique not only among ShirtStyles,
-        # but among ShirtStyleVariations as well
-        if ShirtStyleVariation.objects.filter(
-            ShirtStyleNumber=self.ShirtStyleNumber
-        ):
-            raise ValidationError(
-                "ShirtStyle must have ShirtStyleNumber distinct from all ShirtStyleVariations"
-            )
 
     def save(self, *args, **kwargs):
         self.full_clean()	# Django won't validate models automatically on save
         super(ShirtStyle, self).save(*args, **kwargs)
-
-class ShirtStyleVariation(models.Model):
-
-    ShirtStyle = models.ForeignKey(ShirtStyle)
-    ShirtStyleNumber = models.CharField('Style Number',
-                                        max_length=20,
-                                        unique=True)
-    Customer = models.ForeignKey(Customer, null=True, blank=True)
-    PriceChange = models.DecimalField('Price Change', max_digits=10, decimal_places=2)
-    VariationDescription = models.TextField('Variation Description', blank=True)
-
-    def __unicode__(self):
-        return self.ShirtStyleNumber + ' ' + self.ShirtStyle.ShirtStyleDescription
-
-    def clean(self, *args, **kwargs):
-
-        super(ShirtStyleVariation, self).clean(*args, **kwargs)
-
-        # Ensure that ShirtStyleNumber is unique not only among
-        # ShirtStyleVariations, but among ShirtStyles as well
-        if ShirtStyle.objects.filter(ShirtStyleNumber=self.ShirtStyleNumber):
-            raise ValidationError(
-                "ShirtStyleVariation must have ShirtStyleNumber distinct from all ShirtStyles"
-            )
-
-    def save(self, *args, **kwargs):
-        self.full_clean()	# Django won't validate models automatically on save
-        super(ShirtStyleVariation, self).save(*args, **kwargs)
 
 class ColorCategory(models.Model):
     ColorCategoryName = models.CharField('Color Category', max_length=20, unique=True)
@@ -121,7 +83,6 @@ class ShirtOrder(models.Model):
 class ShirtOrderSKU(models.Model):
     ShirtOrder = models.ForeignKey(ShirtOrder)
     ShirtPrice = models.ForeignKey(ShirtPrice)
-    ShirtStyleVariation = models.ForeignKey(ShirtStyleVariation, null=True, blank=True)
     Color = models.ForeignKey(Color)
     OrderQuantity = models.IntegerField('Quantity')
     Price = models.DecimalField(decimal_places=2, max_digits=10)
@@ -137,13 +98,12 @@ class ShirtOrderSKU(models.Model):
 
         if ShirtOrderSKU.objects.filter(
             ShirtPrice__ShirtStyle=self.ShirtPrice.ShirtStyle,
-            ShirtStyleVariation=self.ShirtStyleVariation,
             Color=self.Color,
             ShirtPrice__ShirtSize=self.ShirtPrice.ShirtSize,
             ShirtOrder=self.ShirtOrder
         ).exclude(pk=self.pk).count() > 0:
             raise ValidationError(
-                "Each shirt order SKU must have a unique combination of style, style variation, color, size, and order"
+                "Each shirt order SKU must have a unique combination of style, color, size, and order"
             )
 
     def save(self, *args, **kwargs):
@@ -153,23 +113,21 @@ class ShirtOrderSKU(models.Model):
 class ShirtSKUTransaction(models.Model):
     Color = models.ForeignKey(Color)
     ShirtPrice = models.ForeignKey(ShirtPrice)
-    ShirtStyleVariation = models.ForeignKey(ShirtStyleVariation, null=True, blank=True)
     CutOrder = models.CharField('Cut Order', max_length=20)
     Pieces = models.IntegerField()
     Date = models.DateField(default = datetime.datetime.today())
     def save(self):
         super(ShirtSKUTransaction, self).save()
         try:
-            skuinventory = ShirtSKUInventory.objects.get(Color=self.Color, ShirtPrice=self.ShirtPrice, ShirtStyleVariation=self.ShirtStyleVariation, CutOrder=self.CutOrder)
+            skuinventory = ShirtSKUInventory.objects.get(Color=self.Color, ShirtPrice=self.ShirtPrice, CutOrder=self.CutOrder)
             skuinventory.Inventory += self.Pieces
             skuinventory.save()
         except ShirtSKUInventory.DoesNotExist:
-            ShirtSKUInventory(Color=self.Color, ShirtPrice=self.ShirtPrice, ShirtStyleVariation=self.ShirtStyleVariation, Inventory=self.Pieces, CutOrder=self.CutOrder).save()
+            ShirtSKUInventory(Color=self.Color, ShirtPrice=self.ShirtPrice, Inventory=self.Pieces, CutOrder=self.CutOrder).save()
     
 class ShirtSKUInventory(models.Model):
     Color = models.ForeignKey(Color)
     ShirtPrice = models.ForeignKey(ShirtPrice)
-    ShirtStyleVariation = models.ForeignKey(ShirtStyleVariation, null=True, blank=True)
     CutOrder = models.CharField('Cut Order', max_length=20)
     Inventory = models.IntegerField()
 
@@ -178,11 +136,10 @@ class Shipment(models.Model):
     DateShipped = models.DateTimeField('Date Shipped', default = datetime.datetime.today())
     TrackingNumber = models.CharField('Tracking Number', max_length=50)
 
-def updateshipmentsku(changevalue, color, shirtprice, shirtstylevariation, cutorder, pk, shirtorder):
+def updateshipmentsku(changevalue, color, shirtprice, cutorder, pk, shirtorder):
     #update total on-hand inventory
     inventory = ShirtSKUInventory.objects.get(Color=color, 
                                               ShirtPrice=shirtprice, 
-                                              ShirtStyleVariation=shirtstylevariation,
                                               CutOrder=cutorder)
     inventory.Inventory -= changevalue
     inventory.save()
@@ -216,7 +173,7 @@ class ShipmentSKU(models.Model):
             oldvalue = 0
         super(ShipmentSKU, self).save()
         
-        updateshipmentsku(self.ShippedQuantity - oldvalue, self.ShirtOrderSKU.Color, self.ShirtOrderSKU.ShirtPrice, self.ShirtOrderSKU.ShirtStyleVariation, self.CutOrder, self.ShirtOrderSKU.pk, self.ShirtOrderSKU.ShirtOrder)
+        updateshipmentsku(self.ShippedQuantity - oldvalue, self.ShirtOrderSKU.Color, self.ShirtOrderSKU.ShirtPrice, self.CutOrder, self.ShirtOrderSKU.pk, self.ShirtOrderSKU.ShirtOrder)
         
     #overwrite delete method to modify inventory/order fields that calculate total shipment amounts
     def delete(self):
@@ -224,7 +181,7 @@ class ShipmentSKU(models.Model):
         oldvalue = ShipmentSKU.objects.get(pk=self.pk).ShippedQuantity
         super(ShipmentSKU, self).delete()
         
-        updateshipmentsku(oldvalue * -1, self.ShirtOrderSKU.Color, self.ShirtOrderSKU.ShirtPrice, self.ShirtOrderSKU.ShirtStyleVariation, self.CutOrder, self.ShirtOrderSKU.pk, self.ShirtOrderSKU.ShirtOrder)
+        updateshipmentsku(oldvalue * -1, self.ShirtOrderSKU.Color, self.ShirtOrderSKU.ShirtPrice, self.CutOrder, self.ShirtOrderSKU.pk, self.ShirtOrderSKU.ShirtOrder)
         
     class Meta:
         ordering = ["BoxNumber", "ShirtOrderSKU"]  

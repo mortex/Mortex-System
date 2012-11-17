@@ -1,8 +1,0 @@
-<dl class="variation_form">
-    {% for field in form %}
-        <div class="variation_field">
-            <dt>{% if not field.field.widget.is_hidden %}{{ field.label }}{% endif %}</dt>
-            <dd>{{ field }}</dd>
-        </div>
-    {% endfor %}
-</dl>

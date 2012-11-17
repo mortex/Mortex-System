@@ -1,92 +1,51 @@
 {% extends "sales/search.html" %}
 {% block extrahead %}
     <script type="text/javascript">
-        function viewinventory(shirtstyleid, shirtstylevariationid){
-            var colorid = $('#' + shirtstyleid + '-' + shirtstylevariationid).val();
-            window.location.href = "/inventory/" + shirtstyleid + "/" + shirtstylevariationid + "/" + colorid;
+        function viewinventory(shirtstyleid) {
+            var colorid = $('#' + shirtstyleid).val();
+            window.location.href = "/inventory/" + shirtstyleid + "/" + colorid;
         }
     </script>
 {% endblock %}
 
 {% block results %}
-{% if shirtstyles or shirtstylevariations %}
+{% if shirtstyles %}
   <table class="table table-bordered table-striped table-condensed tablesorter">
-    {% if shirtstyles %}
-        <thead>
-        <tr>
-            <th colspan=4><h3>Garment Styles</h3></td>
-        </tr>
-        <tr>
-            <th>Style Number</th>
-            <th>Description</th>
-            <th>Color</th>
-            <th></th>
-        </tr>
-        </thead>
-        {% for shirtstyle in shirtstyles %}
-        <tr>
-            <td>{{ shirtstyle.ShirtStyleNumber }}</td>
-            <td>{{ shirtstyle.ShirtStyleDescription }}</td>
-            <td>
-                <select id='{{ shirtstyle.id }}-0'>
-                    <optgroup label="In Stock">
-                        {% for color in shirtstyle.colors_in_stock %}
-                            <option value="{{ color.id }}">{{ color }}</option>
-                        {% endfor %}
-                    </optgroup>
-                    <optgroup label="Out of Stock">
-                        {% for color in shirtstyle.colors_out_of_stock %}
-                            <option value="{{ color.id }}">{{ color }}</option>
-                        {% endfor %}
-                    </optgroup>
-                </select>
-                <input type='button'
-                       value='Manage'
-                       onClick="viewinventory('{{ shirtstyle.id }}', '0')"/>
-            </td>
-            <td><input type="button" value="Summary" onclick="location.href = '/inventory/summary?type=style&id={{ shirtstyle.id }}';"></td>
-        </tr>
-        {% endfor %}
-    {% endif %}
-  </table>
-  <table class="table table-bordered table-striped table-condensed tablesorter">
-    {% if shirtstylevariations %}
-        <thead>
-        <tr>
-            <th colspan=4><h3>Garment Style Variations</h3></td>
-        </tr>
-        <tr>
-            <th>Style Number</th>
-            <th>Description</th>
-            <th>Color</th>
-            <th></th>
-        </tr>
-        </thead>
-        {% for shirtstylevariation in shirtstylevariations %}
-        <tr>
-            <td>{{ shirtstylevariation.ShirtStyleNumber }}</td>
-            <td>{{ shirtstylevariation.ShirtStyle.ShirtStyleDescription }}</td>
-            <td>
-                <select id='{{ shirtstylevariation.ShirtStyle.id }}-{{ shirtstylevariation.id }}'>
-                    <optgroup label="In Stock">
-                        {% for color in shirtstylevariation.colors_in_stock %}
-                            <option value="{{ color.id }}">{{ color }}</option>
-                        {% endfor %}
-                    </optgroup>
-                    <optgroup label="Out of Stock">
-                        {% for color in shirtstylevariation.colors_out_of_stock %}
-                            <option value="{{ color.id }}">{{ color }}</option>
-                        {% endfor %}
-                    </optgroup>
-                </select>
-                <input type='button'
-                       value='Manage'
-                       onClick="viewinventory('{{ shirtstylevariation.ShirtStyle.id }}', '{{ shirtstylevariation.id }}')"/>
-            </td>
-            <td><input type="button" value="Summary" onclick="location.href = '/inventory/summary?type=variation&id={{ shirtstylevariation.id }}';"></td>
-        </tr>
-        {% endfor %}
-    {% endif %}
+    <thead>
+    <tr>
+        <th colspan=4><h3>Garment Styles</h3></td>
+    </tr>
+    <tr>
+        <th>Style Number</th>
+        <th>Description</th>
+        <th>Color</th>
+        <th></th>
+    </tr>
+    </thead>
+    {% for shirtstyle in shirtstyles %}
+    <tr>
+        <td>{{ shirtstyle.ShirtStyleNumber }}</td>
+        <td>{{ shirtstyle.ShirtStyleDescription }}</td>
+        <td>
+            <select id='{{ shirtstyle.id }}'>
+                <optgroup label="In Stock">
+                    {% for color in shirtstyle.colors_in_stock %}
+                        <option value="{{ color.id }}">{{ color }}</option>
+                    {% endfor %}
+                </optgroup>
+                <optgroup label="Out of Stock">
+                    {% for color in shirtstyle.colors_out_of_stock %}
+                        <option value="{{ color.id }}">{{ color }}</option>
+                    {% endfor %}
+                </optgroup>
+            </select>
+            <input type='button'
+                   value='Manage'
+                   onClick="viewinventory('{{ shirtstyle.id }}', '0')"/>
+        </td>
+        <td><input type="button" value="Summary" onclick="location.href = '/inventory/summary?id={{ shirtstyle.id }}';"></td>
+    </tr>
+    {% endfor %}
   </table>
 {% else %}
   <p>No styles found</p>

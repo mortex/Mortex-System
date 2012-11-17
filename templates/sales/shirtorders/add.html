@@ -58,26 +58,12 @@
                 $.each(data, function(i, item) {
                     $("#styletree").jstree("create","#unique","last",{"data":item.fields.ShirtStyleNumber + " " + item.fields.ShirtStyleDescription,"attr":{"id":item.pk,"onDblClick":"addstyle(" + item.pk + ")"}},false,true);
                 });
-                addvariations(customerid);
-            });
-        }
-        
-        function addvariations(customerid){
-            $.get('/data/shirtstylevariations', {"customerid": customerid}, function(data){
-                $.each(data, function(i, item) {
-                    $('#styletree').jstree("create","#" + item.fields.ShirtStyle,"last",{"data":item.fields.ShirtStyleNumber,"attr":{"id":item.pk,"onDblClick":"addstyle(''," + item.pk + ")"}},false,true);
-                });
             });
         }
         
         var prefix = 1 + {{ orderlines|length }};
-        function addstyle(shirtstyleid, shirtstylevariationid){
-            if(shirtstylevariationid){
-                var params = {shirtstylevariationid: shirtstylevariationid};
-            }
-            else{
-                var params = {shirtstyleid: shirtstyleid};
-            }
+        function addstyle(shirtstyleid) {
+            var params = {shirtstyleid: shirtstyleid};
             params["prefix"] = prefix;
             $.get('/shirtorders/orderline', params, function(data){
                 $('#orderstyles').append(data);

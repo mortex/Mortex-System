@@ -83,11 +83,9 @@
         ++nextbox;
     }
 
-    function choosecolor(shirtstyleid, shirtstylevariationid, colorid){
+    function choosecolor(shirtstyleid, colorid){
         var customeraddressid = {{ customeraddressid }};
-        if(shirtstylevariationid===null)
-            shirtstylevariationid=0;
-        $.getJSON('/data/shippingorderskus/', {'shirtstyleid':shirtstyleid, 'variationid':shirtstylevariationid, 'colorid':colorid, 'addressid':customeraddressid}, function(data){
+        $.getJSON('/data/shippingorderskus/', {'shirtstyleid':shirtstyleid, 'colorid':colorid, 'addressid':customeraddressid}, function(data){
             var sizelist = "";
             $.each(data, function(i, item) {
                 sizelist += "<div class='inlineblock'><legend>" + item.abbr + "</legend><div id='orderlist' class='pull-left'><table class='table table-bordered table-condensed'><tr><th colspan=3>Orders</th><tr><td>PO#</td><td>Ordered</td><td>Remaining</td></tr>";
@@ -203,7 +201,7 @@
                         {% if color.fillableshirts == 0 %}
                             {{ color.Color }}
                         {% else %}
-                            <a href="#" onClick="choosecolor({{ color.ShirtPrice__ShirtStyle }},{{ color.ShirtStyleVariation|default:'null' }},{{ color.Color.id }})">{{ color.Color }}</a>
+                            <a href="#" onClick="choosecolor({{ color.ShirtPrice__ShirtStyle }}, {{ color.Color.id }})">{{ color.Color }}</a>
                         {% endif %}
                          - ({{ color.fillableshirts }}/{{ color.totalshirts }})
                     </li>

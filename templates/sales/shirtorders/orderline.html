@@ -6,13 +6,9 @@
         </td>
         <td>
         <h4 class="valign">
-        {% if orderline.shirtstylevariation %}
-            {{ orderline.shirtstylevariation.ShirtStyleNumber }}
-        {% else %}
-            {{ orderline.shirtstyle.ShirtStyleNumber }} 
-        {% endif %}
+        {{ orderline.shirtstyle.ShirtStyleNumber }} 
         {{ orderline.shirtstyle.ShirtStyleDescription }}</h4></td>
-        <td>{{ orderline.color }}{{ orderline.shirtstylevariationid }}{{ orderline.sizes }}{{ orderline.shirtstyleid }}{{ orderline.delete }}</td>
+        <td>{{ orderline.color }}{{ orderline.sizes }}{{ orderline.shirtstyleid }}{{ orderline.delete }}</td>
         {% for quantity, price, pricefkey, skuinstance in orderline.fieldlist %}
             <td>
             {{ quantity.label }}

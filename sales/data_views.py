@@ -1,4 +1,4 @@
-from sales.models import CustomerAddress, ShirtStyle, ShirtPrice, ShirtStyleVariation, ShirtSKUInventory, Color, ShirtOrderSKU
+from sales.models import CustomerAddress, ShirtStyle, ShirtPrice, ShirtSKUInventory, Color, ShirtOrderSKU
 from django.core import serializers
 from django.http import HttpRequest, HttpResponse
 from django.db.models import Sum, F
@@ -36,42 +36,24 @@ def shirtstyles(request):
     
     return serialize(shirtstyles)
 
-def shirtstylevariations(request):
-    if "customerid" in request.GET:
-        customerid = request.GET['customerid']
-        shirtstylevariations = ShirtStyleVariation.objects.filter(Customer__exact=customerid)
-        
-    else:
-        shirtstylevariationid = request.GET['id']
-        shirtstylevariations = ShirtStyleVariation.objects.filter(id=shirtstylevariationid)
-        if "getparent" in request.GET and request.GET['getparent'] == "true":
-            return serialize(shirtstylevariations, relations=('ShirtStyle',))
-
-    return serialize(shirtstylevariations)
-    
 def shippingorderskus(request):
     'gets the specific orders of each size of a given style/color'
     shirtstyleid = request.GET['shirtstyleid']
-    variationid = request.GET['variationid']
-    shirtstylevariation = ShirtStyleVariation.objects.get(pk=variationid) if variationid!=str(0) else None
     colorid = request.GET['colorid']
     addressid = request.GET['addressid']
     sizeinventories = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, 
                                                     Color__id=colorid, 
-                                                    ShirtStyleVariation=shirtstylevariation
                                                     ).order_by('ShirtPrice__ShirtSize__SortKey').values('ShirtPrice', 'ShirtPrice__ShirtSize__ShirtSizeAbbr').annotate(total=Sum('Inventory'))
 
     #gets the active orders for skus of a given style/color
     allorderedpieces = ShirtOrderSKU.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid,
                                                     Color__id=colorid,
-                                                    ShirtStyleVariation=shirtstylevariation,
                                                     ShirtOrder__CustomerAddress__id=addressid,
                                                     ShippedQuantity__lt=F('OrderQuantity'))
                                                     
     #gets the inventory broken out by cut order of a given style/color
     cutinventory = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, 
                                                     Color__id=colorid, 
-                                                    ShirtStyleVariation=shirtstylevariation,
                                                     Inventory__gt=0)
 
     for size in sizeinventories:
