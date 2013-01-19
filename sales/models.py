@@ -113,22 +113,21 @@ class ShirtOrderSKU(models.Model):
 class ShirtSKUTransaction(models.Model):
     Color = models.ForeignKey(Color)
     ShirtPrice = models.ForeignKey(ShirtPrice)
-    CutOrder = models.CharField('Cut Order', max_length=20)
+    Context = models.CharField('Source/Destination', max_length=20) # this field represents where the transaction is coming from (if it's an add) or where it's going to (if it's a draw)
     Pieces = models.IntegerField()
     Date = models.DateField(default = datetime.datetime.today())
     def save(self):
         super(ShirtSKUTransaction, self).save()
         try:
-            skuinventory = ShirtSKUInventory.objects.get(Color=self.Color, ShirtPrice=self.ShirtPrice, CutOrder=self.CutOrder)
+            skuinventory = ShirtSKUInventory.objects.get(Color=self.Color, ShirtPrice=self.ShirtPrice)
             skuinventory.Inventory += self.Pieces
             skuinventory.save()
         except ShirtSKUInventory.DoesNotExist:
-            ShirtSKUInventory(Color=self.Color, ShirtPrice=self.ShirtPrice, Inventory=self.Pieces, CutOrder=self.CutOrder).save()
+            ShirtSKUInventory(Color=self.Color, ShirtPrice=self.ShirtPrice, Inventory=self.Pieces).save()
     
 class ShirtSKUInventory(models.Model):
     Color = models.ForeignKey(Color)
     ShirtPrice = models.ForeignKey(ShirtPrice)
-    CutOrder = models.CharField('Cut Order', max_length=20)
     Inventory = models.IntegerField()
 
 class Shipment(models.Model):
@@ -136,11 +135,10 @@ class Shipment(models.Model):
     DateShipped = models.DateTimeField('Date Shipped', default = datetime.datetime.today())
     TrackingNumber = models.CharField('Tracking Number', max_length=50)
 
-def updateshipmentsku(changevalue, color, shirtprice, cutorder, pk, shirtorder):
+def updateshipmentsku(changevalue, color, shirtprice, pk, shirtorder):
     #update total on-hand inventory
     inventory = ShirtSKUInventory.objects.get(Color=color, 
-                                              ShirtPrice=shirtprice, 
-                                              CutOrder=cutorder)
+                                              ShirtPrice=shirtprice)
     inventory.Inventory -= changevalue
     inventory.save()
     
@@ -161,7 +159,6 @@ def updateshipmentsku(changevalue, color, shirtprice, cutorder, pk, shirtorder):
 class ShipmentSKU(models.Model):
     Shipment = models.ForeignKey(Shipment)
     ShirtOrderSKU = models.ForeignKey(ShirtOrderSKU)
-    CutOrder = models.CharField('Cut Order', max_length=20)
     BoxNumber = models.IntegerField('Box #')
     ShippedQuantity = models.IntegerField('Shipped Quantity')
     #overwrite save method to modify inventory/order fields that calculate total shipment amounts
@@ -173,7 +170,7 @@ class ShipmentSKU(models.Model):
             oldvalue = 0
         super(ShipmentSKU, self).save()
         
-        updateshipmentsku(self.ShippedQuantity - oldvalue, self.ShirtOrderSKU.Color, self.ShirtOrderSKU.ShirtPrice, self.CutOrder, self.ShirtOrderSKU.pk, self.ShirtOrderSKU.ShirtOrder)
+        updateshipmentsku(self.ShippedQuantity - oldvalue, self.ShirtOrderSKU.Color, self.ShirtOrderSKU.ShirtPrice, self.ShirtOrderSKU.pk, self.ShirtOrderSKU.ShirtOrder)
         
     #overwrite delete method to modify inventory/order fields that calculate total shipment amounts
     def delete(self):
@@ -181,7 +178,7 @@ class ShipmentSKU(models.Model):
         oldvalue = ShipmentSKU.objects.get(pk=self.pk).ShippedQuantity
         super(ShipmentSKU, self).delete()
         
-        updateshipmentsku(oldvalue * -1, self.ShirtOrderSKU.Color, self.ShirtOrderSKU.ShirtPrice, self.CutOrder, self.ShirtOrderSKU.pk, self.ShirtOrderSKU.ShirtOrder)
+        updateshipmentsku(oldvalue * -1, self.ShirtOrderSKU.Color, self.ShirtOrderSKU.ShirtPrice, self.ShirtOrderSKU.pk, self.ShirtOrderSKU.ShirtOrder)
         
     class Meta:
         ordering = ["BoxNumber", "ShirtOrderSKU"]  
