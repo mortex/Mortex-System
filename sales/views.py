@@ -30,12 +30,15 @@ def findparentprefix(parentforms, lookupinstance):
             return parentform.prefix
 
 @login_required
-def manageinventory(request, shirtstyleid, colorid):
+def manageinventory(request, shirtstyleid):
     shirtstyle = ShirtStyle.objects.get(pk=shirtstyleid)
-    color = Color.objects.get(pk=colorid)
 
     if request.method == "GET":
-        return manageinventory_get(request, shirtstyleid, colorid, shirtstyle, color)
+        return render_to_response("sales/inventory/manage.html", {
+            "inventory":
+                ShirtSKUInventory.objects
+                                 .filter(ShirtPrice__ShirtStyle=shirtstyle)
+        })
 
     else:
         transactions = []
@@ -67,37 +70,6 @@ def manageinventory(request, shirtstyleid, colorid):
         else:
             transactions.sort(key=lambda i: str(i.shirtsize), reverse=True)
             return render_to_response('sales/inventory/manage.html',RequestContext(request, {'transactionlist': transactions,'totalforms':request.POST["totalforms"], 'shirtstyle':shirtstyle, 'color':color}))
-
-
-def manageinventory_get(request, shirtstyleid, colorid, shirtstyle, color):
-    inventories = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, Color__id=colorid, Inventory__gt=0)
-    inventorylist = []
-    prefix = 1
-    for inventory in inventories:
-        inventorylist.append(ExistingCutSSIForm(instance=ShirtSKUTransaction(CutOrder=inventory.CutOrder, 
-                                                                             ShirtPrice=inventory.ShirtPrice, 
-                                                                             Color=inventory.Color),
-                                                total_pieces=inventory.Inventory, prefix=prefix))
-        prefix += 1
-                                                                                
-    sizes = ShirtSize.objects.filter(shirtprice__ShirtStyle__id=shirtstyleid).filter(shirtprice__ColorCategory__color__id=colorid).distinct()
-    sizetotals = []
-    for size in sizes:
-        inventories = ShirtSKUInventory.objects.filter(ShirtPrice__ShirtStyle__id=shirtstyleid, Color__id=colorid, ShirtPrice__ShirtSize=size).aggregate(totalinventory=Sum('Inventory'))
-        sizetotals.append({'sizeid':size.id, 'totalinventory':inventories['totalinventory']})
-        try:
-            inventorylist.append(NewCutSSIForm(instance=ShirtSKUTransaction(ShirtPrice=ShirtPrice.objects
-                                                                                .filter(ShirtStyle__id=shirtstyleid)
-                                                                                .filter(ColorCategory__color__id=colorid)
-                                                                                .get(ShirtSize__id=size.id),
-                                                                            Color=Color.objects.get(pk=colorid)), prefix=prefix))
-        except ShirtPrice.DoesNotExist:
-            pass
-        prefix += 1
-
-    inventorylist.sort(key=lambda i: str(i.shirtsize), reverse=True)
-
-    return render_to_response('sales/inventory/manage.html',RequestContext(request, {'transactionlist': inventorylist,'totalforms':prefix, 'shirtstyle':shirtstyle, 'color':color, 'sizetotals':sizetotals}))
 
 # Shirt Orders
 @login_required

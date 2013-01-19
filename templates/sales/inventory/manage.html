@@ -1,0 +1,13 @@
+<table>
+    <tbody>
+        {% for inventory_item in inventory %}
+            <tr>
+                <td>{{ inventory_item.Color }}</td>
+                <td>{{ inventory_item.ShirtPrice }}</td>
+                <td>{{ inventory_item.Inventory }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p>{{ inventory|length }} total</p>
