@@ -14,7 +14,7 @@
     </thead>
     {% for shirtstyle in shirtstyles %}
     <tr>
-        <td>{{ shirtstyle.ShirtStyleNumber }}</td>
+        <td><a href="/inventory/{{ shirtstyle.id }}">{{ shirtstyle.ShirtStyleNumber }}</a></td>
         <td>{{ shirtstyle.ShirtStyleDescription }}</td>
     </tr>
     {% endfor %}
