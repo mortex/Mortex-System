@@ -1,18 +1,22 @@
-<table>
-    <thead>
-        <th></th>
-        {% for size in sizes %}
-            <th>{{ size }}</th>
-        {% endfor %}
-    </thead>
-    <tbody>
-        {% for color, size_qtys in inventory.items %}
-            <tr>
-                <th>{{ color }}</th>
-                {% for size, qty in size_qtys.items %}
-                    <td>{{ qty }}</td>
-                {% endfor %}
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% extends "sales/base.html" %}
+
+{% block body %}
+    <table>
+        <thead>
+            <th></th>
+            {% for size in sizes %}
+                <th>{{ size }}</th>
+            {% endfor %}
+        </thead>
+        <tbody>
+            {% for color, size_qtys in inventory.items %}
+                <tr>
+                    <th>{{ color }}</th>
+                    {% for size, qty in size_qtys.items %}
+                        <td>{{ qty }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
