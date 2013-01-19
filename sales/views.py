@@ -1,14 +1,14 @@
 import re
 
-from django.db.models import Sum
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.http import HttpResponseRedirect
-from django.forms import formsets
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
-from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from django.forms import formsets
+from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 from sales.models import *
 from sales.forms import *
