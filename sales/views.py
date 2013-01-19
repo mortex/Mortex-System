@@ -425,28 +425,17 @@ def shipmentsearch(request):
     
     form = ShipmentSearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
     return render_to_response('sales/shipping/search.html', {'shipments':shipments, 'form':form})
-    
+
 @login_required
 def inventorysearch(request):
     querystring, searchfield = searchcriteria(request.GET)
-    
+
     if searchfield == 'stylenumber':
         query = Q(ShirtStyleNumber__contains=querystring)
     else:
         query = Q()
-        
+
     shirtstyles = ShirtStyle.objects.filter(query).order_by('ShirtStyleNumber')
-    for shirtstyle in shirtstyles:
-        shirtstyle.colors = Color.objects.filter(ColorCategory__shirtprice__ShirtStyle=shirtstyle).distinct()
-        shirtstyle.colors_in_stock, shirtstyle.colors_out_of_stock = partition(
-            lambda c:
-                ShirtSKUInventory.objects
-                                 .filter(Color=c)
-                                 .filter(Inventory__gt=0)
-                                 .filter(ShirtPrice__ShirtStyle=shirtstyle)
-                                 .count() > 0,
-            shirtstyle.colors
-        )
 
     form = InventorySearchForm(initial={'searchfield':searchfield, 'querystring':querystring})
     return render_to_response(
