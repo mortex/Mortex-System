@@ -34,10 +34,12 @@ def manageinventory(request, shirtstyleid):
     shirtstyle = ShirtStyle.objects.get(pk=shirtstyleid)
 
     if request.method == "GET":
+        inventory = ShirtSKUInventory.objects.filter(
+            ShirtPrice__ShirtStyle=shirtstyle
+        )
         return render_to_response("sales/inventory/manage.html", {
-            "inventory":
-                ShirtSKUInventory.objects
-                                 .filter(ShirtPrice__ShirtStyle=shirtstyle)
+            "colors": set(inv.Color for inv in inventory),
+            "sizes": set(inv.ShirtPrice.ShirtSize for inv in inventory)
         })
 
     else:

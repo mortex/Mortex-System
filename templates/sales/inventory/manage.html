@@ -1,13 +1,13 @@
 <table>
+    <thead>
+        <th></th>
+        {% for size in sizes %}
+            <th>{{ size }}</th>
+        {% endfor %}
+    </thead>
     <tbody>
-        {% for inventory_item in inventory %}
-            <tr>
-                <td>{{ inventory_item.Color }}</td>
-                <td>{{ inventory_item.ShirtPrice }}</td>
-                <td>{{ inventory_item.Inventory }}</td>
-            </tr>
+        {% for color in colors %}
+            <tr><th>{{ color }}</th></tr>
         {% endfor %}
     </tbody>
 </table>
-
-<p>{{ inventory|length }} total</p>
