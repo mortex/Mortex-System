@@ -99,29 +99,6 @@ def manageinventory_get(request, shirtstyleid, colorid, shirtstyle, color):
 
     return render_to_response('sales/inventory/manage.html',RequestContext(request, {'transactionlist': inventorylist,'totalforms':prefix, 'shirtstyle':shirtstyle, 'color':color, 'sizetotals':sizetotals}))
 
-def inventory_summary(request):
-
-    invs = ShirtSKUInventory.objects.filter(
-        ShirtPrice__ShirtStyle__id=request.GET["id"]
-    ).order_by("ShirtPrice__ShirtSize__SortKey")
-    style_name = str(ShirtStyle.objects.get(id=request.GET["id"]))
-
-    qtys = {}
-    sizes = set()
-    for inv in invs:
-        sizes.add(inv.ShirtPrice.ShirtSize.ShirtSizeAbbr)
-        if inv.Color in qtys:
-            if inv.ShirtPrice.ShirtSize.ShirtSizeAbbr in qtys[inv.Color]:
-                qtys[inv.Color][inv.ShirtPrice.ShirtSize.ShirtSizeAbbr] += inv.Inventory
-            else:
-                qtys[inv.Color][inv.ShirtPrice.ShirtSize.ShirtSizeAbbr] = inv.Inventory
-        else:
-            qtys[inv.Color] = {}
-            qtys[inv.Color][inv.ShirtPrice.ShirtSize.ShirtSizeAbbr] = inv.Inventory
-
-    return render_to_response("sales/inventory/summary.html",
-                              {"style_name": style_name, "qtys": qtys, "sizes": sizes})
-
 # Shirt Orders
 @login_required
 def shirtorders(request):
