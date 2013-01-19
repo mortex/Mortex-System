@@ -9,6 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.utils.datastructures import SortedDict
 
 from sales.models import *
 from sales.forms import *
@@ -37,9 +38,20 @@ def manageinventory(request, shirtstyleid):
         inventory = ShirtSKUInventory.objects.filter(
             ShirtPrice__ShirtStyle=shirtstyle
         )
+
+        inv_dict = {}
+        for inv in inventory:
+            color = inv.Color
+            size = inv.ShirtPrice.ShirtSize
+            qty = inv.Inventory
+
+            if color not in inv_dict:
+                inv_dict[color] = SortedDict()
+            inv_dict[color][size] = qty
+
         return render_to_response("sales/inventory/manage.html", {
-            "colors": set(inv.Color for inv in inventory),
-            "sizes": set(inv.ShirtPrice.ShirtSize for inv in inventory)
+            "sizes": set(inv.ShirtPrice.ShirtSize for inv in inventory),
+            "inventory": inv_dict
         })
 
     else:
