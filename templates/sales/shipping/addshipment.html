@@ -55,7 +55,11 @@
                     <tr>
                         <th>Available</th>
                         {% for sku in stylecolor.list %}
-                            <td class="sku {{ sku.pk }}" data-skuid="{{ sku.pk }}">{{ sku.availableshirts }}</td>
+                            <td class="sku {{ sku.pk }}" data-skuid="{{ sku.pk }}">{{ sku.availableshirts }}<br/>
+                                {% for co in sku.cutorders %}
+                                    {{ co.CutOrder }}: {{ co.Inventory }}<br/>
+                                {% endfor %}
+                            </td>
                         {% endfor %}
                     </tr>
                 </table></div>

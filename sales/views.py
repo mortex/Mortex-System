@@ -279,12 +279,13 @@ def addshipment(request, shirtorderid=None, shipmentid=None):
     
     shirtorderskus = ShirtOrderSKU.objects.filter(ShirtOrder__CustomerAddress=customeraddress, ShirtOrder__Complete=False).order_by('ShirtOrder__PONumber')
     for sku in shirtorderskus:
-        skuinventories = ShirtSKUInventory.objects.filter(ShirtPrice=sku.ShirtPrice,Color=sku.Color).aggregate(Sum('Inventory'))
-        if skuinventories['Inventory__sum']:
-            skuinventory = skuinventories['Inventory__sum']
-        else:
-            skuinventory = 0
-        sku.availableshirts = skuinventory
+        skuinventories = ShirtSKUInventory.objects.filter(ShirtPrice=sku.ShirtPrice,Color=sku.Color)
+        sku.cutorders = []
+        sku.availableshirts = 0
+        for skuinventory in skuinventories:
+            sku.availableshirts += skuinventory.Inventory
+            sku.cutorders.append(skuinventory)
+
     if request.method == "GET":
         if not editshipment:
             shipment = ShipmentForm(instance=Shipment(CustomerAddress=customeraddress))
