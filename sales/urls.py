@@ -21,7 +21,7 @@ urlpatterns = patterns('',
     (r'^resetpasswordconfirm/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', 'django.contrib.auth.views.password_reset_confirm'),
     
     #inventory urls
-    (r'^inventory/(?P<shirtstyleid>\d+)/(?P<colorid>\d+)$', 'sales.views.manageinventory'),
+    (r'^inventory/(?P<shirtstyleid>\d+)$', 'sales.views.manageinventory'),
     (r'^inventory/search/$', 'sales.views.inventorysearch'),
     
     #shirt order urls
